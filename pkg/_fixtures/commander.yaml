@@ -1,0 +1,5 @@
+tests:
+  "it should print hello world":
+    command: "echo hello world"
+    stdout: hello world
+    exit-code: 0

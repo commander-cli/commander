@@ -1,0 +1,3 @@
+# make github know about vendored code
+# https://github.com/github/linguist#vendored-code
+**/vendor/** linguist-vendored

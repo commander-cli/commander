@@ -1,0 +1,13 @@
+tests:
+  "it should print hello world":
+    command: "echo hello world"
+    stdout: hello world
+    exit-code: 0
+  "it should print something":
+    command: "echo soething"
+    stdout: something
+    exit-code: 0
+  "more printing":
+    command: "echo soething"
+    stdout: something
+    exit-code: 1
