@@ -4,7 +4,7 @@ build:
 
 lint:
 	$(info INFO: Starting build $@)
-	go lint pkg/ cmd/
+	golint pkg/ cmd/
 
 test:
 	$(info INFO: Starting build $@)
