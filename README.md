@@ -13,6 +13,8 @@ $ ./commander ./example/commander.yaml
 ```
 
 ## Todo:
+ - go api
+ - logging / verbose output
  - command execution
    - environment variables
    - arguments?

@@ -1,0 +1,7 @@
+tests:
+  it should fail with invalid argument:
+    command: ./commander asfdf
+    exit-code: 3
+  it should display help:
+    command: ./commander
+    exit-code: 0

@@ -20,10 +20,10 @@ type TestCase struct {
 type TestResult struct {
     Success         bool
     //Skipped  bool
-    Stdout          string
-    Stderr          string
-    ExitCode        int
-    FailureProperty string
+    Stdout            string
+    Stderr            string
+    ExitCode          int
+    FailureProperties []string
 }
 
 // Suite
