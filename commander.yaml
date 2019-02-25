@@ -5,3 +5,8 @@ tests:
   it should display help:
     command: ./commander
     exit-code: 0
+  it should execute tests:
+    command: ./commander test ./examples/commander.yaml
+    stdout: >-
+      ✓ it should fail
+    exit-code: 0

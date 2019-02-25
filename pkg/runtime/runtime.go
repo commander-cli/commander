@@ -74,21 +74,14 @@ func runTest(test commander.TestCase, results chan<- commander.TestCase) {
 }
 
 func compile(command string) *Command {
-    parts := strings.Split(command, " ")
-    executable := parts[0]
-
-    splitArgs := append(parts[:0], parts[1:]...)
-    args := strings.Join(splitArgs, " ")
-
     return &Command{
-        cmd: executable,
-        args: args,
+        cmd: command,
     }
 }
 
 // Execute executes a command on the system
 func (c *Command) Execute() error {
-    cmd := exec.Command(c.cmd, c.args)
+    cmd := exec.Command("sh", "-c", c.cmd)
     env := os.Environ()
     cmd.Env = env
 
