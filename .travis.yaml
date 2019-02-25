@@ -1,0 +1,48 @@
+language: go
+
+env:
+  - GO111MODULE=on
+
+stages:
+  - test
+  #- deploy
+
+go:
+  - 1.11.x
+
+sudo: required
+dist: trusty
+
+services:
+  - docker
+
+before_install:
+  - go get -u golang.org/x/lint/golint
+  - go get github.com/securego/gosec/cmd/gosec
+
+jobs:
+  include:
+    - name: "Go lint"
+      stage: test
+      script: make lint
+
+    - name: "Unit tests"
+      script: make test
+
+    - name: "Integration test"
+      script: make test-integration
+
+   # - stage: deploy
+   #   name: "Deployment"
+   #   if: tag IS present
+   #   deploy:
+   #     script: skip
+   #     provider: releases
+   #     api_key:
+   #       secure: #TODO
+   #     file: #TODO
+   #       - commander
+   #     skip_cleanup: true
+   #     on:
+   #       repo: SimonBaeumer/commander
+   #       tags: true

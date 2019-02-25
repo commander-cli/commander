@@ -2,6 +2,10 @@ build:
 	$(info INFO: Starting build $@)
 	go build cmd/commander/commander.go
 
+lint:
+	$(info INFO: Starting build $@)
+	go lint pkg/ cmd/
+
 test:
 	$(info INFO: Starting build $@)
 	go test ./...
