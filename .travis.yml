@@ -18,7 +18,6 @@ services:
 
 before_install:
   - go get -u golang.org/x/lint/golint
-  - go get github.com/securego/gosec/cmd/gosec
 
 jobs:
   include:
