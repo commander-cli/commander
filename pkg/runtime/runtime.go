@@ -107,7 +107,6 @@ func (c *Command) Execute() error {
 
     if err := cmd.Wait(); err != nil {
         if exiterr, ok := err.(*exec.ExitError); ok {
-            fmt.Println(exiterr)
             if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
                 c.exitCode = status.ExitStatus()
                 //log.Printf("Exit Status: %d", status.ExitStatus())
