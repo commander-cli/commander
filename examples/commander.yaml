@@ -1,5 +1,5 @@
 tests:
-  "it should print hello world":
-    command: "echo hello world"
-    stdout: hello world
-    exit-code: 0
+  it should fail:
+    command: /bin/bash invalid
+    stderr: "/bin/bash: invalid: No such file or directory"
+    exit-code: 127
