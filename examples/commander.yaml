@@ -1,5 +1,8 @@
 tests:
-  it should fail:
-    command: /bin/bash invalid
-    stderr: "/bin/bash: invalid: No such file or directory"
-    exit-code: 127
+  it should print hello world:
+    command: echo hello world
+    stdout: hello world
+    exit-code: 0
+  it should exit with error code:
+    command: exit 1
+    exit-code: 1

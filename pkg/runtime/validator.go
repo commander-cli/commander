@@ -1,6 +1,9 @@
 package runtime
 
-import "github.com/SimonBaeumer/commander/pkg"
+import (
+	"github.com/SimonBaeumer/commander/pkg"
+	"strings"
+)
 
 type ValidationResult struct {
 	Success    bool
@@ -13,11 +16,11 @@ func Validate(test commander.TestCase) ValidationResult {
 		Properties: []string{},
 	}
 
-	if test.Stdout != "" && (test.Stdout != test.Result.Stdout) {
+	if test.Stdout != "" && !strings.Contains(test.Result.Stdout, test.Stdout) {
 		r.Properties = append(r.Properties, commander.Stdout)
 	}
 
-	if test.Stderr != "" && (test.Stderr != test.Result.Stderr) {
+	if test.Stderr != "" && !strings.Contains(test.Result.Stderr, test.Stderr) {
 		r.Properties = append(r.Properties, commander.Stderr)
 	}
 

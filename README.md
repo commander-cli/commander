@@ -16,22 +16,28 @@ $ ./commander ./example/commander.yaml
 ```
 
 ## Todo:
- - go api
+ - suite fails -> error exit code
  - logging / verbose output
+ - print errors in colors
+ - execute a single test
+
+ - go api
  - command execution
    - environment variables
    - arguments?
    - timeout
- - exit code
+ - exit code *done*
  - stdout
-    - Validate against string
+    - Validate against string *done*
     - Validate against file
     - Validate against line
     - Validate with wildcards / regex
+    - Validate against template
  - stderr
-    - Validate against string
+    - Validate against string *done*
     - Validate against file
     - Validate with wildcards
+    - Validate against template
  - testing interactive applications?
  - Support different os
    - Windows
