@@ -1,0 +1,19 @@
+tests:
+  it should fail:
+    command: /bin/bash invalid
+    stderr: "/bin/bash: invalid: No such file or directory"
+    exit-code: 127
+
+  it should exit with error code:
+      command: exit 1
+      exit-code: 1
+
+  it should assert stdout:
+      command: echo hello
+      stdout: hello
+      exit-code: 0
+
+  it should assert stderr:
+      command: '>&2 echo "error"'
+      stderr: error
+      exit-code: 0
