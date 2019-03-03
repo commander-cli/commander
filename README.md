@@ -78,6 +78,10 @@ tests:
         
     echo hello:
         exit-code: 0
+        
+    echo skip:
+        skip: true
+        exit-code: 0
 ```
 
 ## Docker

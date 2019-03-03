@@ -21,7 +21,7 @@ func main() {
 			},
 			Expected: suite.Expected{
 				Stdout: suite.ExpectedOut{
-					Exactly: "hello1",
+					Exactly: "hello",
 				},
 				ExitCode: 0,
 			},
@@ -29,10 +29,14 @@ func main() {
 		},
 	}
 
-	suite := suite.NewSuite(tests)
-	runtime.Start(*suite)
+	s := suite.NewSuite(tests)
+	result := runtime.Start(*s)
 
+	if !result.Success {
+		os.Exit(1)
+	}
 	os.Exit(0)
+
 	os.Args = []string{"./commander", "test", "my.yml"}
 	//log.SetOutput(ioutil.Discard)
 

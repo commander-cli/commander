@@ -1,36 +1,70 @@
 package runtime
 
 import (
-	"github.com/SimonBaeumer/commander/pkg/suite"
+	"fmt"
+	"github.com/pmezard/go-difflib/difflib"
 	"strings"
 )
 
-type ValidationResult struct {
-	Success    bool
-	Properties []string
+const (
+	Text     = "text"
+	Contains = "contains"
+)
+
+func NewValidator(validator string) Validator {
+	switch validator {
+	case Text:
+		return TextValidator{}
+	case Contains:
+		return ContainsValidator{}
+	default:
+		panic(fmt.Sprintf("Validator '%s' does not exist!", validator))
+	}
 }
 
-func Validate(test suite.TestCase) ValidationResult {
-	r := &ValidationResult{
-		Success:    true,
-		Properties: []string{},
+type Validator interface {
+    Validate(got interface{}, expected interface{}) ValidationResult
+}
+
+type ValidationResult struct {
+	Success    bool
+	Diff       string
+}
+
+type TextValidator struct {
+}
+
+func (v TextValidator) Validate(got interface{}, expected interface{}) ValidationResult {
+	result := true
+	if got != expected {
+		result = false
 	}
 
-	if test.Expected.Stdout.Exactly != "" && !strings.Contains(test.Result.Stdout, test.Expected.Stdout.Exactly) {
-		r.Properties = append(r.Properties, suite.Stdout)
+	diff := difflib.UnifiedDiff{
+		A: difflib.SplitLines(got.(string)),
+		B: difflib.SplitLines(expected.(string)),
+		FromFile: "Got",
+		ToFile: "Expected",
+		Context: 3,
+	}
+	diffText, _ := difflib.GetUnifiedDiffString(diff)
+
+	return ValidationResult{
+		Diff:       diffText,
+		Success:    result,
+	}
+}
+
+type ContainsValidator struct {
+}
+
+func (v ContainsValidator) Validate(got interface{}, expected interface{}) ValidationResult {
+	result := true
+	if strings.Contains(got.(string), expected.(string)) {
+		result = false
 	}
 
-	if test.Expected.Stdout.Exactly != "" && !strings.Contains(test.Result.Stderr, test.Expected.Stderr.Exactly) {
-		r.Properties = append(r.Properties, suite.Stderr)
+	return ValidationResult{
+		Success: result,
 	}
-
-	if test.Expected.ExitCode != test.Result.ExitCode {
-		r.Properties = append(r.Properties, suite.ExitCode)
-	}
-
-	if len(r.Properties) > 0 {
-		r.Success = false
-	}
-
-	return *r
 }

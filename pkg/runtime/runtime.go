@@ -5,27 +5,41 @@ import (
     "github.com/SimonBaeumer/commander/pkg/cmd"
     "github.com/SimonBaeumer/commander/pkg/suite"
     "log"
-    "os"
+    "time"
 )
 
+type Result struct {
+    Success     bool
+    Duration    time.Duration
+    TestResults []TestResult
+}
+
+type TestResult struct {
+    TestCase         suite.TestCase
+    ValidationResult ValidationResult
+}
+
 // Start starts the given test suite
-func Start(s suite.Suite) {
-    s.Start()
+func Start(s suite.Suite) Result {
+    testResults := []TestResult{}
+    success     := true
+    start       := time.Now()
 
-    c := make(chan suite.TestCase)
-
+    c := make(chan TestResult)
     for _, t := range s.Tests {
         go runTest(t, c)
     }
 
     counter := 0
-    s.Success = true
     for r := range c {
-        if r.Result.Status == suite.Failed {
-            fmt.Println("Failed test " + r.Title)
-            s.Success = false
-        } else {
-            fmt.Println("Success test " + r.Title)
+        testResults = append(testResults, r)
+        if r.ValidationResult.Success {
+            fmt.Println("✓ ", r.TestCase.Title)
+        }
+
+        if !r.ValidationResult.Success {
+            success = false
+            fmt.Println("✗ ", r.TestCase.Title)
         }
 
         counter++
@@ -34,15 +48,14 @@ func Start(s suite.Suite) {
         }
     }
 
-    s.Finish()
-
-    if !s.Success {
-        log.Println("Suite failed, set error code to 1")
-        os.Exit(1)
+    return Result{
+        Success:     success,
+        Duration:    time.Since(start),
+        TestResults: testResults,
     }
 }
 
-func runTest(test suite.TestCase, results chan<- suite.TestCase) {
+func runTest(test suite.TestCase, results chan<- TestResult) {
     // cut = command under test
     cut := cmd.NewCommand(test.Command.Cmd)
 
@@ -57,13 +70,37 @@ func runTest(test suite.TestCase, results chan<- suite.TestCase) {
         Stderr:   cut.Stderr(),
     }
 
-    result := Validate(test)
-    if result.Success {
-        test.Result.Status = suite.Success
-    } else {
-        test.Result.Status = suite.Failed
+    validationResult := validateStdout(test)
+
+    result := TestResult{
+        ValidationResult: validationResult,
+        TestCase:         test,
     }
 
     // Send to result channel
-    results <- test
+    results <- result
+}
+
+func validateStdout(test suite.TestCase) ValidationResult {
+    var v Validator
+    var result ValidationResult
+
+    if test.Expected.Stdout.Exactly != ""{
+        v = NewValidator(Text)
+        if result = v.Validate(test.Result.Stdout, test.Expected.Stdout.Exactly); !result.Success {
+            return result
+        }
+    }
+
+    if len(test.Expected.Stdout.Contains) > 0 {
+        v = NewValidator(Contains)
+        for _, c := range test.Expected.Stdout.Contains {
+            if result = v.Validate(test.Result.Stdout, c); !result.Success {
+                return result
+            }
+        }
+    }
+
+    result.Success = true
+    return result
 }
