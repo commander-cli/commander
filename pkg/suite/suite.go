@@ -1,9 +1,5 @@
 package suite
 
-import (
-	"time"
-)
-
 // Constants for defining the various tested properties
 const (
 	ExitCode = "ExitCode"
@@ -23,14 +19,14 @@ type TestCase struct {
 	Title    string
 	Command  CommandUnderTest
 	Expected Expected
-	Result   TestResult
+	Result   CommandResult
 }
 
 // ResultStatus represents the status code of a test result
 type ResultStatus int
 
-// TestResult holds the result for a specific test
-type TestResult struct {
+// CommandResult holds the result for a specific test
+type CommandResult struct {
 	Status            ResultStatus
 	Stdout            string
 	Stderr            string
@@ -59,25 +55,11 @@ type CommandUnderTest struct {
 }
 
 type Suite struct {
-	Success     bool
-	Duration    time.Duration
-	StartTime   time.Time
-	Executed    bool
-	Tests       []TestCase
+	Tests []TestCase
 }
 
 func NewSuite(tests []TestCase) *Suite {
 	return &Suite{
 		Tests: tests,
-		Success: true,
-		Executed: false,
 	}
-}
-
-func (s *Suite) Start() {
-    s.StartTime = time.Now()
-}
-
-func (s *Suite) Finish() {
-	s.Duration = time.Since(s.StartTime)
 }

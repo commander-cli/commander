@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/SimonBaeumer/commander/pkg/suite"
 	"github.com/urfave/cli"
@@ -30,9 +31,9 @@ func main() {
 	}
 
 	s := suite.NewSuite(tests)
-	result := runtime.Start(*s)
+	r := start(*s)
 
-	if !result.Success {
+	if !r {
 		os.Exit(1)
 	}
 	os.Exit(0)
@@ -68,4 +69,24 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func start(s suite.Suite) bool {
+	testResults := []runtime.TestResult{}
+	results := runtime.Start(s)
+	success := true
+
+	for r := range results {
+		testResults = append(testResults, r)
+		if r.ValidationResult.Success {
+			fmt.Println("✓ ", r.TestCase.Title)
+		}
+
+		if !r.ValidationResult.Success {
+			success = false
+			fmt.Println("✗ ", r.TestCase.Title)
+		}
+	}
+
+	return success
 }

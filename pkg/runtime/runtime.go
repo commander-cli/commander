@@ -1,61 +1,53 @@
 package runtime
 
 import (
-    "fmt"
     "github.com/SimonBaeumer/commander/pkg/cmd"
     "github.com/SimonBaeumer/commander/pkg/suite"
     "log"
-    "time"
+    "sync"
 )
 
-type Result struct {
-    Success     bool
-    Duration    time.Duration
-    TestResults []TestResult
-}
-
+// CommandResult represents the TestCase and the ValidationResult
 type TestResult struct {
     TestCase         suite.TestCase
     ValidationResult ValidationResult
 }
 
 // Start starts the given test suite
-func Start(s suite.Suite) Result {
-    testResults := []TestResult{}
-    success     := true
-    start       := time.Now()
+func Start(s suite.Suite) <-chan TestResult {
+    in := make(chan suite.TestCase)
+    out := make(chan TestResult)
 
-    c := make(chan TestResult)
-    for _, t := range s.Tests {
-        go runTest(t, c)
+     go func(tests []suite.TestCase) {
+         defer close(in)
+         for _, t := range tests {
+             in <- t
+         }
+     }(s.Tests)
+
+    //TODO: Add more concurrency
+    workerCount := 1
+    var wg sync.WaitGroup
+    for i := 0; i < workerCount; i++ {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            for t := range in {
+                out <- runTest(t)
+            }
+
+        }()
     }
 
-    counter := 0
-    for r := range c {
-        testResults = append(testResults, r)
-        if r.ValidationResult.Success {
-            fmt.Println("✓ ", r.TestCase.Title)
-        }
+    go func() {
+        wg.Wait()
+        close(out)
+    }()
 
-        if !r.ValidationResult.Success {
-            success = false
-            fmt.Println("✗ ", r.TestCase.Title)
-        }
-
-        counter++
-        if counter >= len(s.Tests) {
-            close(c)
-        }
-    }
-
-    return Result{
-        Success:     success,
-        Duration:    time.Since(start),
-        TestResults: testResults,
-    }
+    return out
 }
 
-func runTest(test suite.TestCase, results chan<- TestResult) {
+func runTest(test suite.TestCase) TestResult {
     // cut = command under test
     cut := cmd.NewCommand(test.Command.Cmd)
 
@@ -64,7 +56,7 @@ func runTest(test suite.TestCase, results chan<- TestResult) {
     }
 
     // Write test result
-    test.Result = suite.TestResult{
+    test.Result = suite.CommandResult{
         ExitCode: cut.ExitCode(),
         Stdout:   cut.Stdout(),
         Stderr:   cut.Stderr(),
@@ -72,13 +64,10 @@ func runTest(test suite.TestCase, results chan<- TestResult) {
 
     validationResult := validateStdout(test)
 
-    result := TestResult{
+    return TestResult{
         ValidationResult: validationResult,
         TestCase:         test,
     }
-
-    // Send to result channel
-    results <- result
 }
 
 func validateStdout(test suite.TestCase) ValidationResult {
