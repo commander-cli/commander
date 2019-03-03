@@ -1,0 +1,4 @@
+tests:
+  it should:
+    command: exit 1;
+    exit-code: 1

@@ -1,5 +1,5 @@
 package output
-
+/**
 import (
 	"github.com/SimonBaeumer/commander/pkg"
 )

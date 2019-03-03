@@ -1,10 +1,9 @@
 package main
 
 import (
-	"github.com/SimonBaeumer/commander/pkg"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/SimonBaeumer/commander/pkg/suite"
 	"github.com/urfave/cli"
-	"io/ioutil"
 	"log"
 	"os"
 )
@@ -15,7 +14,27 @@ const (
 )
 
 func main() {
-	log.SetOutput(ioutil.Discard)
+	tests := []suite.TestCase{
+		{
+			Command: suite.CommandUnderTest{
+				Cmd: "echo hello",
+			},
+			Expected: suite.Expected{
+				Stdout: suite.ExpectedOut{
+					Exactly: "hello1",
+				},
+				ExitCode: 0,
+			},
+			Title: "Output hello",
+		},
+	}
+
+	suite := suite.NewSuite(tests)
+	runtime.Start(*suite)
+
+	os.Exit(0)
+	os.Args = []string{"./commander", "test", "my.yml"}
+	//log.SetOutput(ioutil.Discard)
 
 	log.Println("Starting commander")
 
@@ -36,14 +55,8 @@ func main() {
 			Usage:     "Execute the test suite",
 			ArgsUsage: "[file]",
 			Action: func(c *cli.Context) {
-				log.Println("Starting test suite")
-				file := c.Args().First()
-				if file == "" {
-					file = CommanderFile
-				}
-
-				suite := commander.ParseYAMLFile(file)
-				runtime.Start(suite)
+//				suite := commander.ParseYAMLFile(file)
+//				runtime.Start(&suite)
 			},
 		},
 	}

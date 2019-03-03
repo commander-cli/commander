@@ -1,7 +1,7 @@
 package runtime
 
 import (
-	"github.com/SimonBaeumer/commander/pkg"
+	"github.com/SimonBaeumer/commander/pkg/suite"
 	"strings"
 )
 
@@ -10,22 +10,22 @@ type ValidationResult struct {
 	Properties []string
 }
 
-func Validate(test commander.TestCase) ValidationResult {
+func Validate(test suite.TestCase) ValidationResult {
 	r := &ValidationResult{
 		Success:    true,
 		Properties: []string{},
 	}
 
-	if test.Stdout != "" && !strings.Contains(test.Result.Stdout, test.Stdout) {
-		r.Properties = append(r.Properties, commander.Stdout)
+	if test.Expected.Stdout.Exactly != "" && !strings.Contains(test.Result.Stdout, test.Expected.Stdout.Exactly) {
+		r.Properties = append(r.Properties, suite.Stdout)
 	}
 
-	if test.Stderr != "" && !strings.Contains(test.Result.Stderr, test.Stderr) {
-		r.Properties = append(r.Properties, commander.Stderr)
+	if test.Expected.Stdout.Exactly != "" && !strings.Contains(test.Result.Stderr, test.Expected.Stderr.Exactly) {
+		r.Properties = append(r.Properties, suite.Stderr)
 	}
 
-	if test.ExitCode != test.Result.ExitCode {
-		r.Properties = append(r.Properties, commander.ExitCode)
+	if test.Expected.ExitCode != test.Result.ExitCode {
+		r.Properties = append(r.Properties, suite.ExitCode)
 	}
 
 	if len(r.Properties) > 0 {

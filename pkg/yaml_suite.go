@@ -1,3 +1,4 @@
+/**
 package commander
 
 import (
@@ -49,8 +50,9 @@ func ParseYAML(content []byte) Suite {
 		log.Fatal(err)
 	}
 
-	var s Suite
-	s = YAMLSuite{TestCases: convertYAMLConfToTestCases(yamlConfig)}
+	s := Suite{
+		Tests: convertYAMLConfToTestCases(yamlConfig),
+	}
 	return s
 }
 
@@ -89,3 +91,4 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	return nil
 }
+**/

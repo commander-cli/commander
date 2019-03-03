@@ -18,4 +18,4 @@ tests:
       ✗ it will fail
 
       Got 1, expected 0
-    exit-code: 0
+    exit-code: 1
