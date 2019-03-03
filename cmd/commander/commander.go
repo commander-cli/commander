@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/SimonBaeumer/commander/pkg/suite"
 	"github.com/urfave/cli"
 	"log"
 	"os"
@@ -15,13 +14,13 @@ const (
 )
 
 func main() {
-	tests := []suite.TestCase{
+	tests := []runtime.TestCase{
 		{
-			Command: suite.CommandUnderTest{
+			Command: runtime.CommandUnderTest{
 				Cmd: "echo hello",
 			},
-			Expected: suite.Expected{
-				Stdout: suite.ExpectedOut{
+			Expected: runtime.Expected{
+				Stdout: runtime.ExpectedOut{
 					Exactly: "hello",
 				},
 				ExitCode: 0,
@@ -30,8 +29,8 @@ func main() {
 		},
 	}
 
-	s := suite.NewSuite(tests)
-	r := start(*s)
+	results := runtime.Start(tests)
+	r := start(results)
 
 	if !r {
 		os.Exit(1)
@@ -71,9 +70,8 @@ func main() {
 	}
 }
 
-func start(s suite.Suite) bool {
+func start(results <-chan runtime.TestResult) bool {
 	testResults := []runtime.TestResult{}
-	results := runtime.Start(s)
 	success := true
 
 	for r := range results {

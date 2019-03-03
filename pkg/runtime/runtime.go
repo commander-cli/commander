@@ -2,28 +2,82 @@ package runtime
 
 import (
     "github.com/SimonBaeumer/commander/pkg/cmd"
-    "github.com/SimonBaeumer/commander/pkg/suite"
     "log"
     "sync"
 )
 
+
+// Constants for defining the various tested properties
+const (
+    ExitCode = "ExitCode"
+    Stdout   = "Stdout"
+    Stderr   = "Stderr"
+)
+
+// Result status codes
+const (
+    Success ResultStatus = iota
+    Failed
+    Skipped
+)
+
+// TestCase represents a test case which will be executed by the runtime
+type TestCase struct {
+    Title    string
+    Command  CommandUnderTest
+    Expected Expected
+    Result   CommandResult
+}
+
+// ResultStatus represents the status code of a test result
+type ResultStatus int
+
+// CommandResult holds the result for a specific test
+type CommandResult struct {
+    Status            ResultStatus
+    Stdout            string
+    Stderr            string
+    ExitCode          int
+    FailureProperties []string
+}
+
+//Expected is the expected output of the command under test
+type Expected struct {
+    Stdout   ExpectedOut
+    Stderr   ExpectedOut
+    ExitCode int
+}
+
+type ExpectedOut struct {
+    Contains    []string
+    Line        map[int]string
+    Exactly     string
+}
+
+// CommandUnderTest represents the command under test
+type CommandUnderTest struct {
+    Cmd string
+    Env []string
+    Dir string
+}
+
 // CommandResult represents the TestCase and the ValidationResult
 type TestResult struct {
-    TestCase         suite.TestCase
+    TestCase         TestCase
     ValidationResult ValidationResult
 }
 
 // Start starts the given test suite
-func Start(s suite.Suite) <-chan TestResult {
-    in := make(chan suite.TestCase)
+func Start(tests []TestCase) <-chan TestResult {
+    in := make(chan TestCase)
     out := make(chan TestResult)
 
-     go func(tests []suite.TestCase) {
+     go func(tests []TestCase) {
          defer close(in)
          for _, t := range tests {
              in <- t
          }
-     }(s.Tests)
+     }(tests)
 
     //TODO: Add more concurrency
     workerCount := 1
@@ -47,7 +101,7 @@ func Start(s suite.Suite) <-chan TestResult {
     return out
 }
 
-func runTest(test suite.TestCase) TestResult {
+func runTest(test TestCase) TestResult {
     // cut = command under test
     cut := cmd.NewCommand(test.Command.Cmd)
 
@@ -56,7 +110,7 @@ func runTest(test suite.TestCase) TestResult {
     }
 
     // Write test result
-    test.Result = suite.CommandResult{
+    test.Result = CommandResult{
         ExitCode: cut.ExitCode(),
         Stdout:   cut.Stdout(),
         Stderr:   cut.Stderr(),
@@ -70,7 +124,7 @@ func runTest(test suite.TestCase) TestResult {
     }
 }
 
-func validateStdout(test suite.TestCase) ValidationResult {
+func validateStdout(test TestCase) ValidationResult {
     var v Validator
     var result ValidationResult
 
