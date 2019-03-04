@@ -16,6 +16,7 @@ $ ./commander ./example/commander.yaml
 ```
 
 ## Todo:
+ - assert stderr & exit-code & line-count
  - suite fails -> error exit code
  - logging / verbose output
  - print errors in colors
