@@ -79,3 +79,20 @@ func Test_YAMLConfig_convertToExpectedOut(t *testing.T) {
     assert.IsType(t, runtime.ExpectedOut{}, got)
     assert.Equal(t, "exactly stderr", got.Exactly)
 }
+
+func TestYAMLConfig_UnmarshalYAML_ShouldPanicIfKeyDoesNotExist(t *testing.T) {
+    defer func() {
+        if r := recover(); r == nil {
+            t.Errorf("Unknown keys should not be parsed, the program should panic")
+        }
+    }()
+
+    yaml := []byte(`
+tests:
+    echo hello:
+        exit-code: 0
+        stderr:
+            typo: exactly stderr
+`)
+    _ = ParseYAML(yaml)
+}

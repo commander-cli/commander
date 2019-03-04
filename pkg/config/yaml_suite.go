@@ -95,18 +95,37 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
     exp := runtime.ExpectedOut{}
 
     switch value.(type) {
+    //If only a string was passed it is assigned to exactly automatically
     case string:
         exp.Exactly = toString(value)
         break
+
+    //If there is nested map set the properties will be assigned to the contains
     case map[interface{}]interface{}:
-    	if contains := value.(map[interface{}]interface{})["contains"]; contains != nil {
+	    v := value.(map[interface{}]interface{})
+	    // Check if keys are parsable
+	    // TODO: Could be refactored into a registry maybe which holds all parsers
+	    for k, _ := range v {
+		    switch k {
+		    case
+			    "contains",
+			    "exactly":
+		        break;
+		    default:
+			    panic(fmt.Sprintf("Key %s is not allowed.", k))
+		    }
+	    }
+
+	    //Parse contains key
+	    if contains := v["contains"]; contains != nil {
 		    values := contains.([]interface{})
 		    for _, v := range values {
 			    exp.Contains = append(exp.Contains, toString(v))
 		    }
 	    }
 
-        if exactly := value.(map[interface{}]interface{})["exactly"]; exactly != nil {
+	    //Parse exactly key
+        if exactly := v["exactly"]; exactly != nil {
         	exact := toString(exactly)
             exp.Exactly = exact
         }
