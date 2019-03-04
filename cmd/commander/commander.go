@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/SimonBaeumer/commander/pkg/config"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/urfave/cli"
 	"io/ioutil"
@@ -36,8 +37,21 @@ func main() {
 			Usage:     "Execute the test suite",
 			ArgsUsage: "[file]",
 			Action: func(c *cli.Context) {
-//				suite := commander.ParseYAMLFile(file)
-//				runtime.Start(&suite)
+				file := CommanderFile
+				if c.Args().First() != "" {
+					file = c.Args().First()
+				}
+				content, err := ioutil.ReadFile(file)
+				if err != nil {
+					fmt.Println("Error " + err.Error())
+					os.Exit(1)
+				}
+
+				suite := config.ParseYAML(content)
+				results := runtime.Start(suite)
+				if !start(results) {
+					os.Exit(1)
+				}
 			},
 		},
 	}
