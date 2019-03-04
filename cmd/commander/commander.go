@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/urfave/cli"
+	"io/ioutil"
 	"log"
 	"os"
 )
@@ -14,31 +15,7 @@ const (
 )
 
 func main() {
-	tests := []runtime.TestCase{
-		{
-			Command: runtime.CommandUnderTest{
-				Cmd: "echo hello",
-			},
-			Expected: runtime.Expected{
-				Stdout: runtime.ExpectedOut{
-					Exactly: "hello",
-				},
-				ExitCode: 0,
-			},
-			Title: "Output hello",
-		},
-	}
-
-	results := runtime.Start(tests)
-	r := start(results)
-
-	if !r {
-		os.Exit(1)
-	}
-	os.Exit(0)
-
-	os.Args = []string{"./commander", "test", "my.yml"}
-	//log.SetOutput(ioutil.Discard)
+	log.SetOutput(ioutil.Discard)
 
 	log.Println("Starting commander")
 
