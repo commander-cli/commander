@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/SimonBaeumer/commander/pkg"
 	"github.com/SimonBaeumer/commander/pkg/config"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/urfave/cli"
@@ -41,6 +42,9 @@ func main() {
 				if c.Args().First() != "" {
 					file = c.Args().First()
 				}
+				fmt.Println("Starting test file " + file + "...")
+				fmt.Println("")
+
 				content, err := ioutil.ReadFile(file)
 				if err != nil {
 					fmt.Println("Error " + err.Error())
@@ -49,7 +53,7 @@ func main() {
 
 				suite := config.ParseYAML(content)
 				results := runtime.Start(suite)
-				if !start(results) {
+				if !commander.Start(results) {
 					os.Exit(1)
 				}
 			},
@@ -59,24 +63,4 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func start(results <-chan runtime.TestResult) bool {
-	testResults := []runtime.TestResult{}
-	success := true
-
-	for r := range results {
-		testResults = append(testResults, r)
-		if r.ValidationResult.Success {
-			fmt.Println("✓ ", r.TestCase.Title)
-		}
-
-		if !r.ValidationResult.Success {
-			success = false
-			fmt.Println("✗ ", r.TestCase.Title)
-			fmt.Println(r.ValidationResult.Diff)
-		}
-	}
-
-	return success
 }

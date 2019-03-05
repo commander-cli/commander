@@ -67,8 +67,18 @@ func (v ContainsValidator) Validate(got interface{}, expected interface{}) Valid
 		result = false
 	}
 
+	diff := difflib.UnifiedDiff{
+		A: difflib.SplitLines(fmt.Sprintf("%s", got.(string))),
+		B: difflib.SplitLines(fmt.Sprintf("%s", expected.(string))),
+		FromFile: "Got",
+		ToFile: "Expected",
+		Context: 3,
+	}
+	diffText, _ := difflib.GetUnifiedDiffString(diff)
+
 	return ValidationResult{
 		Success: result,
+		Diff: diffText,
 	}
 }
 
