@@ -74,6 +74,7 @@ func start(results <-chan runtime.TestResult) bool {
 		if !r.ValidationResult.Success {
 			success = false
 			fmt.Println("✗ ", r.TestCase.Title)
+			fmt.Println(r.ValidationResult.Diff)
 		}
 	}
 

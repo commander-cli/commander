@@ -9,6 +9,7 @@ import (
 const (
 	Text     = "text"
 	Contains = "contains"
+	Equal    = "equal"
 )
 
 func NewValidator(validator string) Validator {
@@ -17,6 +18,8 @@ func NewValidator(validator string) Validator {
 		return TextValidator{}
 	case Contains:
 		return ContainsValidator{}
+	case Equal:
+		return EqualValidator{}
 	default:
 		panic(fmt.Sprintf("Validator '%s' does not exist!", validator))
 	}
@@ -66,5 +69,31 @@ func (v ContainsValidator) Validate(got interface{}, expected interface{}) Valid
 
 	return ValidationResult{
 		Success: result,
+	}
+}
+
+type EqualValidator struct {
+}
+
+func (v EqualValidator) Validate(got interface{}, expected interface{}) ValidationResult {
+	if got == expected {
+		return ValidationResult{
+			Success: true,
+		}
+	}
+
+
+	diff := difflib.UnifiedDiff{
+		A: difflib.SplitLines(fmt.Sprintf("%d", got.(int))),
+		B: difflib.SplitLines(fmt.Sprintf("%d", expected.(int))),
+		FromFile: "Got",
+		ToFile: "Expected",
+		Context: 3,
+	}
+	diffText, _ := difflib.GetUnifiedDiffString(diff)
+
+	return ValidationResult{
+		Success: false,
+		Diff: diffText,
 	}
 }

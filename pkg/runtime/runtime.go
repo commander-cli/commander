@@ -116,7 +116,30 @@ func runTest(test TestCase) TestResult {
         Stderr:   cut.Stderr(),
     }
 
-    validationResult := validateStdout(test)
+    validationResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
+    if !validationResult.Success {
+        return TestResult{
+            ValidationResult: validationResult,
+            TestCase:         test,
+        }
+    }
+
+    validationResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
+    if !validationResult.Success {
+        return TestResult{
+            ValidationResult: validationResult,
+            TestCase:         test,
+        }
+    }
+
+    validator := NewValidator(Equal)
+    validationResult = validator.Validate(test.Result.ExitCode, test.Expected.ExitCode)
+    if !validationResult.Success {
+        return TestResult{
+            ValidationResult: validationResult,
+            TestCase: test,
+        }
+    }
 
     return TestResult{
         ValidationResult: validationResult,
@@ -124,21 +147,21 @@ func runTest(test TestCase) TestResult {
     }
 }
 
-func validateStdout(test TestCase) ValidationResult {
+func validateExpectedOut(got string, expected  ExpectedOut) ValidationResult {
     var v Validator
     var result ValidationResult
 
-    if test.Expected.Stdout.Exactly != ""{
+    if expected.Exactly != ""{
         v = NewValidator(Text)
-        if result = v.Validate(test.Result.Stdout, test.Expected.Stdout.Exactly); !result.Success {
+        if result = v.Validate(got, expected.Exactly); !result.Success {
             return result
         }
     }
 
-    if len(test.Expected.Stdout.Contains) > 0 {
+    if len(expected.Contains) > 0 {
         v = NewValidator(Contains)
-        for _, c := range test.Expected.Stdout.Contains {
-            if result = v.Validate(test.Result.Stdout, c); !result.Success {
+        for _, c := range expected.Contains {
+            if result = v.Validate(got, c); !result.Success {
                 return result
             }
         }

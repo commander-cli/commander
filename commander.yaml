@@ -16,8 +16,12 @@ tests:
 
   it should assert that commander will fail:
     command: ./commander test ./integration/failing_suite.yaml
-    stdout: >-
-      ✗ it will fail
-
-      Got 1, expected 0
+    stdout:
+      contains:
+        - ✗ it will fail
     exit-code: 1
+
+  it should assert stderr:
+    command: ">&2 echo hello"
+    stderr: hello
+    exit-code: 0
