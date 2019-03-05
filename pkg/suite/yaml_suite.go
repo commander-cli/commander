@@ -1,4 +1,4 @@
-package config
+package suite
 
 import (
 	"fmt"
@@ -21,8 +21,28 @@ type YAMLTest struct {
 	Stderr   interface{} `yaml:"stderr,omitempty"`
 }
 
-// ParseYAML parses the Suite from a byte slice
-func ParseYAML(content []byte) []runtime.TestCase {
+//YAMLSuite represents a test suite which was configured in yaml
+type YAMLSuite struct {
+	TestCases  []runtime.TestCase
+}
+
+// GetTests returns all tests of the test suite
+func (s YAMLSuite) GetTests() []runtime.TestCase {
+	return s.TestCases
+}
+
+//GetTestByTitle returns the first test it finds for the given title
+func (s YAMLSuite) GetTestByTitle(title string) (runtime.TestCase, error) {
+	for _, t := range s.GetTests() {
+		if t.Title == title {
+			return t, nil
+		}
+	}
+	return runtime.TestCase{}, fmt.Errorf("Could not find test " + title)
+}
+
+// ParseYAML parses the Suite from a yaml byte slice
+func ParseYAML(content []byte) Suite {
 	yamlConfig := YAMLConfig{}
 
 	err := yaml.Unmarshal(content, &yamlConfig)
@@ -30,7 +50,9 @@ func ParseYAML(content []byte) []runtime.TestCase {
 		log.Fatal(err)
 	}
 
-	return convertYAMLConfToTestCases(yamlConfig)
+	return YAMLSuite{
+		TestCases: convertYAMLConfToTestCases(yamlConfig),
+	}
 }
 
 //Convert YAMlConfig to runtime TestCases

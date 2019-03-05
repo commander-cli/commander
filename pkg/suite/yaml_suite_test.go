@@ -1,4 +1,4 @@
-package config
+package suite
 
 import (
     "github.com/SimonBaeumer/commander/pkg/runtime"
@@ -15,7 +15,8 @@ tests:
         stdout: hello
         stderr: anything
 `)
-	tests := ParseYAML(yaml)
+	got := ParseYAML(yaml)
+	tests := got.GetTests()
 
 	assert.Len(t, tests, 1)
 	assert.Equal(t, "echo hello", tests[0].Command.Cmd)
@@ -33,7 +34,8 @@ tests:
         stdout: hello
         stderr: anything
 `)
-	tests := ParseYAML(yaml)
+	tests := ParseYAML(yaml).GetTests()
+
 
 	assert.Equal(t, "echo hello", tests[0].Command.Cmd)
 	assert.Equal(t, "echo hello", tests[0].Title)
@@ -50,7 +52,7 @@ tests:
                 - another hello
             exactly: exactly hello
 `)
-	tests := ParseYAML(yaml)
+	tests := ParseYAML(yaml).GetTests()
 
 	assert.Equal(t, "hello", tests[0].Expected.Stdout.Contains[0])
 	assert.Equal(t, "exactly hello", tests[0].Expected.Stdout.Exactly)
@@ -64,7 +66,7 @@ tests:
         stderr:
             exactly: exactly stderr
 `)
-    tests := ParseYAML(yaml)
+    tests := ParseYAML(yaml).GetTests()
 
     assert.Equal(t, "exactly stderr", tests[0].Expected.Stderr.Exactly)
     assert.IsType(t, runtime.ExpectedOut{}, tests[0].Expected.Stdout)
@@ -95,4 +97,27 @@ tests:
             typo: exactly stderr
 `)
     _ = ParseYAML(yaml)
+}
+
+func TestYAMLSuite_GetTestByTitle(t *testing.T) {
+	yaml := []byte(`
+tests:
+    echo hello:
+        exit-code: 0
+`)
+	test, err := ParseYAML(yaml).GetTestByTitle("echo hello")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "echo hello", test.Title)
+}
+
+func TestYAMLSuite_GetTestByTitleShouldReturnError(t *testing.T) {
+	yaml := []byte(`
+tests:
+    echo hello:
+        exit-code: 0
+`)
+	_, err := ParseYAML(yaml).GetTestByTitle("does not exist")
+
+	assert.Equal(t, "Could not find test does not exist", err.Error())
 }
