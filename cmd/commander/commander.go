@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg"
-	"github.com/SimonBaeumer/commander/pkg/config"
-	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"log"
 	"os"
+	"github.com/urfave/cli"
+	"github.com/SimonBaeumer/commander/pkg"
+	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/SimonBaeumer/commander/pkg/suite"
 )
 
 const (
@@ -36,7 +36,7 @@ func main() {
 		{
 			Name:      "test",
 			Usage:     "Execute the test suite",
-			ArgsUsage: "[file]",
+			ArgsUsage: "[file] [test]",
 			Action: func(c *cli.Context) {
 				file := CommanderFile
 				if c.Args().First() != "" {
@@ -51,8 +51,21 @@ func main() {
 					os.Exit(1)
 				}
 
-				suite := config.ParseYAML(content)
-				results := runtime.Start(suite)
+				var s suite.Suite
+				s = suite.ParseYAML(content)
+
+				tests := s.GetTests()
+				// Filter tests if test title was given
+				if title := c.Args().Get(1); title != "" {
+					test, err := s.GetTestByTitle(title)
+					if err != nil {
+						log.Fatal(err.Error())
+						os.Exit(1)
+					}
+					tests = []runtime.TestCase{test}
+				}
+
+				results := runtime.Start(tests)
 				if !commander.Start(results) {
 					os.Exit(1)
 				}
