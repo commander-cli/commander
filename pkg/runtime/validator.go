@@ -63,7 +63,7 @@ type ContainsValidator struct {
 
 func (v ContainsValidator) Validate(got interface{}, expected interface{}) ValidationResult {
 	result := true
-	if strings.Contains(got.(string), expected.(string)) {
+	if !strings.Contains(got.(string), expected.(string)) {
 		result = false
 	}
 
