@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/SimonBaeumer/commander/pkg"
+	"fmt"
+	"github.com/SimonBaeumer/commander/pkg/config"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/urfave/cli"
 	"io/ioutil"
@@ -36,14 +37,21 @@ func main() {
 			Usage:     "Execute the test suite",
 			ArgsUsage: "[file]",
 			Action: func(c *cli.Context) {
-				log.Println("Starting test suite")
-				file := c.Args().First()
-				if file == "" {
-					file = CommanderFile
+				file := CommanderFile
+				if c.Args().First() != "" {
+					file = c.Args().First()
+				}
+				content, err := ioutil.ReadFile(file)
+				if err != nil {
+					fmt.Println("Error " + err.Error())
+					os.Exit(1)
 				}
 
-				suite := commander.ParseYAMLFile(file)
-				runtime.Start(suite)
+				suite := config.ParseYAML(content)
+				results := runtime.Start(suite)
+				if !start(results) {
+					os.Exit(1)
+				}
 			},
 		},
 	}
@@ -51,4 +59,24 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func start(results <-chan runtime.TestResult) bool {
+	testResults := []runtime.TestResult{}
+	success := true
+
+	for r := range results {
+		testResults = append(testResults, r)
+		if r.ValidationResult.Success {
+			fmt.Println("✓ ", r.TestCase.Title)
+		}
+
+		if !r.ValidationResult.Success {
+			success = false
+			fmt.Println("✗ ", r.TestCase.Title)
+			fmt.Println(r.ValidationResult.Diff)
+		}
+	}
+
+	return success
 }

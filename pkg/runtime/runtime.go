@@ -1,115 +1,172 @@
 package runtime
 
 import (
-    "bytes"
-    "fmt"
-    "github.com/SimonBaeumer/commander/pkg"
-    "github.com/SimonBaeumer/commander/pkg/output"
+    "github.com/SimonBaeumer/commander/pkg/cmd"
     "log"
-    "os"
-    "os/exec"
-    "strings"
-    "syscall"
+    "sync"
 )
 
-type Command struct {
-    cmd      string
-    args     string
-    exitCode int
-    stderr   string
-    stdout   string
 
-    //env
-    //timeout
-    //...
+// Constants for defining the various tested properties
+const (
+    ExitCode = "ExitCode"
+    Stdout   = "Stdout"
+    Stderr   = "Stderr"
+)
+
+// Result status codes
+const (
+    Success ResultStatus = iota
+    Failed
+    Skipped
+)
+
+// TestCase represents a test case which will be executed by the runtime
+type TestCase struct {
+    Title    string
+    Command  CommandUnderTest
+    Expected Expected
+    Result   CommandResult
+}
+
+// ResultStatus represents the status code of a test result
+type ResultStatus int
+
+// CommandResult holds the result for a specific test
+type CommandResult struct {
+    Status            ResultStatus
+    Stdout            string
+    Stderr            string
+    ExitCode          int
+    FailureProperties []string
+}
+
+//Expected is the expected output of the command under test
+type Expected struct {
+    Stdout   ExpectedOut
+    Stderr   ExpectedOut
+    ExitCode int
+}
+
+type ExpectedOut struct {
+    Contains    []string
+    Line        map[int]string
+    Exactly     string
+}
+
+// CommandUnderTest represents the command under test
+type CommandUnderTest struct {
+    Cmd string
+    Env []string
+    Dir string
+}
+
+// CommandResult represents the TestCase and the ValidationResult
+type TestResult struct {
+    TestCase         TestCase
+    ValidationResult ValidationResult
 }
 
 // Start starts the given test suite
-func Start(suite commander.Suite) {
-    c := make(chan commander.TestCase)
+func Start(tests []TestCase) <-chan TestResult {
+    in := make(chan TestCase)
+    out := make(chan TestResult)
 
-    for _, t := range suite.GetTestCases() {
-        go runTest(t, c)
+     go func(tests []TestCase) {
+         defer close(in)
+         for _, t := range tests {
+             in <- t
+         }
+     }(tests)
+
+    //TODO: Add more concurrency
+    workerCount := 1
+    var wg sync.WaitGroup
+    for i := 0; i < workerCount; i++ {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            for t := range in {
+                out <- runTest(t)
+            }
+
+        }()
     }
 
-    printResults(c, suite)
+    go func() {
+        wg.Wait()
+        close(out)
+    }()
+
+    return out
 }
 
-func printResults(c chan commander.TestCase, suite commander.Suite) {
-    o := &output.HumanOutput{}
-    counter := 0
-    for r := range c {
-        s := o.BuildTestResult(output.TestCase(r))
-        fmt.Println(s)
+func runTest(test TestCase) TestResult {
+    // cut = command under test
+    cut := cmd.NewCommand(test.Command.Cmd)
 
-        counter++
-        if counter >= len(suite.GetTestCases()) {
-            close(c)
-        }
-    }
-}
-
-func runTest(test commander.TestCase, results chan<- commander.TestCase) {
-    // Create command
-    cmd := compile(test.Command)
-
-    // Execute command
-    if err := cmd.Execute(); err != nil {
+    if err := cut.Execute(); err != nil {
         log.Fatal(err)
     }
 
     // Write test result
-    test.Result = commander.TestResult{
-        ExitCode: cmd.exitCode,
-        Stdout:   cmd.stdout,
-        Stderr:   cmd.stderr,
+    test.Result = CommandResult{
+        ExitCode: cut.ExitCode(),
+        Stdout:   cut.Stdout(),
+        Stderr:   cut.Stderr(),
     }
 
-    result := Validate(test)
-    test.Result.Success = result.Success
-    test.Result.FailureProperties = result.Properties
+    validationResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
+    if !validationResult.Success {
+        return TestResult{
+            ValidationResult: validationResult,
+            TestCase:         test,
+        }
+    }
 
-    // Send to result channel
-    results <- test
+    validationResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
+    if !validationResult.Success {
+        return TestResult{
+            ValidationResult: validationResult,
+            TestCase:         test,
+        }
+    }
+
+    validator := NewValidator(Equal)
+    validationResult = validator.Validate(test.Result.ExitCode, test.Expected.ExitCode)
+    if !validationResult.Success {
+        return TestResult{
+            ValidationResult: validationResult,
+            TestCase: test,
+        }
+    }
+
+    return TestResult{
+        ValidationResult: validationResult,
+        TestCase:         test,
+    }
 }
 
-func compile(command string) *Command {
-    return &Command{
-        cmd: command,
-    }
-}
+func validateExpectedOut(got string, expected  ExpectedOut) ValidationResult {
+    var v Validator
+    var result ValidationResult
 
-// Execute executes a command on the system
-func (c *Command) Execute() error {
-    cmd := exec.Command("sh", "-c", c.cmd)
-    env := os.Environ()
-    cmd.Env = env
-
-    var (
-        outBuff bytes.Buffer
-        errBuff bytes.Buffer
-    )
-    cmd.Stdout = &outBuff
-    cmd.Stderr = &errBuff
-
-    err := cmd.Start()
-    log.Println("Started command " + c.cmd)
-    if err != nil {
-        log.Println("Started command " + c.cmd + " err: " + err.Error())
+    if expected.Exactly != ""{
+        v = NewValidator(Text)
+        if result = v.Validate(got, expected.Exactly); !result.Success {
+            return result
+        }
     }
 
-    if err := cmd.Wait(); err != nil {
-        if exiterr, ok := err.(*exec.ExitError); ok {
-            if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
-                c.exitCode = status.ExitStatus()
-                //log.Printf("Exit Status: %d", status.ExitStatus())
+    if len(expected.Contains) > 0 {
+        v = NewValidator(Contains)
+        for _, c := range expected.Contains {
+            if result = v.Validate(got, c); !result.Success {
+                return result
             }
         }
-    } else {
-        c.exitCode = 0
     }
-    c.stderr = strings.Trim(errBuff.String(), "\n")
-    c.stdout = strings.Trim(outBuff.String(), "\n")
 
-    return nil
+    result.Success = true
+    return result
 }

@@ -16,6 +16,7 @@ $ ./commander ./example/commander.yaml
 ```
 
 ## Todo:
+ - assert stderr & exit-code & line-count
  - suite fails -> error exit code
  - logging / verbose output
  - print errors in colors
@@ -48,18 +49,47 @@ $ ./commander ./example/commander.yaml
       - rhel
       - centos
       - alpine
-      
-## Open
 
- - support for...
-    - docker
-    - docker-compose
-    - lxc
-    - vagrant
+## Matching / Printing
 
-## Architecture
+- Diff libs
+    - https://github.com/sergi/go-diff
+    - https://github.com/pmezard/go-difflib
+    - https://github.com/sourcegraph/go-diff
+- regex matching
+- line count
+- assert specific lines
+- specific line
 
- - runtime?
-     - test-executer
-     - ordering?
- - interpreter?
+```
+tests:
+    it will print hello world:
+        cmd: echo hello world
+        stdout:
+            lines:
+                1: hello world
+            contains: 
+            - hello world
+        exit-code: 0
+            
+    it will print hello:
+        cmd: echo hello
+        stdout: hello
+        exit-code: 0
+        
+    echo hello:
+        exit-code: 0
+        
+    echo skip:
+        skip: true
+        exit-code: 0
+```
+
+## Docker
+
+```
+tests:
+    echo hello:
+        docker: ubuntu:18.04
+        exit-code: 0
+```
