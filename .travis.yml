@@ -1,11 +1,12 @@
 language: go
 
 env:
-  - GO111MODULE=on
+  global:
+    - GO111MODULE=on
+    - CC_TEST_REPORTER_ID=4015795135868ee4781bd8cad1d345c20e7d0c2ef6ad5b0f08ccb13da24e66a1
 
 stages:
   - test
-  #- deploy
 
 go:
   - 1.11.x
@@ -21,27 +22,19 @@ before_install:
 
 jobs:
   include:
-    - name: "Go lint"
-      stage: test
-      script: make lint
+  - name: Go lint
+    stage: test
+    script: make lint
 
-    - name: "Unit tests"
-      script: make test
+  - name: Unit tests
+    before_script:
+      - curl https://s3.amazonaws.com/codeclimate/test-reporter/test-reporter-0.6.3-linux-amd64 --output test-reporter
+      - chmod +x test-reporter
+      - ./test-reporter before-build
+    script:
+      - make test-coverage
+    after_script:
+      - ./test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
-    - name: "Integration test"
-      script: make test-integration
-
-   # - stage: deploy
-   #   name: "Deployment"
-   #   if: tag IS present
-   #   deploy:
-   #     script: skip
-   #     provider: releases
-   #     api_key:
-   #       secure: #TODO
-   #     file: #TODO
-   #       - commander
-   #     skip_cleanup: true
-   #     on:
-   #       repo: SimonBaeumer/commander
-   #       tags: true
+  - name: Integration test
+    script: make test-integration
