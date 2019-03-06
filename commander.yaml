@@ -9,19 +9,24 @@ tests:
 
   it should execute tests:
     command: ./commander test ./integration/commander_test.yaml
-    stdout:
-      contains:
-        - ✓ it should exit with error code
+    stdout: ✓ it should exit with error code
     exit-code: 0
 
   it should assert that commander will fail:
     command: ./commander test ./integration/failing_suite.yaml
     stdout:
       contains:
-        - ✗ it will fail
+        - ✗ it will fail, on property 'ExitCode'
+        - "Count: 1, Failed: 1"
     exit-code: 1
 
   it should assert stderr:
     command: ">&2 echo hello"
     stderr: hello
+    exit-code: 0
+
+  it should assert exactly:
+    command: echo hello
+    stdout:
+      exactly: hello
     exit-code: 0

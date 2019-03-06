@@ -53,7 +53,7 @@ func printFailures(results []runtime.TestResult) {
 
     for _, r := range results {
         if !r.ValidationResult.Success {
-            fmt.Println(au.Bold(au.Red("✗ " + r.TestCase.Title)))
+            fmt.Println(au.Bold(au.Red("✗ " + r.TestCase.Title + ", on property '" + r.FailedProperty + "'")))
             fmt.Println(r.ValidationResult.Diff)
         }
     }

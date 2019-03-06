@@ -65,6 +65,7 @@ type CommandUnderTest struct {
 type TestResult struct {
     TestCase         TestCase
     ValidationResult ValidationResult
+    FailedProperty   string
 }
 
 // Start starts the given test suite
@@ -121,6 +122,7 @@ func runTest(test TestCase) TestResult {
         return TestResult{
             ValidationResult: validationResult,
             TestCase:         test,
+            FailedProperty:   Stdout,
         }
     }
 
@@ -129,6 +131,7 @@ func runTest(test TestCase) TestResult {
         return TestResult{
             ValidationResult: validationResult,
             TestCase:         test,
+            FailedProperty: Stderr,
         }
     }
 
@@ -138,6 +141,7 @@ func runTest(test TestCase) TestResult {
         return TestResult{
             ValidationResult: validationResult,
             TestCase: test,
+            FailedProperty: ExitCode,
         }
     }
 
