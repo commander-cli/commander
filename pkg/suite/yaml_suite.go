@@ -119,7 +119,7 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
     switch value.(type) {
     //If only a string was passed it is assigned to exactly automatically
     case string:
-        exp.Exactly = toString(value)
+        exp.Contains = []string{toString(value)}
         break
 
     //If there is nested map set the properties will be assigned to the contains

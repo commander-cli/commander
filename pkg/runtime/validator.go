@@ -92,7 +92,6 @@ func (v EqualValidator) Validate(got interface{}, expected interface{}) Validati
 		}
 	}
 
-
 	diff := difflib.UnifiedDiff{
 		A: difflib.SplitLines(fmt.Sprintf("%d", got.(int))),
 		B: difflib.SplitLines(fmt.Sprintf("%d", expected.(int))),

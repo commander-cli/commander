@@ -22,8 +22,8 @@ tests:
 	assert.Equal(t, "echo hello", tests[0].Command.Cmd)
 	assert.Equal(t, 0, tests[0].Expected.ExitCode)
 	assert.Equal(t, "it should print hello", tests[0].Title)
-	assert.Equal(t, "hello", tests[0].Expected.Stdout.Exactly)
-	assert.Equal(t, "anything", tests[0].Expected.Stderr.Exactly)
+	assert.Equal(t, "hello", tests[0].Expected.Stdout.Contains[0])
+	assert.Equal(t, "anything", tests[0].Expected.Stderr.Contains[0])
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldUseTitleAsCommand(t *testing.T) {
