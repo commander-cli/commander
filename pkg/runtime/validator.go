@@ -1,108 +1,76 @@
 package runtime
 
 import (
-	"fmt"
-	"github.com/pmezard/go-difflib/difflib"
-	"strings"
+	"github.com/SimonBaeumer/commander/pkg/matcher"
 )
-
-const (
-	Text     = "text"
-	Contains = "contains"
-	Equal    = "equal"
-)
-
-func NewValidator(validator string) Validator {
-	switch validator {
-	case Text:
-		return TextValidator{}
-	case Contains:
-		return ContainsValidator{}
-	case Equal:
-		return EqualValidator{}
-	default:
-		panic(fmt.Sprintf("Validator '%s' does not exist!", validator))
-	}
-}
-
-type Validator interface {
-    Validate(got interface{}, expected interface{}) ValidationResult
-}
 
 type ValidationResult struct {
-	Success    bool
-	Diff       string
+	Success bool
+	Diff    string
 }
 
-type TextValidator struct {
-}
-
-func (v TextValidator) Validate(got interface{}, expected interface{}) ValidationResult {
-	result := true
-	if got != expected {
-		result = false
-	}
-
-	diff := difflib.UnifiedDiff{
-		A: difflib.SplitLines(got.(string)),
-		B: difflib.SplitLines(expected.(string)),
-		FromFile: "Got",
-		ToFile: "Expected",
-		Context: 3,
-	}
-	diffText, _ := difflib.GetUnifiedDiffString(diff)
-
+func NewValidationResult(m matcher.MatcherResult) ValidationResult {
 	return ValidationResult{
-		Diff:       diffText,
-		Success:    result,
+		Success: m.Success,
+		Diff:    m.Diff,
 	}
 }
 
-type ContainsValidator struct {
+func Validate(test TestCase) TestResult {
+    matcherResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
+    if !matcherResult.Success {
+        return TestResult{
+            ValidationResult: NewValidationResult(matcherResult),
+            TestCase:         test,
+            FailedProperty:   Stdout,
+        }
+    }
+
+    matcherResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
+    if !matcherResult.Success {
+        return TestResult{
+            ValidationResult: NewValidationResult(matcherResult),
+            TestCase:         test,
+            FailedProperty:   Stderr,
+        }
+    }
+
+    m := matcher.NewMatcher(matcher.Equal)
+    matcherResult = m.Match(test.Result.ExitCode, test.Expected.ExitCode)
+    if !matcherResult.Success {
+        return TestResult{
+            ValidationResult: NewValidationResult(matcherResult),
+            TestCase:         test,
+            FailedProperty:   ExitCode,
+        }
+    }
+
+    return TestResult{
+        ValidationResult: NewValidationResult(matcherResult),
+        TestCase:         test,
+    }
 }
 
-func (v ContainsValidator) Validate(got interface{}, expected interface{}) ValidationResult {
-	result := true
-	if !strings.Contains(got.(string), expected.(string)) {
-		result = false
-	}
+func validateExpectedOut(got string, expected  ExpectedOut) matcher.MatcherResult {
+	var m matcher.Matcher
+	var result matcher.MatcherResult
 
-	diff := difflib.UnifiedDiff{
-		A: difflib.SplitLines(fmt.Sprintf("%s", got.(string))),
-		B: difflib.SplitLines(fmt.Sprintf("%s", expected.(string))),
-		FromFile: "Got",
-		ToFile: "Expected",
-		Context: 3,
-	}
-	diffText, _ := difflib.GetUnifiedDiffString(diff)
-
-	return ValidationResult{
-		Success: result,
-		Diff: diffText,
-	}
-}
-
-type EqualValidator struct {
-}
-
-func (v EqualValidator) Validate(got interface{}, expected interface{}) ValidationResult {
-	if got == expected {
-		return ValidationResult{
-			Success: true,
+	if expected.Exactly != ""{
+		m = matcher.NewMatcher(matcher.Text)
+		if result = m.Match(got, expected.Exactly); !result.Success {
+			return result
 		}
 	}
 
-	diff := difflib.UnifiedDiff{
-		A: difflib.SplitLines(fmt.Sprintf("%d", got.(int))),
-		B: difflib.SplitLines(fmt.Sprintf("%d", expected.(int))),
-		FromFile: "Got",
-		ToFile: "Expected",
-		Context: 3,
+	if len(expected.Contains) > 0 {
+		m = matcher.NewMatcher(matcher.Contains)
+		for _, c := range expected.Contains {
+			if result = m.Match(got, c); !result.Success {
+				return result
+			}
+		}
 	}
-	diffText, _ := difflib.GetUnifiedDiffString(diff)
 
-	return ValidationResult{
-		Success: false,
-		Diff: diffText,
-	}
+	result.Success = true
+	return result
 }
