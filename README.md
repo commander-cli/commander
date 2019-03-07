@@ -7,6 +7,16 @@
 
 Define `YAML` based test suites for your command line applications.
 
+## Installation
+
+```bash
+# Install latest version to /usr/local/bin
+curl -fsSL https://raw.githubusercontent.com/SimonBaeumer/commander/master/install.sh | sh
+
+# Install v0.1.0 version to ~/bin
+curl -fsSL https://raw.githubusercontent.com/SimonBaeumer/commander/master/install.sh | COMMANDER_VER=v0.1.0 COMMANDER_DST=~/bin sh
+```
+
 ## Example
 
 ```

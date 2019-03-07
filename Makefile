@@ -1,7 +1,7 @@
 exe = github.com/SimonBaeumer/commander/cmd/commander
 cmd = commander
 
-.PHONY: deps lint test
+.PHONY: deps lint test test-integration
 
 deps:
 	$(info INFO: Starting build $@)
