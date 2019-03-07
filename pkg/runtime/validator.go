@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"github.com/SimonBaeumer/commander/pkg/matcher"
+    "strings"
 )
 
 type ValidationResult struct {
@@ -17,6 +18,8 @@ func NewValidationResult(m matcher.MatcherResult) ValidationResult {
 }
 
 func Validate(test TestCase) TestResult {
+    equalMatcher := matcher.NewMatcher(matcher.Equal)
+
     matcherResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
     if !matcherResult.Success {
         return TestResult{
@@ -35,8 +38,7 @@ func Validate(test TestCase) TestResult {
         }
     }
 
-    m := matcher.NewMatcher(matcher.Equal)
-    matcherResult = m.Match(test.Result.ExitCode, test.Expected.ExitCode)
+    matcherResult = equalMatcher.Match(test.Result.ExitCode, test.Expected.ExitCode)
     if !matcherResult.Success {
         return TestResult{
             ValidationResult: NewValidationResult(matcherResult),
@@ -55,7 +57,7 @@ func validateExpectedOut(got string, expected  ExpectedOut) matcher.MatcherResul
 	var m matcher.Matcher
 	var result matcher.MatcherResult
 
-	if expected.Exactly != ""{
+	if expected.Exactly != "" {
 		m = matcher.NewMatcher(matcher.Text)
 		if result = m.Match(got, expected.Exactly); !result.Success {
 			return result
@@ -70,6 +72,18 @@ func validateExpectedOut(got string, expected  ExpectedOut) matcher.MatcherResul
 			}
 		}
 	}
+
+	if expected.LineCount != 0 {
+        m = matcher.NewMatcher(matcher.Equal)
+        count := strings.Count(got, "\n") + 1
+        if got == "" {
+            count = 0
+        }
+
+        if result = m.Match(count, expected.LineCount); !result.Success {
+            return result
+        }
+    }
 
 	result.Success = true
 	return result

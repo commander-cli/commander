@@ -17,3 +17,15 @@ tests:
       command: '>&2 echo "error"'
       stderr: error
       exit-code: 0
+
+  it should assert line-count:
+    command: printf "hello\nline2"
+    stdout:
+      line-count: 2
+    exit-code: 0
+
+  it should assert zero line count:
+    command: exit 0
+    stdout:
+      line-count: 0
+    exit-code: 0

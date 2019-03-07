@@ -9,9 +9,10 @@ import (
 
 // Constants for defining the various tested properties
 const (
-    ExitCode = "ExitCode"
-    Stdout   = "Stdout"
-    Stderr   = "Stderr"
+    ExitCode  = "ExitCode"
+    Stdout    = "Stdout"
+    Stderr    = "Stderr"
+    LineCount = "LineCount"
 )
 
 // Result status codes
@@ -43,15 +44,17 @@ type CommandResult struct {
 
 //Expected is the expected output of the command under test
 type Expected struct {
-    Stdout   ExpectedOut
-    Stderr   ExpectedOut
-    ExitCode int
+    Stdout    ExpectedOut
+    Stderr    ExpectedOut
+    LineCount int
+    ExitCode  int
 }
 
 type ExpectedOut struct {
-    Contains    []string
-    Line        map[int]string
-    Exactly     string
+    Contains  []string
+    Line      map[int]string
+    Exactly   string
+    LineCount int
 }
 
 // CommandUnderTest represents the command under test

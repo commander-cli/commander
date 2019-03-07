@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+const ExpectedLineCount = 10
+
 func TestYAMLConfig_UnmarshalYAML(t *testing.T) {
 	yaml := []byte(`
 tests:
@@ -39,6 +41,19 @@ tests:
 
 	assert.Equal(t, "echo hello", tests[0].Command.Cmd)
 	assert.Equal(t, "echo hello", tests[0].Title)
+}
+
+func TestYAMLConfig_UnmarshalYAML_ShouldParseLineCount(t *testing.T) {
+	yaml := []byte(`
+tests:
+    echo hello:
+        exit-code: 0
+        stdout:
+            line-count: 10
+`)
+	tests := ParseYAML(yaml).GetTests()
+
+	assert.Equal(t, ExpectedLineCount, tests[0].Expected.Stdout.LineCount)
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldConvertStdoutToExpectedOut(t *testing.T) {
