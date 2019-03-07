@@ -16,6 +16,8 @@ const (
 	CommanderFile = "commander.yaml"
 )
 
+var version string
+
 func main() {
 	log.SetOutput(ioutil.Discard)
 
@@ -24,6 +26,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = AppName
 	app.Usage = "CLI app testing"
+	app.Version = version
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
