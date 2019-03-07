@@ -10,7 +10,7 @@ type ValidationResult struct {
 	Diff    string
 }
 
-func NewValidationResult(m matcher.MatcherResult) ValidationResult {
+func newValidationResult(m matcher.MatcherResult) ValidationResult {
 	return ValidationResult{
 		Success: m.Success,
 		Diff:    m.Diff,
@@ -23,7 +23,7 @@ func Validate(test TestCase) TestResult {
     matcherResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
     if !matcherResult.Success {
         return TestResult{
-            ValidationResult: NewValidationResult(matcherResult),
+            ValidationResult: newValidationResult(matcherResult),
             TestCase:         test,
             FailedProperty:   Stdout,
         }
@@ -32,7 +32,7 @@ func Validate(test TestCase) TestResult {
     matcherResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
     if !matcherResult.Success {
         return TestResult{
-            ValidationResult: NewValidationResult(matcherResult),
+            ValidationResult: newValidationResult(matcherResult),
             TestCase:         test,
             FailedProperty:   Stderr,
         }
@@ -41,14 +41,14 @@ func Validate(test TestCase) TestResult {
     matcherResult = equalMatcher.Match(test.Result.ExitCode, test.Expected.ExitCode)
     if !matcherResult.Success {
         return TestResult{
-            ValidationResult: NewValidationResult(matcherResult),
+            ValidationResult: newValidationResult(matcherResult),
             TestCase:         test,
             FailedProperty:   ExitCode,
         }
     }
 
     return TestResult{
-        ValidationResult: NewValidationResult(matcherResult),
+        ValidationResult: newValidationResult(matcherResult),
         TestCase:         test,
     }
 }
