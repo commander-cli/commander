@@ -12,7 +12,7 @@ test:
 
 test-coverage:
 	$(info INFO: Starting build $@)
-	go test -coverprofile coverage.out ./...
+	go test -coverprofile c.out ./...
 
 test-integration: build
 	$(info INFO: Starting build $@)
