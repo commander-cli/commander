@@ -1,5 +1,6 @@
 .idea
 commander
+release
 
 coverage.out
 coverage
