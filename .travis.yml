@@ -34,7 +34,7 @@ jobs:
     script:
       - make test-coverage
     after_script:
-      - ./test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+      - ./test-reporter after-build -t gocov --exit-code $TRAVIS_TEST_RESULT
 
   - name: Integration test
     script: make test-integration
