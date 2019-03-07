@@ -88,19 +88,18 @@ func Start(tests []TestCase) <-chan TestResult {
     var wg sync.WaitGroup
     for i := 0; i < workerCount; i++ {
         wg.Add(1)
-        go func() {
+        go func(tests chan TestCase) {
             defer wg.Done()
-            for t := range in {
+            for t := range tests {
                 out <- runTest(t)
             }
-
-        }()
+        }(in)
     }
 
-    go func() {
+    go func(results chan TestResult) {
         wg.Wait()
-        close(out)
-    }()
+        close(results)
+    }(out)
 
     return out
 }
