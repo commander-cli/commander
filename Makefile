@@ -1,5 +1,6 @@
 exe = github.com/SimonBaeumer/commander/cmd/commander
 cmd = commander
+TRAVIS_TAG ?= "0.0.0"
 
 .PHONY: deps lint test test-integration
 
