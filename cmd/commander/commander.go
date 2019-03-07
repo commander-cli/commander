@@ -23,6 +23,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = AppName
+	app.Description = "CLI app testing"
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{

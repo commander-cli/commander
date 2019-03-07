@@ -1,3 +1,7 @@
+deps:
+	$(info INFO: Starting build $@)
+	go mod vendor
+
 build:
 	$(info INFO: Starting build $@)
 	go build cmd/commander/commander.go
