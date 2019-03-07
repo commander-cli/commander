@@ -52,7 +52,7 @@ type Expected struct {
 
 type ExpectedOut struct {
     Contains  []string
-    Line      map[int]string
+    Lines     map[int]string
     Exactly   string
     LineCount int
 }

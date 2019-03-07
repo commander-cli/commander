@@ -29,3 +29,12 @@ tests:
     stdout:
       line-count: 0
     exit-code: 0
+
+  it should assert a specifc line:
+    command: printf "line1\nline2\nline3\nline4"
+    stdout:
+      lines:
+        0: line1
+        1: line2
+        3: line4
+    exit-code: 0

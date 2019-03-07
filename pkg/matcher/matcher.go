@@ -93,8 +93,8 @@ func (m EqualMatcher) Match(got interface{}, expected interface{}) MatcherResult
     }
 
     diff := difflib.UnifiedDiff{
-        A: difflib.SplitLines(fmt.Sprintf("%d", got.(int))),
-        B: difflib.SplitLines(fmt.Sprintf("%d", expected.(int))),
+        A: difflib.SplitLines(fmt.Sprintf("%v", got)),
+        B: difflib.SplitLines(fmt.Sprintf("%v", expected)),
         FromFile: "Got",
         ToFile: "Expected",
         Context: 3,

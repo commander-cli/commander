@@ -56,6 +56,24 @@ tests:
 	assert.Equal(t, ExpectedLineCount, tests[0].Expected.Stdout.LineCount)
 }
 
+func TestYAMLConfig_UnmarshalYAML_ShouldParseLines(t *testing.T) {
+    yaml := []byte(`
+tests:
+    printf "line1\nline2\nline3\nline4":
+        exit-code: 0
+        stdout:
+            lines:
+                0: line1
+                1: line2
+                3: line4
+`)
+    tests := ParseYAML(yaml).GetTests()
+
+    assert.Equal(t, "line1", tests[0].Expected.Stdout.Lines[0])
+    assert.Equal(t, "line2", tests[0].Expected.Stdout.Lines[1])
+    assert.Equal(t, "line4", tests[0].Expected.Stdout.Lines[3])
+}
+
 func TestYAMLConfig_UnmarshalYAML_ShouldConvertStdoutToExpectedOut(t *testing.T) {
 	yaml := []byte(`
 tests:

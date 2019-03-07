@@ -85,6 +85,16 @@ func validateExpectedOut(got string, expected  ExpectedOut) matcher.MatcherResul
         }
     }
 
+	if len(expected.Lines) > 0 {
+	    m = matcher.NewMatcher(matcher.Equal)
+	    actualLines := strings.Split(got, "\n")
+	    for k, expL := range expected.Lines {
+            if result = m.Match(actualLines[k], expL); !result.Success {
+                return result
+            }
+        }
+    }
+
 	result.Success = true
 	return result
 }

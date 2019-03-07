@@ -132,7 +132,8 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 		    case
 			    "contains",
 			    "exactly",
-			    "line-count":
+			    "line-count",
+			    "lines":
 		        break;
 		    default:
 			    panic(fmt.Sprintf("Key %s is not allowed.", k))
@@ -155,6 +156,14 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 	    //Parse line-count key
 	    if lc := v["line-count"]; lc != nil {
 		    exp.LineCount = lc.(int)
+	    }
+
+	    // Parse lines
+	    if l := v["lines"]; l != nil {
+	    	exp.Lines = make(map[int]string)
+		    for k, v := range l.(map[interface{}]interface{}) {
+		    	exp.Lines[k.(int)] = toString(v)
+		    }
 	    }
         break
     }
