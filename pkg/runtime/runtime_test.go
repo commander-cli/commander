@@ -10,6 +10,14 @@ func TestRuntime_Start(t *testing.T) {
     got := Start(s)
 
     assert.IsType(t, make(<-chan TestResult), got)
+
+    count := 0
+    for r := range got {
+        assert.Equal(t, "Output hello", r.TestCase.Title)
+        assert.True(t, r.ValidationResult.Success)
+        count++
+    }
+    assert.Equal(t, 1, count)
 }
 
 func getExampleTestSuite() []TestCase {
@@ -29,4 +37,5 @@ func getExampleTestSuite() []TestCase {
     }
     return tests
 }
+
 
