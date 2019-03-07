@@ -19,14 +19,3 @@ tests:
         - ✗ it will fail, on property 'ExitCode'
         - "Count: 1, Failed: 1"
     exit-code: 1
-
-  it should assert stderr:
-    command: ">&2 echo hello"
-    stderr: hello
-    exit-code: 0
-
-  it should assert exactly:
-    command: echo hello
-    stdout:
-      exactly: hello
-    exit-code: 0

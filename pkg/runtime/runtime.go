@@ -9,9 +9,10 @@ import (
 
 // Constants for defining the various tested properties
 const (
-    ExitCode = "ExitCode"
-    Stdout   = "Stdout"
-    Stderr   = "Stderr"
+    ExitCode  = "ExitCode"
+    Stdout    = "Stdout"
+    Stderr    = "Stderr"
+    LineCount = "LineCount"
 )
 
 // Result status codes
@@ -43,15 +44,17 @@ type CommandResult struct {
 
 //Expected is the expected output of the command under test
 type Expected struct {
-    Stdout   ExpectedOut
-    Stderr   ExpectedOut
-    ExitCode int
+    Stdout    ExpectedOut
+    Stderr    ExpectedOut
+    LineCount int
+    ExitCode  int
 }
 
 type ExpectedOut struct {
-    Contains    []string
-    Line        map[int]string
-    Exactly     string
+    Contains  []string
+    Lines     map[int]string
+    Exactly   string
+    LineCount int
 }
 
 // CommandUnderTest represents the command under test
@@ -117,60 +120,6 @@ func runTest(test TestCase) TestResult {
         Stderr:   cut.Stderr(),
     }
 
-    validationResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
-    if !validationResult.Success {
-        return TestResult{
-            ValidationResult: validationResult,
-            TestCase:         test,
-            FailedProperty:   Stdout,
-        }
-    }
-
-    validationResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
-    if !validationResult.Success {
-        return TestResult{
-            ValidationResult: validationResult,
-            TestCase:         test,
-            FailedProperty: Stderr,
-        }
-    }
-
-    validator := NewValidator(Equal)
-    validationResult = validator.Validate(test.Result.ExitCode, test.Expected.ExitCode)
-    if !validationResult.Success {
-        return TestResult{
-            ValidationResult: validationResult,
-            TestCase: test,
-            FailedProperty: ExitCode,
-        }
-    }
-
-    return TestResult{
-        ValidationResult: validationResult,
-        TestCase:         test,
-    }
+    return Validate(test)
 }
 
-func validateExpectedOut(got string, expected  ExpectedOut) ValidationResult {
-    var v Validator
-    var result ValidationResult
-
-    if expected.Exactly != ""{
-        v = NewValidator(Text)
-        if result = v.Validate(got, expected.Exactly); !result.Success {
-            return result
-        }
-    }
-
-    if len(expected.Contains) > 0 {
-        v = NewValidator(Contains)
-        for _, c := range expected.Contains {
-            if result = v.Validate(got, c); !result.Success {
-                return result
-            }
-        }
-    }
-
-    result.Success = true
-    return result
-}
