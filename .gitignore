@@ -2,5 +2,6 @@
 commander
 release
 
+c.out
 coverage.out
 coverage

@@ -1,5 +1,6 @@
-exe = github.com/SimonBaeumer/commander/cmd/commander
+exe = cmd/commander/*
 cmd = commander
+TRAVIS_TAG ?= "0.0.0"
 
 .PHONY: deps lint test test-integration
 
@@ -9,7 +10,7 @@ deps:
 
 build:
 	$(info INFO: Starting build $@)
-	go build cmd/commander/commander.go
+	go build $(exe)
 
 lint:
 	$(info INFO: Starting build $@)
@@ -19,7 +20,7 @@ test:
 	$(info INFO: Starting build $@)
 	go test ./...
 
-test-coverage:
+test-coverage: build
 	$(info INFO: Starting build $@)
 	go test -coverprofile c.out ./...
 
