@@ -4,7 +4,7 @@ set -e
 LATEST=$(curl -s https://api.github.com/repos/SimonBaeumer/commander/releases/latest | jq -r .tag_name)
 
 if [ -z "$COMMANDER_VER" ]; then
-    $COMMANDER_VER=${COMMANDER_VER:-$LATEST}
+    COMMANDER_VER=${COMMANDER_VER:-$LATEST}
 fi
 COMMANDER_DST=${COMMANDER_DST:-/usr/local/bin}
 INSTALL_LOC="${COMMANDER_DST%/}/commander"
