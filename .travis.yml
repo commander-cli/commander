@@ -47,6 +47,7 @@ jobs:
     script: make release
     deploy:
       provider: releases
+      overwrite: true
       api_key:
         secure: pHsyDlWCuO0mCzR/OrEl7ulVsq98eu/cW0uLkqjK+72maQi/Hp2981mNfyprQ0RQNFMBMK3V0D3ziXyq04ENlwqt8cHiW8+pghRrgDlNzBLIQAXhXCyFprBng2fKrme6L28uRCGJCDVKMrkWI67bVSIQ6EbUbxzAa8egerRtyFEr/iCVs0LqBn1JJjgnCCG4y6fBR54ry5iGOod1nbmd2trGi+MvCjVt5VLeI+s3GTf9EKKl2gDs17BBlvOScSbdKuAWrBP0+lDqwN8EgxZczNwBHM7/NAyHblhJfSkkyGjuUuJo6sxaxnsN8cVpXdIZyGTjsqsbpu1f6OojqQlFRnlSuvQahdnTrVBcqXuMt3qjW7WDKpE4r4Av6OVh3jhAcW68J9rvsQMjDv4BbDim4zOgq13gIbCk5nN+Ny6j6diwgA35iGpKMHRVl6Aq4Nt/RUbQ9TGrVfdYbide+ONyo3WsQvPFJ8iWwMg7EHul4513Pe7RfxGcxCMjbh/rVCIkOrd8e+k6GJ4ngtcODcJjVjJEttvFrJ2EPnL4AYuDbRThgFBcn4j2U7jBmYbNzH2RJrfIRq6WVPwjbVJ2crT8YqkbS16JpcFFVja1r4+LsdMgsBI26c0RDpL08mCLjy8DFW3bAcGb9Myr5dxEYn+qou6LrSCw1I2qNRS/zSdifAo=
       file:
