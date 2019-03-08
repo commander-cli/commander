@@ -19,3 +19,11 @@ tests:
         - ✗ it will fail, on property 'ExitCode'
         - "Count: 1, Failed: 1"
     exit-code: 1
+
+  it should validate a big output:
+    command: ./commander test ./integration/test_big_output.yaml
+    stdout:
+      contains:
+        - ✓ cat ./integration/_fixtures/big_out.txt
+        - "Count: 1, Failed: 0"
+    exit-code: 0

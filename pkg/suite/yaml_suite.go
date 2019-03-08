@@ -5,6 +5,7 @@ import (
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"gopkg.in/yaml.v2"
 	"log"
+	"strings"
 )
 
 // YAMLConfig will be used for unmarshalling the yaml test suite
@@ -75,8 +76,9 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 	return tests
 }
 
+// Convert variable to string and remove trailing blank lines
 func toString(s interface{}) string {
-	return fmt.Sprintf("%s", s)
+	return strings.Trim(fmt.Sprintf("%s", s), "\n")
 }
 
 // UnmarshalYAML unmarshals the yaml
