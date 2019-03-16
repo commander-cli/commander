@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"gopkg.in/yaml.v2"
-	"log"
 	"strings"
 )
 
@@ -58,9 +57,9 @@ func (s YAMLSuite) GetGlobalConfig() runtime.TestConfig {
 func ParseYAML(content []byte) Suite {
 	yamlConfig := YAMLConfig{}
 
-	err := yaml.Unmarshal(content, &yamlConfig)
+	err := yaml.UnmarshalStrict(content, &yamlConfig)
 	if err != nil {
-		log.Fatal(err)
+	    panic(err.Error())
 	}
 
 	return YAMLSuite{
@@ -108,7 +107,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	err := unmarshal(&params)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// map key to title property
