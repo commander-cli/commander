@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 	"github.com/urfave/cli"
-	"github.com/SimonBaeumer/commander/pkg"
+	"github.com/SimonBaeumer/commander/pkg/output"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/SimonBaeumer/commander/pkg/suite"
 )
@@ -78,7 +78,8 @@ func testCommand(c *cli.Context) {
 	}
 
 	results := runtime.Start(tests)
-	if !commander.Start(results) {
+	out := output.NewCliOutput()
+	if !out.Start(results) {
 		os.Exit(1)
 	}
 }
