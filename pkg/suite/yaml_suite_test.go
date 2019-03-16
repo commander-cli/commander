@@ -154,3 +154,36 @@ tests:
 
 	assert.Equal(t, "Could not find test does not exist", err.Error())
 }
+
+func TestYAMLSuite_ShouldParseGlobalConfig(t *testing.T) {
+	yaml := []byte(`
+config:
+    env:
+    - KEY=value
+tests:
+    echo hello:
+       exit-code: 0
+`)
+
+	got := ParseYAML(yaml)
+	assert.Equal(t, []string{"KEY=value"}, got.GetGlobalConfig().Env)
+	assert.Equal(t, []string{"KEY=value"}, got.GetTests()[0].Command.Env)
+}
+
+func TestYAMLSuite_ShouldMergeConfigs(t *testing.T) {
+	yaml := []byte(`
+config:
+    env:
+    - KEY=global
+tests:
+    echo hello:
+       exit-code: 0
+       config:
+           env:
+           - KEY=local
+`)
+
+	got := ParseYAML(yaml)
+	assert.Equal(t, []string{"KEY=global"}, got.GetGlobalConfig().Env)
+	assert.Equal(t, []string{"KEY=local"}, got.GetTests()[0].Command.Env)
+}
