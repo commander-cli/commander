@@ -195,3 +195,21 @@ tests:
 	assert.Equal(t, []string{"KEY=local"}, got.GetTests()[0].Command.Env)
 	assert.Equal(t, "/home/test", got.GetTests()[0].Command.Dir)
 }
+
+func TestYAMLSuite_ShouldThrowAnErrorIfFieldIsNotRegistered(t *testing.T) {
+    defer func() {
+        r := recover()
+        if r != nil {
+            assert.Contains(t, r, "field stdot not found in type suite.YAMLTest")
+        }
+        assert.NotNil(t, r)
+    }()
+
+	yaml := []byte(`
+tests:
+    echo hello:
+        stdot: yeah
+`)
+
+	_ = ParseYAML(yaml)
+}
