@@ -21,7 +21,7 @@ type Command struct {
 //NewCommand creates a new command
 func NewCommand(cmd string) *Command {
     return &Command{
-        Cmd: cmd,
+        Cmd:      cmd,
         executed: false,
     }
 }

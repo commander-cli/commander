@@ -1,0 +1,16 @@
+config:
+  env:
+    - KEY=value
+tests:
+  should print global env value:
+    command: echo $KEY
+    stdout: value
+    exit-code: 0
+
+  should print local env value:
+    command: echo $KEY
+    config:
+      env:
+        - KEY=local
+    stdout: local
+    exit-code: 0
