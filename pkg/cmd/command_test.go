@@ -37,3 +37,12 @@ func TestCommand_ExitCode(t *testing.T) {
     assert.Nil(t, err)
     assert.Equal(t, 120, cmd.ExitCode())
 }
+
+func TestCommand_WithEnvVariables(t *testing.T) {
+    cmd := NewCommand("echo $TEST")
+    cmd.Env = []string{"TEST=hey"}
+
+    _ = cmd.Execute()
+
+    assert.Equal(t, "hey", cmd.Stdout())
+}
