@@ -160,6 +160,7 @@ func TestYAMLSuite_ShouldParseGlobalConfig(t *testing.T) {
 config:
     env:
     - KEY=value
+    dir: /home/commander/
 tests:
     echo hello:
        exit-code: 0
@@ -168,22 +169,29 @@ tests:
 	got := ParseYAML(yaml)
 	assert.Equal(t, []string{"KEY=value"}, got.GetGlobalConfig().Env)
 	assert.Equal(t, []string{"KEY=value"}, got.GetTests()[0].Command.Env)
+	assert.Equal(t, "/home/commander/", got.GetTests()[0].Command.Dir)
+	assert.Equal(t, "/home/commander/", got.GetGlobalConfig().Dir)
 }
 
-func TestYAMLSuite_ShouldMergeConfigs(t *testing.T) {
+func TestYAMLSuite_ShouldPreferLocalTestConfigs(t *testing.T) {
 	yaml := []byte(`
 config:
     env:
     - KEY=global
+    dir: /home/commander/
 tests:
     echo hello:
        exit-code: 0
        config:
            env:
            - KEY=local
+           dir: /home/test
 `)
 
 	got := ParseYAML(yaml)
 	assert.Equal(t, []string{"KEY=global"}, got.GetGlobalConfig().Env)
+	assert.Equal(t, "/home/commander/", got.GetGlobalConfig().Dir)
+
 	assert.Equal(t, []string{"KEY=local"}, got.GetTests()[0].Command.Env)
+	assert.Equal(t, "/home/test", got.GetTests()[0].Command.Dir)
 }

@@ -14,3 +14,10 @@ tests:
         - KEY=local
     stdout: local
     exit-code: 0
+
+  should execute in given dir:
+    command: pwd
+    config:
+      dir: /tmp
+    stdout: /tmp
+    exit-code: 0

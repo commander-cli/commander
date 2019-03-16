@@ -16,6 +16,7 @@ type YAMLConfig struct {
 
 type YAMLTestConfig struct {
 	Env []string `yaml:"env"`
+	Dir string   `yaml:"dir"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -66,6 +67,7 @@ func ParseYAML(content []byte) Suite {
 		TestCases: convertYAMLConfToTestCases(yamlConfig),
 		Config:    runtime.TestConfig{
 		    Env: yamlConfig.Config.Env,
+		    Dir: yamlConfig.Config.Dir,
         },
 	}
 }
@@ -79,6 +81,7 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 			Command:  runtime.CommandUnderTest{
 				Cmd: t.Command,
 				Env: t.Config.Env,
+				Dir: t.Config.Dir,
 			},
 			Expected: runtime.Expected{
 				ExitCode: t.ExitCode,
@@ -128,7 +131,11 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		y.Tests[k] = test
 	}
 
-	y.Config = YAMLTestConfig{Env: params.Config.Env}
+	//Parse global configuration
+	y.Config = YAMLTestConfig{
+		Env: params.Config.Env,
+		Dir: params.Config.Dir,
+	}
 
 	return nil
 }
@@ -196,6 +203,10 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 	conf := global
 	if len(local.Env) > 0 {
 		conf.Env = local.Env
+	}
+
+	if local.Dir != "" {
+		conf.Dir = local.Dir
 	}
 
 	return conf
