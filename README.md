@@ -39,13 +39,10 @@ Count: 2, Failed: 0
 
 ```
 NAME:
-   Commander - A new cli application
+   Commander - CLI app testing
 
 USAGE:
    commander [global options] command [command options] [arguments...]
-
-VERSION:
-   0.0.0
 
 COMMANDS:
      test     Execute the test suite
@@ -60,6 +57,10 @@ GLOBAL OPTIONS:
 ## Example yaml file
 
 ```
+config:
+    env:
+    - ENV_KEY=value
+    dir: /tmp #set the current working dir
 tests:
     it will print hello world:
         cmd: echo hello world
@@ -67,7 +68,8 @@ tests:
             lines:
                 1: hello world
             contains: 
-            - hello world
+                - hello world
+            exactly: hello world
         exit-code: 0
             
     it will print hello:
@@ -75,10 +77,16 @@ tests:
         stdout: hello
         exit-code: 0
         
-    echo hello:
+    it prints variable:
+        cmd: echo $ENV_KEY
+        stdout: value
         exit-code: 0
-        
-    echo skip:
+    
+    it overwrites dir:
+        cmd: pwd
+        config:
+            dir: /home/commander
+        stdout: /home/commander
         exit-code: 0
 ```
 
@@ -100,33 +108,3 @@ make test-integration
 # Add depdencies to vendor
 make deps
 ```
-
-## Todo:
- - Assert line-count
- - Verbose output
- - command execution
-   - environment variables
-   - arguments?
-   - timeout
-   - interactive commands
-
- - stdout
-    - Validate against string *done*
-    - Validate against file
-    - Validate against line
-    - Validate with wildcards / regex
-    - Validate against template
- - stderr
-    - Validate against string *done*
-    - Validate against file
-    - Validate with wildcards
-    - Validate against template
- - Support different os
-   - Windows
-   - MacOs
-   - Linux
-      - debian
-      - ubuntu
-      - rhel
-      - centos
-      - alpine
