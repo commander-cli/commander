@@ -26,7 +26,7 @@ test-coverage: build
 
 test-integration: build
 	$(info INFO: Starting build $@)
-	./commander test
+	commander test
 
 release-amd64:
 	$(info INFO: Starting build $@)
