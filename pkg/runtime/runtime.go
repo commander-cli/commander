@@ -46,6 +46,7 @@ type CommandResult struct {
     Stderr            string
     ExitCode          int
     FailureProperties []string
+    Error             error
 }
 
 //Expected is the expected output of the command under test
@@ -117,8 +118,17 @@ func runTest(test TestCase) TestResult {
     cut.Dir = test.Command.Dir
 
     if err := cut.Execute(); err != nil {
-        log.Fatal(err)
+        log.Println("Command failed ", err.Error())
+        test.Result = CommandResult{
+            Error: err,
+        }
+
+        return TestResult{
+            TestCase: test,
+        }
     }
+
+    log.Println("Executed command ", test.Command.Cmd)
 
     // Write test result
     test.Result = CommandResult{

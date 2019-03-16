@@ -40,6 +40,19 @@ func TestRuntime_WithEnvVariables(t *testing.T) {
     assert.Equal(t, 1, count)
 }
 
+func Test_runTestShouldReturnError(t *testing.T) {
+    test := TestCase{
+        Command: CommandUnderTest{
+            Cmd: "pwd",
+            Dir: "/home/invalid",
+        },
+    }
+
+    got := runTest(test)
+
+    assert.Equal(t, "chdir /home/invalid: no such file or directory", got.TestCase.Result.Error.Error())
+}
+
 func getExampleTestSuite() []TestCase {
     tests := []TestCase{
         {
@@ -57,5 +70,3 @@ func getExampleTestSuite() []TestCase {
     }
     return tests
 }
-
-
