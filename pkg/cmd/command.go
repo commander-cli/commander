@@ -7,6 +7,7 @@ import (
     "syscall"
 )
 
+//Command represents a single command which can be executed
 type Command struct {
     Cmd      string
     Env      []string
@@ -17,38 +18,44 @@ type Command struct {
     exitCode int
 }
 
+//NewCommand creates a new command
 func NewCommand(cmd string) *Command {
     return &Command{
-        Cmd: cmd,
+        Cmd:      cmd,
         executed: false,
     }
 }
 
+//Stdout returns the output to stdout
 func (c *Command) Stdout() string {
-    c.evaluateExecuted("Stdout")
+    c.isExecuted("Stdout")
     return c.stdout
 }
 
+//Stderr returns the output to stderr
 func (c *Command) Stderr() string {
-    c.evaluateExecuted("Stderr")
+    c.isExecuted("Stderr")
     return c.stderr
 }
 
+//ExitCode returns the exit code of the command
 func (c *Command) ExitCode() int {
-    c.evaluateExecuted("ExitCode")
+    c.isExecuted("ExitCode")
     return c.exitCode
 }
 
+//Executed returns if the command was already executed
 func (c *Command) Executed() bool {
     return c.executed
 }
 
-func (c *Command) evaluateExecuted(property string) {
+func (c *Command) isExecuted(property string) {
     if !c.executed {
         panic("Can not read " + property + " if command was not executed.")
     }
 }
 
+//Execute executes the command
 func (c *Command) Execute() error {
     cmd := exec.Command("sh", "-c", c.Cmd)
     cmd.Env = c.Env

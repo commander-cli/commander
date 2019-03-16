@@ -30,6 +30,12 @@ type TestCase struct {
     Result   CommandResult
 }
 
+//Config
+type TestConfig struct {
+    Env []string
+    Dir string
+}
+
 // ResultStatus represents the status code of a test result
 type ResultStatus int
 
@@ -107,6 +113,8 @@ func Start(tests []TestCase) <-chan TestResult {
 func runTest(test TestCase) TestResult {
     // cut = command under test
     cut := cmd.NewCommand(test.Command.Cmd)
+    cut.Env = test.Command.Env
+    cut.Dir = test.Command.Dir
 
     if err := cut.Execute(); err != nil {
         log.Fatal(err)

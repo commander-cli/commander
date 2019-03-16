@@ -27,3 +27,11 @@ tests:
         - ✓ cat ./integration/_fixtures/big_out.txt
         - "Count: 1, Failed: 0"
     exit-code: 0
+
+  test global and local configurations:
+    command: ./commander test ./integration/config_test.yaml
+    stdout:
+      contains:
+        - ✓ should print global env value
+        - ✓ should print local env value
+    exit-code: 0
