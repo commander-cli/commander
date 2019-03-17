@@ -7,11 +7,15 @@ import (
 )
 
 const (
+	// Text matcher type
 	Text     = "text"
+	// Contains matcher type
 	Contains = "contains"
+	// Equal matcher type
 	Equal    = "equal"
 )
 
+// NewMatcher creates a new matcher by type
 func NewMatcher(matcher string) Matcher {
 	switch matcher {
 	case Text:
@@ -25,18 +29,22 @@ func NewMatcher(matcher string) Matcher {
 	}
 }
 
+// Matcher interface which is implemented by all matchers
 type Matcher interface {
 	Match(actual interface{}, expected interface{}) MatcherResult
 }
 
+// MatcherResult will be returned by the executed matcher
 type MatcherResult struct {
 	Success bool
 	Diff    string
 }
 
+// TextMatcher matches if two texts are equals
 type TextMatcher struct {
 }
 
+// Match matches both texts
 func (m TextMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	result := true
 	if got != expected {
@@ -58,9 +66,11 @@ func (m TextMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 	}
 }
 
+// ContainsMatcher tests if the expected value is in the got variable
 type ContainsMatcher struct {
 }
 
+// Match matches on the given values
 func (m ContainsMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	result := true
 	if !strings.Contains(got.(string), expected.(string)) {
@@ -82,9 +92,11 @@ func (m ContainsMatcher) Match(got interface{}, expected interface{}) MatcherRes
 	}
 }
 
+//EqualMatcher matches if given values are equal
 type EqualMatcher struct {
 }
 
+//Match matches the values if they are equal
 func (m EqualMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	if got == expected {
 		return MatcherResult{

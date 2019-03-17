@@ -15,6 +15,7 @@ type YAMLConfig struct {
 	Config YAMLTestConfig      `yaml:"config"`
 }
 
+// YAMLTestConfig is a struct to represent the test config
 type YAMLTestConfig struct {
 	Env     []string `yaml:"env"`
 	Dir     string   `yaml:"dir"`

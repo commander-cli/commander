@@ -31,6 +31,7 @@ func NewCommand(cmd string) *Command {
 	}
 }
 
+//SetTimeoutMS sets the timeout in milliseconds
 func (c *Command) SetTimeoutMS(ms int) {
 	if ms == 0 {
 		c.Timeout = 1 * time.Minute
@@ -102,7 +103,7 @@ func (c *Command) Execute() error {
 	case <-time.After(c.Timeout):
 		log.Println("Command timed out", c.Cmd)
 		if err := cmd.Process.Kill(); err != nil {
-			return fmt.Errorf("Timeout occured and can not kill process with pid %v", cmd.Process.Pid)
+			return fmt.Errorf("Timeout occurred and can not kill process with pid %v", cmd.Process.Pid)
 		}
 		return fmt.Errorf("Command timed out after %v", c.Timeout)
 	}
