@@ -11,10 +11,11 @@ const defaultTimeoutMs = 5000
 
 // YAMLConfig will be used for unmarshalling the yaml test suite
 type YAMLConfig struct {
-	Tests   map[string]YAMLTest       `yaml:"tests"`
-	Config  YAMLTestConfig            `yaml:"config"`
+	Tests  map[string]YAMLTest `yaml:"tests"`
+	Config YAMLTestConfig      `yaml:"config"`
 }
 
+// YAMLTestConfig is a struct to represent the test config
 type YAMLTestConfig struct {
 	Env     []string `yaml:"env"`
 	Dir     string   `yaml:"dir"`
@@ -33,8 +34,8 @@ type YAMLTest struct {
 
 //YAMLSuite represents a test suite which was configured in yaml
 type YAMLSuite struct {
-	TestCases  []runtime.TestCase
-	Config     runtime.TestConfig
+	TestCases []runtime.TestCase
+	Config    runtime.TestConfig
 }
 
 // GetTests returns all tests of the test suite
@@ -62,16 +63,16 @@ func ParseYAML(content []byte) Suite {
 
 	err := yaml.UnmarshalStrict(content, &yamlConfig)
 	if err != nil {
-	    panic(err.Error())
+		panic(err.Error())
 	}
 
 	return YAMLSuite{
 		TestCases: convertYAMLConfToTestCases(yamlConfig),
-		Config:    runtime.TestConfig{
-		    Env:     yamlConfig.Config.Env,
-		    Dir:     yamlConfig.Config.Dir,
-		    Timeout: yamlConfig.Config.Timeout,
-        },
+		Config: runtime.TestConfig{
+			Env:     yamlConfig.Config.Env,
+			Dir:     yamlConfig.Config.Dir,
+			Timeout: yamlConfig.Config.Timeout,
+		},
 	}
 }
 
@@ -80,8 +81,8 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 	var tests []runtime.TestCase
 	for _, t := range conf.Tests {
 		tests = append(tests, runtime.TestCase{
-			Title:    t.Title,
-			Command:  runtime.CommandUnderTest{
+			Title: t.Title,
+			Command: runtime.CommandUnderTest{
 				Cmd:     t.Command,
 				Env:     t.Config.Env,
 				Dir:     t.Config.Dir,
@@ -89,8 +90,8 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 			},
 			Expected: runtime.Expected{
 				ExitCode: t.ExitCode,
-				Stdout: t.Stdout.(runtime.ExpectedOut),
-				Stderr: t.Stderr.(runtime.ExpectedOut),
+				Stdout:   t.Stdout.(runtime.ExpectedOut),
+				Stderr:   t.Stderr.(runtime.ExpectedOut),
 			},
 		})
 	}
@@ -106,8 +107,8 @@ func toString(s interface{}) string {
 // UnmarshalYAML unmarshals the yaml
 func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var params struct {
-		Tests  map[string]YAMLTest       `yaml:"tests"`
-		Config YAMLTestConfig            `yaml:"config"`
+		Tests  map[string]YAMLTest `yaml:"tests"`
+		Config YAMLTestConfig      `yaml:"config"`
 	}
 
 	err := unmarshal(&params)
@@ -119,12 +120,12 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	y.Tests = make(map[string]YAMLTest)
 	for k, v := range params.Tests {
 		test := YAMLTest{
-			Title: k,
-			Command: v.Command,
+			Title:    k,
+			Command:  v.Command,
 			ExitCode: v.ExitCode,
-			Stdout: y.convertToExpectedOut(v.Stdout),
-			Stderr: y.convertToExpectedOut(v.Stderr),
-			Config: y.mergeConfigs(v.Config, params.Config),
+			Stdout:   y.convertToExpectedOut(v.Stdout),
+			Stderr:   y.convertToExpectedOut(v.Stderr),
+			Config:   y.mergeConfigs(v.Config, params.Config),
 		}
 
 		// Set key as command, if command property was empty
@@ -147,61 +148,61 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 //Converts given value to an ExpectedOut. Especially used for Stdout and Stderr.
 func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut {
-    exp := runtime.ExpectedOut{}
+	exp := runtime.ExpectedOut{}
 
-    switch value.(type) {
-    //If only a string was passed it is assigned to exactly automatically
-    case string:
-        exp.Contains = []string{toString(value)}
-        break
+	switch value.(type) {
+	//If only a string was passed it is assigned to exactly automatically
+	case string:
+		exp.Contains = []string{toString(value)}
+		break
 
-    //If there is nested map set the properties will be assigned to the contains
-    case map[interface{}]interface{}:
-	    v := value.(map[interface{}]interface{})
-	    // Check if keys are parsable
-	    // TODO: Could be refactored into a registry maybe which holds all parsers
-	    for k, _ := range v {
-		    switch k {
-		    case
-			    "contains",
-			    "exactly",
-			    "line-count",
-			    "lines":
-		        break;
-		    default:
-			    panic(fmt.Sprintf("Key %s is not allowed.", k))
-		    }
-	    }
+	//If there is nested map set the properties will be assigned to the contains
+	case map[interface{}]interface{}:
+		v := value.(map[interface{}]interface{})
+		// Check if keys are parsable
+		// TODO: Could be refactored into a registry maybe which holds all parsers
+		for k, _ := range v {
+			switch k {
+			case
+				"contains",
+				"exactly",
+				"line-count",
+				"lines":
+				break
+			default:
+				panic(fmt.Sprintf("Key %s is not allowed.", k))
+			}
+		}
 
-	    //Parse contains key
-	    if contains := v["contains"]; contains != nil {
-		    values := contains.([]interface{})
-		    for _, v := range values {
-			    exp.Contains = append(exp.Contains, toString(v))
-		    }
-	    }
+		//Parse contains key
+		if contains := v["contains"]; contains != nil {
+			values := contains.([]interface{})
+			for _, v := range values {
+				exp.Contains = append(exp.Contains, toString(v))
+			}
+		}
 
-	    //Parse exactly key
-        if exactly := v["exactly"]; exactly != nil {
-	        exp.Exactly = toString(exactly)
-        }
+		//Parse exactly key
+		if exactly := v["exactly"]; exactly != nil {
+			exp.Exactly = toString(exactly)
+		}
 
-	    //Parse line-count key
-	    if lc := v["line-count"]; lc != nil {
-		    exp.LineCount = lc.(int)
-	    }
+		//Parse line-count key
+		if lc := v["line-count"]; lc != nil {
+			exp.LineCount = lc.(int)
+		}
 
-	    // Parse lines
-	    if l := v["lines"]; l != nil {
-	    	exp.Lines = make(map[int]string)
-		    for k, v := range l.(map[interface{}]interface{}) {
-		    	exp.Lines[k.(int)] = toString(v)
-		    }
-	    }
-        break
-    }
+		// Parse lines
+		if l := v["lines"]; l != nil {
+			exp.Lines = make(map[int]string)
+			for k, v := range l.(map[interface{}]interface{}) {
+				exp.Lines[k.(int)] = toString(v)
+			}
+		}
+		break
+	}
 
-    return exp
+	return exp
 }
 
 func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) YAMLTestConfig {
@@ -215,11 +216,11 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 	}
 
 	if local.Timeout != 0 {
-	    conf.Timeout = local.Timeout
-    }
+		conf.Timeout = local.Timeout
+	}
 	if conf.Timeout == 0 {
-        conf.Timeout = defaultTimeoutMs
-    }
+		conf.Timeout = defaultTimeoutMs
+	}
 
 	return conf
 }

@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
-	"os"
-	"github.com/urfave/cli"
 	"github.com/SimonBaeumer/commander/pkg/output"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/SimonBaeumer/commander/pkg/suite"
+	"github.com/urfave/cli"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 const (

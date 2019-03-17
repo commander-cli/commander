@@ -1,8 +1,8 @@
 package suite
 
 import (
-    "github.com/SimonBaeumer/commander/pkg/runtime"
-    "github.com/stretchr/testify/assert"
+	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -38,7 +38,6 @@ tests:
 `)
 	tests := ParseYAML(yaml).GetTests()
 
-
 	assert.Equal(t, "echo hello", tests[0].Command.Cmd)
 	assert.Equal(t, "echo hello", tests[0].Title)
 }
@@ -57,7 +56,7 @@ tests:
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldParseLines(t *testing.T) {
-    yaml := []byte(`
+	yaml := []byte(`
 tests:
     printf "line1\nline2\nline3\nline4":
         exit-code: 0
@@ -67,11 +66,11 @@ tests:
                 1: line2
                 3: line4
 `)
-    tests := ParseYAML(yaml).GetTests()
+	tests := ParseYAML(yaml).GetTests()
 
-    assert.Equal(t, "line1", tests[0].Expected.Stdout.Lines[0])
-    assert.Equal(t, "line2", tests[0].Expected.Stdout.Lines[1])
-    assert.Equal(t, "line4", tests[0].Expected.Stdout.Lines[3])
+	assert.Equal(t, "line1", tests[0].Expected.Stdout.Lines[0])
+	assert.Equal(t, "line2", tests[0].Expected.Stdout.Lines[1])
+	assert.Equal(t, "line4", tests[0].Expected.Stdout.Lines[3])
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldConvertStdoutToExpectedOut(t *testing.T) {
@@ -92,44 +91,44 @@ tests:
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldConvertWithoutContains(t *testing.T) {
-    yaml := []byte(`
+	yaml := []byte(`
 tests:
     echo hello:
         exit-code: 0
         stderr:
             exactly: exactly stderr
 `)
-    tests := ParseYAML(yaml).GetTests()
+	tests := ParseYAML(yaml).GetTests()
 
-    assert.Equal(t, "exactly stderr", tests[0].Expected.Stderr.Exactly)
-    assert.IsType(t, runtime.ExpectedOut{}, tests[0].Expected.Stdout)
+	assert.Equal(t, "exactly stderr", tests[0].Expected.Stderr.Exactly)
+	assert.IsType(t, runtime.ExpectedOut{}, tests[0].Expected.Stdout)
 }
 
 func Test_YAMLConfig_convertToExpectedOut(t *testing.T) {
-    in := map[interface{}]interface{}{"exactly": "exactly stderr"}
+	in := map[interface{}]interface{}{"exactly": "exactly stderr"}
 
-    y := YAMLConfig{}
-    got := y.convertToExpectedOut(in)
+	y := YAMLConfig{}
+	got := y.convertToExpectedOut(in)
 
-    assert.IsType(t, runtime.ExpectedOut{}, got)
-    assert.Equal(t, "exactly stderr", got.Exactly)
+	assert.IsType(t, runtime.ExpectedOut{}, got)
+	assert.Equal(t, "exactly stderr", got.Exactly)
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldPanicIfKeyDoesNotExist(t *testing.T) {
-    defer func() {
-        if r := recover(); r == nil {
-            t.Errorf("Unknown keys should not be parsed, the program should panic")
-        }
-    }()
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Unknown keys should not be parsed, the program should panic")
+		}
+	}()
 
-    yaml := []byte(`
+	yaml := []byte(`
 tests:
     echo hello:
         exit-code: 0
         stderr:
             typo: exactly stderr
 `)
-    _ = ParseYAML(yaml)
+	_ = ParseYAML(yaml)
 }
 
 func TestYAMLSuite_GetTestByTitle(t *testing.T) {
@@ -201,13 +200,13 @@ tests:
 }
 
 func TestYAMLSuite_ShouldThrowAnErrorIfFieldIsNotRegistered(t *testing.T) {
-    defer func() {
-        r := recover()
-        if r != nil {
-            assert.Contains(t, r, "field stdot not found in type suite.YAMLTest")
-        }
-        assert.NotNil(t, r)
-    }()
+	defer func() {
+		r := recover()
+		if r != nil {
+			assert.Contains(t, r, "field stdot not found in type suite.YAMLTest")
+		}
+		assert.NotNil(t, r)
+	}()
 
 	yaml := []byte(`
 tests:

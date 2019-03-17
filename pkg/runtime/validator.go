@@ -2,7 +2,7 @@ package runtime
 
 import (
 	"github.com/SimonBaeumer/commander/pkg/matcher"
-    "strings"
+	"strings"
 )
 
 // ValidationResult will be returned after the validation was executed
@@ -20,42 +20,42 @@ func newValidationResult(m matcher.MatcherResult) ValidationResult {
 
 // Validate validates the test results with the expected values
 func Validate(test TestCase) TestResult {
-    equalMatcher := matcher.NewMatcher(matcher.Equal)
+	equalMatcher := matcher.NewMatcher(matcher.Equal)
 
-    matcherResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
-    if !matcherResult.Success {
-        return TestResult{
-            ValidationResult: newValidationResult(matcherResult),
-            TestCase:         test,
-            FailedProperty:   Stdout,
-        }
-    }
+	matcherResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
+	if !matcherResult.Success {
+		return TestResult{
+			ValidationResult: newValidationResult(matcherResult),
+			TestCase:         test,
+			FailedProperty:   Stdout,
+		}
+	}
 
-    matcherResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
-    if !matcherResult.Success {
-        return TestResult{
-            ValidationResult: newValidationResult(matcherResult),
-            TestCase:         test,
-            FailedProperty:   Stderr,
-        }
-    }
+	matcherResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
+	if !matcherResult.Success {
+		return TestResult{
+			ValidationResult: newValidationResult(matcherResult),
+			TestCase:         test,
+			FailedProperty:   Stderr,
+		}
+	}
 
-    matcherResult = equalMatcher.Match(test.Result.ExitCode, test.Expected.ExitCode)
-    if !matcherResult.Success {
-        return TestResult{
-            ValidationResult: newValidationResult(matcherResult),
-            TestCase:         test,
-            FailedProperty:   ExitCode,
-        }
-    }
+	matcherResult = equalMatcher.Match(test.Result.ExitCode, test.Expected.ExitCode)
+	if !matcherResult.Success {
+		return TestResult{
+			ValidationResult: newValidationResult(matcherResult),
+			TestCase:         test,
+			FailedProperty:   ExitCode,
+		}
+	}
 
-    return TestResult{
-        ValidationResult: newValidationResult(matcherResult),
-        TestCase:         test,
-    }
+	return TestResult{
+		ValidationResult: newValidationResult(matcherResult),
+		TestCase:         test,
+	}
 }
 
-func validateExpectedOut(got string, expected  ExpectedOut) matcher.MatcherResult {
+func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult {
 	var m matcher.Matcher
 	var result matcher.MatcherResult
 
@@ -76,26 +76,26 @@ func validateExpectedOut(got string, expected  ExpectedOut) matcher.MatcherResul
 	}
 
 	if expected.LineCount != 0 {
-        m = matcher.NewMatcher(matcher.Equal)
-        count := strings.Count(got, "\n") + 1
-        if got == "" {
-            count = 0
-        }
+		m = matcher.NewMatcher(matcher.Equal)
+		count := strings.Count(got, "\n") + 1
+		if got == "" {
+			count = 0
+		}
 
-        if result = m.Match(count, expected.LineCount); !result.Success {
-            return result
-        }
-    }
+		if result = m.Match(count, expected.LineCount); !result.Success {
+			return result
+		}
+	}
 
 	if len(expected.Lines) > 0 {
-	    m = matcher.NewMatcher(matcher.Equal)
-	    actualLines := strings.Split(got, "\n")
-	    for k, expL := range expected.Lines {
-            if result = m.Match(actualLines[k], expL); !result.Success {
-                return result
-            }
-        }
-    }
+		m = matcher.NewMatcher(matcher.Equal)
+		actualLines := strings.Split(got, "\n")
+		for k, expL := range expected.Lines {
+			if result = m.Match(actualLines[k], expL); !result.Success {
+				return result
+			}
+		}
+	}
 
 	result.Success = true
 	return result
