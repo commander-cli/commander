@@ -15,9 +15,6 @@ go:
 sudo: required
 dist: trusty
 
-services:
-  - docker
-
 before_install:
   - go get -u golang.org/x/lint/golint
   - make deps
@@ -29,6 +26,17 @@ jobs:
   - name: Go lint
     stage: test
     script: make lint
+
+  - name: macOS Unit
+    os: osx
+    script:
+      - make test
+
+  - name: macOS integration
+    os: osx
+    script:
+      - make build
+      - ./commander test
 
   - name: Unit tests
     before_script:
@@ -56,6 +64,7 @@ jobs:
         - release/commander-linux-amd64
         - release/commander-linux-arm
         - release/commander-linux-386
+        - release/commander-darwin-amd64
       skip_cleanup: true
       on:
         repo: SimonBaeumer/commander
