@@ -13,16 +13,19 @@ import (
 
 var au aurora.Aurora
 
+// OutputWriter represents the output
 type OutputWriter struct {
     out io.Writer
 }
 
+// NewCliOutput creates a new OutputWriter with a stdout writer
 func NewCliOutput() OutputWriter {
     return OutputWriter{
         out: os.Stdout,
     }
 }
 
+// Start starts the writing sequence
 func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
     au = aurora.NewAurora(true)
     failed := 0
