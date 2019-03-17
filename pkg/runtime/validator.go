@@ -77,7 +77,7 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 
 	if expected.LineCount != 0 {
 		m = matcher.NewMatcher(matcher.Equal)
-		count := strings.Count(got, "\n") + 1
+		count := strings.Count(got, getLineBreak()) + 1
 		if got == "" {
 			count = 0
 		}
@@ -89,7 +89,7 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 
 	if len(expected.Lines) > 0 {
 		m = matcher.NewMatcher(matcher.Equal)
-		actualLines := strings.Split(got, "\n")
+		actualLines := strings.Split(got, getLineBreak())
 		for k, expL := range expected.Lines {
 			if result = m.Match(actualLines[k], expL); !result.Success {
 				return result
@@ -99,4 +99,8 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 
 	result.Success = true
 	return result
+}
+
+func getLineBreak() string {
+	return "\n"
 }

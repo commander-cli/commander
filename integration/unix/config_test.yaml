@@ -1,0 +1,29 @@
+config:
+  env:
+    - KEY=value
+tests:
+  should print global env value:
+    command: echo $KEY
+    stdout: value
+    exit-code: 0
+
+  should print local env value:
+    command: echo $KEY
+    config:
+      env:
+        - KEY=local
+    stdout: local
+    exit-code: 0
+
+  should execute in given dir:
+    command: pwd
+    config:
+      dir: /tmp
+    stdout: /tmp
+    exit-code: 0
+
+  it should work with timeout:
+    command: echo hello
+    config:
+      timeout: 100
+    exit-code: 0

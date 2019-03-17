@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"runtime"
 	"testing"
 )
 
@@ -11,22 +13,13 @@ func TestCommand_NewCommand(t *testing.T) {
 }
 
 func TestCommand_Execute(t *testing.T) {
-	cmd := NewCommand("/bin/echo hello")
+	cmd := NewCommand("echo hello")
 
 	err := cmd.Execute()
 
 	assert.Nil(t, err)
 	assert.True(t, cmd.Executed())
 	assert.Equal(t, cmd.Stdout(), "hello")
-}
-
-func TestCommand_ExecuteStderr(t *testing.T) {
-	cmd := NewCommand(">&2 /bin/echo hello")
-
-	err := cmd.Execute()
-
-	assert.Nil(t, err)
-	assert.Equal(t, "hello", cmd.Stderr())
 }
 
 func TestCommand_ExitCode(t *testing.T) {
@@ -39,29 +32,27 @@ func TestCommand_ExitCode(t *testing.T) {
 }
 
 func TestCommand_WithEnvVariables(t *testing.T) {
-	cmd := NewCommand("echo $TEST")
+	envVar := "$TEST"
+	if runtime.GOOS == "windows" {
+		envVar = "%TEST%"
+	}
+	cmd := NewCommand(fmt.Sprintf("echo %s", envVar))
 	cmd.Env = []string{"TEST=hey"}
 
 	_ = cmd.Execute()
 
-	assert.Equal(t, "hey", cmd.Stdout())
+	assert.Equal(t, cmd.Stdout(), "hey")
 }
 
-func TestCommand_WithTimeout(t *testing.T) {
-	cmd := NewCommand("sleep 0.1;")
-	cmd.SetTimeoutMS(5)
+func TestCommand_Executed(t *testing.T) {
+	defer func () {
+		r := recover()
+		if r != nil {
+			assert.Contains(t, r, "Can not read Stdout if command was not executed")
+		}
+		assert.NotNil(t, r)
+	}()
 
-	err := cmd.Execute()
-
-	assert.NotNil(t, err)
-	assert.Equal(t, "Command timed out after 5ms", err.Error())
-}
-
-func TestCommand_WithValidTimeout(t *testing.T) {
-	cmd := NewCommand("sleep 0.01;")
-	cmd.SetTimeoutMS(500)
-
-	err := cmd.Execute()
-
-	assert.Nil(t, err)
+	c := NewCommand("echo will not be executed")
+	_ = c.Stdout()
 }

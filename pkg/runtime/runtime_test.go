@@ -1,7 +1,9 @@
 package runtime
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"runtime"
 	"testing"
 )
 
@@ -21,23 +23,28 @@ func TestRuntime_Start(t *testing.T) {
 }
 
 func TestRuntime_WithEnvVariables(t *testing.T) {
-	s := getExampleTestSuite()
-	s[0].Command.Env = []string{"KEY=value"}
-	s[0].Command.Cmd = "echo $KEY"
-	s[0].Expected.Stdout.Exactly = "value"
-	s[0].Title = "Output env variable"
-
-	got := Start(s)
-
-	assert.IsType(t, make(<-chan TestResult), got)
-
-	count := 0
-	for r := range got {
-		assert.Equal(t, "value", r.TestCase.Result.Stdout)
-		assert.True(t, r.ValidationResult.Success)
-		count++
+	envVar := "$KEY"
+	if runtime.GOOS == "windows" {
+		envVar = "%KEY%"
 	}
-	assert.Equal(t, 1, count)
+
+	s := TestCase{
+		Command: CommandUnderTest{
+			Cmd:     fmt.Sprintf("echo %s", envVar),
+			Timeout: 50,
+			Env:     []string{"KEY=value"},
+		},
+		Expected: Expected{
+			Stdout: ExpectedOut{
+				Contains: []string{"value"},
+			},
+			ExitCode: 0,
+		},
+		Title: "Output env variable",
+	}
+
+	got := runTest(s)
+	assert.True(t, got.ValidationResult.Success)
 }
 
 func Test_runTestShouldReturnError(t *testing.T) {
@@ -50,7 +57,11 @@ func Test_runTestShouldReturnError(t *testing.T) {
 
 	got := runTest(test)
 
-	assert.Equal(t, "chdir /home/invalid: no such file or directory", got.TestCase.Result.Error.Error())
+	if runtime.GOOS == "windows" {
+		assert.Contains(t, got.TestCase.Result.Error.Error(), "chdir /home/invalid: The system cannot find the path specified.")
+	} else {
+		assert.Equal(t, "chdir /home/invalid: no such file or directory", got.TestCase.Result.Error.Error())
+	}
 }
 
 func getExampleTestSuite() []TestCase {

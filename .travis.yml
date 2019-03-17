@@ -39,6 +39,20 @@ jobs:
       - chmod +x ~/bin/commander
       - make test-integration
 
+  - name: windows Unit
+    os: windows
+    before_install:
+      - choco install make
+    script:
+      - make test
+
+  - name: windows integration
+    os: windows
+    before_install:
+      - choco install make
+    script:
+      - make test-integration-windows
+
   - name: Unit tests
     before_script:
       - curl https://s3.amazonaws.com/codeclimate/test-reporter/test-reporter-0.6.3-linux-amd64 --output test-reporter
@@ -66,6 +80,9 @@ jobs:
         - release/commander-linux-arm
         - release/commander-linux-386
         - release/commander-darwin-amd64
+        - release/commander-darwin-386
+        - release/commander-windows-amd64
+        - release/commander-windows-386
       skip_cleanup: true
       on:
         repo: SimonBaeumer/commander

@@ -3,6 +3,7 @@ package runtime
 import (
 	"github.com/SimonBaeumer/commander/pkg/cmd"
 	"log"
+	"strings"
 	"sync"
 )
 
@@ -135,8 +136,8 @@ func runTest(test TestCase) TestResult {
 	// Write test result
 	test.Result = CommandResult{
 		ExitCode: cut.ExitCode(),
-		Stdout:   cut.Stdout(),
-		Stderr:   cut.Stderr(),
+		Stdout:   strings.Replace(cut.Stdout(), "\r\n", "\n", -1),
+		Stderr:   strings.Replace(cut.Stderr(), "\r\n", "\n", -1),
 	}
 
 	return Validate(test)

@@ -1,0 +1,35 @@
+tests:
+  it should fail:
+    command: invalid-command
+    stderr: invalid-command
+    exit-code: 1
+
+  it should exit with error code:
+    command: exit 1
+    exit-code: 1
+
+  it should assert stdout:
+    command: echo hello
+    stdout: hello
+    exit-code: 0
+
+  it should assert line-count:
+    command: echo line1 & echo.line2
+    stdout:
+      line-count: 2
+    exit-code: 0
+
+  it should assert zero line count:
+    command: exit 0
+    stdout:
+      line-count: 0
+    exit-code: 0
+
+  it should assert a specifc line:
+    command: echo line1& echo.line2& echo.line3& echo.line4
+    stdout:
+      lines:
+        0: line1
+        1: line2
+        3: line4
+    exit-code: 0

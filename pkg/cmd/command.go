@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
-	"strings"
 	"syscall"
 	"time"
 )
@@ -70,7 +69,7 @@ func (c *Command) isExecuted(property string) {
 
 //Execute executes the commande
 func (c *Command) Execute() error {
-	cmd := exec.Command("sh", "-c", c.Cmd)
+	cmd := createBaseCommand(c)
 	cmd.Env = c.Env
 	cmd.Dir = c.Dir
 
@@ -109,8 +108,8 @@ func (c *Command) Execute() error {
 	}
 
 	// Remove leading and trailing whitespaces
-	c.stderr = strings.Trim(errBuff.String(), "\n")
-	c.stdout = strings.Trim(outBuff.String(), "\n")
+	c.stderr = c.removeLineBreaks(errBuff.String())
+	c.stdout = c.removeLineBreaks(outBuff.String())
 	c.executed = true
 
 	return nil

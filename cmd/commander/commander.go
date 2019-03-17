@@ -26,7 +26,8 @@ func main() {
 	app := createCliApp()
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 }
 
