@@ -23,6 +23,14 @@ func main() {
 
 	log.Println("Starting commander")
 
+	app := createCliApp()
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createCliApp() *cli.App {
 	app := cli.NewApp()
 	app.Name = appName
 	app.Usage = "CLI app testing"
@@ -41,39 +49,34 @@ func main() {
 			Name:      "test",
 			Usage:     "Execute the test suite",
 			ArgsUsage: "[file] [test]",
-			Action: testCommand,
+			Action: func(c *cli.Context) error {
+				return testCommand(c.Args().First(), c.Args().Get(1))
+			},
 		},
 	}
-
-	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
-	}
+	return app
 }
 
-func testCommand(c *cli.Context) error {
-	file := commanderFile
-	if c.Args().First() != "" {
-		file = c.Args().First()
+func testCommand(file string, title string) error {
+	if file == "" {
+		file = commanderFile
 	}
 
 	fmt.Println("Starting test file " + file + "...")
 	fmt.Println("")
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		fmt.Println("Error " + err.Error())
-		os.Exit(1)
+		return fmt.Errorf("Error " + err.Error())
 	}
 
 	var s suite.Suite
 	s = suite.ParseYAML(content)
 	tests := s.GetTests()
 	// Filter tests if test title was given
-	if title := c.Args().Get(1); title != "" {
+	if title != "" {
 		test, err := s.GetTestByTitle(title)
 		if err != nil {
 			return err
-			log.Fatal(err.Error())
-			os.Exit(1)
 		}
 		tests = []runtime.TestCase{test}
 	}
@@ -82,7 +85,6 @@ func testCommand(c *cli.Context) error {
 	out := output.NewCliOutput()
 	if !out.Start(results) {
 		return fmt.Errorf("Test suite failed")
-		os.Exit(1)
 	}
 
 	return nil

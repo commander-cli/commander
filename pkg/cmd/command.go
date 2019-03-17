@@ -67,7 +67,7 @@ func (c *Command) isExecuted(property string) {
     }
 }
 
-//Execute executes the command
+//Execute executes the commande
 func (c *Command) Execute() error {
     cmd := exec.Command("sh", "-c", c.Cmd)
     cmd.Env = c.Env
