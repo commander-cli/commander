@@ -5,6 +5,7 @@ import (
     "strings"
 )
 
+// ValidationResult will be returned after the validation was executed
 type ValidationResult struct {
 	Success bool
 	Diff    string
@@ -17,6 +18,7 @@ func newValidationResult(m matcher.MatcherResult) ValidationResult {
 	}
 }
 
+// Validate validates the test results with the expected values
 func Validate(test TestCase) TestResult {
     equalMatcher := matcher.NewMatcher(matcher.Equal)
 

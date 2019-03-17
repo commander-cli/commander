@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	AppName       = "Commander"
-	CommanderFile = "commander.yaml"
+	appName       = "Commander"
+	commanderFile = "commander.yaml"
 )
 
 var version string
@@ -24,7 +24,7 @@ func main() {
 	log.Println("Starting commander")
 
 	app := cli.NewApp()
-	app.Name = AppName
+	app.Name = appName
 	app.Usage = "CLI app testing"
 	app.Version = version
 
@@ -51,7 +51,7 @@ func main() {
 }
 
 func testCommand(c *cli.Context) {
-	file := CommanderFile
+	file := commanderFile
 	if c.Args().First() != "" {
 		file = c.Args().First()
 	}
