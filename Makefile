@@ -40,4 +40,8 @@ release-i386:
 	$(info INFO: Starting build $@)
 	CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags "-X main.version=$(TRAVIS_TAG) -s -w" -o release/$(cmd)-linux-386 $(exe)
 
-release: release-amd64 release-arm release-i386
+release-darwin:
+	$(info INFO: Starting build $@)
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=$(TRAVIS_TAG) -s -w" -o release/$(cmd)-darwin-amd64 $(exe)
+
+release: release-amd64 release-arm release-i386 release-darwin

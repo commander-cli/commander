@@ -1,3 +1,6 @@
+# v0.2.1
+ - Add `darwin` release for `osx`
+
 # v0.2.0
  
  - Add test configurations
