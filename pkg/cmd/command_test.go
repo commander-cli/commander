@@ -46,3 +46,22 @@ func TestCommand_WithEnvVariables(t *testing.T) {
 
     assert.Equal(t, "hey", cmd.Stdout())
 }
+
+func TestCommand_WithTimeout(t *testing.T) {
+    cmd := NewCommand("sleep 0.005;")
+    cmd.SetTimeoutMS(5)
+
+    err := cmd.Execute()
+
+    assert.NotNil(t, err)
+    assert.Equal(t, "Command timed out after 5ms", err.Error())
+}
+
+func TestCommand_WithValidTimeout(t *testing.T) {
+    cmd := NewCommand("sleep 0.01;")
+    cmd.SetTimeoutMS(500)
+
+    err := cmd.Execute()
+
+    assert.Nil(t, err)
+}

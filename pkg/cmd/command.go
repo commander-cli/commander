@@ -2,9 +2,12 @@ package cmd
 
 import (
     "bytes"
+    "fmt"
+    "log"
     "os/exec"
     "strings"
     "syscall"
+    "time"
 )
 
 //Command represents a single command which can be executed
@@ -12,6 +15,7 @@ type Command struct {
     Cmd      string
     Env      []string
     Dir      string
+    Timeout  time.Duration
     executed bool
     stderr   string
     stdout   string
@@ -22,8 +26,16 @@ type Command struct {
 func NewCommand(cmd string) *Command {
     return &Command{
         Cmd:      cmd,
+        Timeout:  1 * time.Minute,
         executed: false,
     }
+}
+
+func (c *Command) SetTimeoutMS(ms int) {
+    if ms == 0 {
+        c.Timeout = 1 * time.Minute
+    }
+    c.Timeout = time.Duration(ms) * time.Millisecond
 }
 
 //Stdout returns the output to stdout
@@ -73,13 +85,26 @@ func (c *Command) Execute() error {
         return err
     }
 
-    c.exitCode = 0
-    if err := cmd.Wait(); err != nil {
-        if exitErr, ok := err.(*exec.ExitError); ok {
-            if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
-                c.exitCode = status.ExitStatus()
-            }
+    done := make(chan error)
+    go func() {
+        done <- cmd.Wait()
+    }()
+
+    select {
+    case err := <- done:
+        if err != nil {
+            log.Println("Command exited with error", c.Cmd, err.Error())
+            c.getExitCode(err)
+            break
         }
+        log.Println("Command exited successfully", c.Cmd)
+        c.exitCode = 0
+    case <- time.After(c.Timeout):
+        log.Println("Command timed out", c.Cmd)
+        if err := cmd.Process.Kill(); err != nil {
+            return fmt.Errorf("Timeout occured and can not kill process with pid %v", cmd.Process.Pid)
+        }
+        return fmt.Errorf("Command timed out after %v", c.Timeout)
     }
 
     // Remove leading and trailing whitespaces
@@ -88,4 +113,12 @@ func (c *Command) Execute() error {
     c.executed = true
 
     return nil
+}
+
+func (c *Command) getExitCode(err error) {
+    if exitErr, ok := err.(*exec.ExitError); ok {
+        if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
+            c.exitCode = status.ExitStatus()
+        }
+    }
 }

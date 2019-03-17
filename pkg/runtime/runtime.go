@@ -31,8 +31,9 @@ type TestCase struct {
 
 //Config
 type TestConfig struct {
-	Env []string
-	Dir string
+	Env     []string
+	Dir     string
+	Timeout int
 }
 
 // ResultStatus represents the status code of a test result
@@ -65,9 +66,10 @@ type ExpectedOut struct {
 
 // CommandUnderTest represents the command under test
 type CommandUnderTest struct {
-	Cmd string
-	Env []string
-	Dir string
+	Cmd     string
+	Env     []string
+	Dir     string
+	Timeout int
 }
 
 // CommandResult represents the TestCase and the ValidationResult
@@ -113,6 +115,7 @@ func Start(tests []TestCase) <-chan TestResult {
 func runTest(test TestCase) TestResult {
 	// cut = command under test
 	cut := cmd.NewCommand(test.Command.Cmd)
+	cut.SetTimeoutMS(test.Command.Timeout)
 	cut.Env = test.Command.Env
 	cut.Dir = test.Command.Dir
 

@@ -2,3 +2,9 @@ tests:
   it will fail:
     command: exit 1
     exit-code: 0
+
+  test timeout:
+    command: sleep 1
+    config:
+      timeout: 10 #in milliseconds
+    exit-code: 0

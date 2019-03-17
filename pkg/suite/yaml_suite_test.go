@@ -179,6 +179,7 @@ config:
     env:
     - KEY=global
     dir: /home/commander/
+    timeout: 10
 tests:
     echo hello:
        exit-code: 0
@@ -186,14 +187,17 @@ tests:
            env:
            - KEY=local
            dir: /home/test
+           timeout: 1
 `)
 
 	got := ParseYAML(yaml)
 	assert.Equal(t, []string{"KEY=global"}, got.GetGlobalConfig().Env)
 	assert.Equal(t, "/home/commander/", got.GetGlobalConfig().Dir)
+	assert.Equal(t, 10, got.GetGlobalConfig().Timeout)
 
 	assert.Equal(t, []string{"KEY=local"}, got.GetTests()[0].Command.Env)
 	assert.Equal(t, "/home/test", got.GetTests()[0].Command.Dir)
+	assert.Equal(t, 1, got.GetTests()[0].Command.Timeout)
 }
 
 func TestYAMLSuite_ShouldThrowAnErrorIfFieldIsNotRegistered(t *testing.T) {

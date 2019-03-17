@@ -50,7 +50,7 @@ func main() {
 	}
 }
 
-func testCommand(c *cli.Context) {
+func testCommand(c *cli.Context) error {
 	file := commanderFile
 	if c.Args().First() != "" {
 		file = c.Args().First()
@@ -71,6 +71,7 @@ func testCommand(c *cli.Context) {
 	if title := c.Args().Get(1); title != "" {
 		test, err := s.GetTestByTitle(title)
 		if err != nil {
+			return err
 			log.Fatal(err.Error())
 			os.Exit(1)
 		}
@@ -80,6 +81,9 @@ func testCommand(c *cli.Context) {
 	results := runtime.Start(tests)
 	out := output.NewCliOutput()
 	if !out.Start(results) {
+		return fmt.Errorf("Test suite failed")
 		os.Exit(1)
 	}
+
+	return nil
 }

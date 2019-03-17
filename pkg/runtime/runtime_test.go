@@ -58,6 +58,7 @@ func getExampleTestSuite() []TestCase {
         {
             Command: CommandUnderTest{
                 Cmd: "echo hello",
+                Timeout: 50,
             },
             Expected: Expected{
                 Stdout: ExpectedOut{
