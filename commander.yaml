@@ -16,8 +16,10 @@ tests:
     command: ./commander test ./integration/failing_suite.yaml
     stdout:
       contains:
-        - ✗ it will fail, on property 'ExitCode'
-        - "Count: 1, Failed: 1"
+        - ✗ 'it will fail', on property 'ExitCode'
+        - ✗ 'test timeout' could not be executed with error message
+        - Command timed out after 10ms
+        - "Count: 2, Failed: 2"
     exit-code: 1
 
   it should validate a big output:

@@ -48,3 +48,14 @@ func TestEqualMatcher_ValidateFails(t *testing.T) {
     assert.Contains(t, got.Diff, "-1")
 }
 
+func TestContainsMatcher_Match(t *testing.T) {
+    m := ContainsMatcher{}
+    got := m.Match("hello world", "hello")
+    assert.True(t, got.Success)
+}
+
+func TestContainsMatcher_MatchFail(t *testing.T) {
+    m := ContainsMatcher{}
+    got := m.Match("hello world", "nope")
+    assert.False(t, got.Success)
+}
