@@ -48,7 +48,7 @@ func TestCommand_WithEnvVariables(t *testing.T) {
 }
 
 func TestCommand_WithTimeout(t *testing.T) {
-	cmd := NewCommand("sleep 0.005;")
+	cmd := NewCommand("sleep 0.01;")
 	cmd.SetTimeoutMS(5)
 
 	err := cmd.Execute()
