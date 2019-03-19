@@ -2,7 +2,13 @@ exe = cmd/commander/*
 cmd = commander
 TRAVIS_TAG ?= "0.0.0"
 
-.PHONY: deps lint test test-integration
+.PHONY: deps lint test test-integration git-hooks init
+
+init: git-hooks
+
+git-hooks:
+	$(info INFO: Starting build $@)
+	ln -sf ../../.githooks/pre-commit .git/hooks/pre-commit
 
 deps:
 	$(info INFO: Starting build $@)

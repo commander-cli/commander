@@ -93,18 +93,21 @@ tests:
 ## Development
 
 ```
+# Initialise dev env
+$ make init
+
 # Build the project binary
 $ make build
 
 # Unit tests
-make test
+$ make test
 
 # Coverage
-make test-coverage
+$ make test-coverage
 
 # Integration tests
-make test-integration
+$ make test-integration
 
 # Add depdencies to vendor
-make deps
+$ make deps
 ```

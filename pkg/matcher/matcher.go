@@ -8,11 +8,11 @@ import (
 
 const (
 	// Text matcher type
-	Text     = "text"
+	Text = "text"
 	// Contains matcher type
 	Contains = "contains"
 	// Equal matcher type
-	Equal    = "equal"
+	Equal = "equal"
 )
 
 // NewMatcher creates a new matcher by type
