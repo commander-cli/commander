@@ -8,7 +8,6 @@
 # v0.2.1
 
  - Add `darwin` release
- - Add `windows` release
 
 # v0.2.0
  
