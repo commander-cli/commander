@@ -1,19 +1,24 @@
 tests:
   it should fail with invalid argument:
-    command: ./commander asfdf
+    command: commander.exe asfdf
     exit-code: 3
 
   it should display help:
-    command: ./commander
+    command: .\commander.exe
+    stdout:
+      contains:
+        - "Commander - CLI app testing"
     exit-code: 0
 
   it should execute tests:
-    command: ./commander test ./integration/commander_test.yaml
-    stdout: ✓ it should exit with error code
+    command: commander.exe test ./integration/windows/commander_test.yaml
+    stdout:
+      contains:
+        - test
     exit-code: 0
 
   it should assert that commander will fail:
-    command: ./commander test ./integration/failing_suite.yaml
+    command: commander.exe test ./integration/windows/failing_suite.yaml
     stdout:
       contains:
         - ✗ 'it will fail', on property 'ExitCode'
@@ -23,17 +28,16 @@ tests:
     exit-code: 1
 
   it should validate a big output:
-    command: ./commander test ./integration/test_big_output.yaml
+    command: commander.exe test ./integration/windows/test_big_output.yaml
     stdout:
       contains:
-        - ✓ cat ./integration/_fixtures/big_out.txt
+        - ✓ type integration\windows\_fixtures\big_out.txt
         - "Count: 1, Failed: 0"
     exit-code: 0
 
   test global and local configurations:
-    command: ./commander test ./integration/config_test.yaml
+    command: commander.exe test ./integration/windows/config_test.yaml
     stdout:
       contains:
-        - ✓ should print global env value
-        - ✓ should print local env value
+        - should print global
     exit-code: 0

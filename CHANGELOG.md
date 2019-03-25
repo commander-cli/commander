@@ -1,5 +1,12 @@
+# v0.3.0
+
+ - Add `windows` release
+ - Add `darwin-386` release
+
 # v0.2.1
- - Add `darwin` release for `osx`
+
+ - Add `darwin` release
+ - Add `windows` release
 
 # v0.2.0
  

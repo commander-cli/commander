@@ -1,5 +1,5 @@
 tests:
-  cat ./integration/_fixtures/big_out.txt:
+  type integration\windows\_fixtures\big_out.txt:
     stdout:
       exactly: >
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.

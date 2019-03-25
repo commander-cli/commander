@@ -3,12 +3,12 @@ config:
     - KEY=value
 tests:
   should print global env value:
-    command: echo $KEY
+    command: echo %KEY%
     stdout: value
     exit-code: 0
 
   should print local env value:
-    command: echo $KEY
+    command: echo %KEY%
     config:
       env:
         - KEY=local
@@ -16,8 +16,18 @@ tests:
     exit-code: 0
 
   should execute in given dir:
-    command: pwd
+    command: dir
     config:
-      dir: /tmp
-    stdout: /tmp
+      dir: C:\
+    stdout:
+      contains:
+        - "C:"
+        - "Program Files"
+        - "Users"
+    exit-code: 0
+
+  should work with timeout:
+    command: echo hello
+    config:
+      timeout: 100
     exit-code: 0

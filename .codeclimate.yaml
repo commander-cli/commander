@@ -1,0 +1,5 @@
+plugins:
+  duplication:
+    enabled: true
+    config:
+      count_threshold: 4

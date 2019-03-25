@@ -26,6 +26,18 @@ func TestTextMatcher_Validate(t *testing.T) {
 	assert.True(t, got.Success)
 }
 
+func TestNewMatcher_Fail(t *testing.T) {
+	defer func () {
+		r := recover()
+		if r != nil {
+			assert.Contains(t, r, "Validator 'no' does not exist!")
+		}
+		assert.NotNil(t, r)
+	}()
+
+	_ = NewMatcher("no")
+}
+
 func TestTextMatcher_ValidateFails(t *testing.T) {
 	m := TextMatcher{}
 	got := m.Match("test", "unequal")

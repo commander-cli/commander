@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	run "runtime"
 	"time"
 
 	"github.com/SimonBaeumer/commander/pkg/runtime"
@@ -28,6 +29,10 @@ func NewCliOutput() OutputWriter {
 // Start starts the writing sequence
 func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 	au = aurora.NewAurora(true)
+	if run.GOOS == "windows" {
+		au = aurora.NewAurora(false)
+	}
+
 	failed := 0
 	testResults := []runtime.TestResult{}
 	start := time.Now()

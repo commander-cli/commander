@@ -3,6 +3,6 @@ commander
 release
 
 tmp.yml
-c.out
-coverage.out
+*.out
 coverage
+*.exe
