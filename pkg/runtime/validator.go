@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/matcher"
 	"strings"
 )
@@ -91,7 +92,11 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 		m = matcher.NewMatcher(matcher.Equal)
 		actualLines := strings.Split(got, getLineBreak())
 		for k, expL := range expected.Lines {
-			if result = m.Match(actualLines[k], expL); !result.Success {
+			if (k-1 > len(actualLines)) || (k-1 < 0) {
+				panic(fmt.Sprintf("Invalid line number given %d", k))
+			}
+
+			if result = m.Match(actualLines[k-1], expL); !result.Success {
 				return result
 			}
 		}

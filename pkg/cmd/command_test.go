@@ -45,7 +45,7 @@ func TestCommand_WithEnvVariables(t *testing.T) {
 }
 
 func TestCommand_Executed(t *testing.T) {
-	defer func () {
+	defer func() {
 		r := recover()
 		if r != nil {
 			assert.Contains(t, r, "Can not read Stdout if command was not executed")

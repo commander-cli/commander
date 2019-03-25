@@ -34,7 +34,7 @@ tests:
     command: printf "line1\nline2\nline3\nline4"
     stdout:
       lines:
-        0: line1
-        1: line2
-        3: line4
+        1: line1
+        2: line2
+        4: line4
     exit-code: 0
