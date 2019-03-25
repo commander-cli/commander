@@ -59,6 +59,7 @@ func Validate(test TestCase) TestResult {
 func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult {
 	var m matcher.Matcher
 	var result matcher.MatcherResult
+	result.Success = true
 
 	if expected.Exactly != "" {
 		m = matcher.NewMatcher(matcher.Text)
@@ -77,32 +78,48 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 	}
 
 	if expected.LineCount != 0 {
-		m = matcher.NewMatcher(matcher.Equal)
-		count := strings.Count(got, getLineBreak()) + 1
-		if got == "" {
-			count = 0
-		}
-
-		if result = m.Match(count, expected.LineCount); !result.Success {
+		result = validateExpectedLineCount(got, expected)
+		if !result.Success {
 			return result
 		}
 	}
 
 	if len(expected.Lines) > 0 {
-		m = matcher.NewMatcher(matcher.Equal)
-		actualLines := strings.Split(got, getLineBreak())
-		for k, expL := range expected.Lines {
-			if (k-1 > len(actualLines)) || (k-1 < 0) {
-				panic(fmt.Sprintf("Invalid line number given %d", k))
-			}
-
-			if result = m.Match(actualLines[k-1], expL); !result.Success {
-				return result
-			}
+		result = validateExpectedLines(got, expected)
+		if !result.Success {
+			return result
 		}
 	}
 
-	result.Success = true
+	return result
+}
+
+func validateExpectedLineCount(got string, expected ExpectedOut) matcher.MatcherResult {
+	m := matcher.NewMatcher(matcher.Equal)
+	count := strings.Count(got, getLineBreak()) + 1
+
+	if got == "" {
+		count = 0
+	}
+
+	return m.Match(count, expected.LineCount)
+}
+
+func validateExpectedLines(got string, expected ExpectedOut) matcher.MatcherResult {
+	m := matcher.NewMatcher(matcher.Equal)
+	actualLines := strings.Split(got, getLineBreak())
+	result := matcher.MatcherResult{Success: true}
+
+	for k, expL := range expected.Lines {
+		if (k-1 > len(actualLines)) || (k-1 < 0) {
+			panic(fmt.Sprintf("Invalid line number given %d", k))
+		}
+
+		if result = m.Match(actualLines[k-1], expL); !result.Success {
+			return result
+		}
+	}
+
 	return result
 }
 
