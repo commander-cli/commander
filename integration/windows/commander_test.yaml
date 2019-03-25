@@ -29,7 +29,7 @@ tests:
     command: echo line1& echo.line2& echo.line3& echo.line4
     stdout:
       lines:
-        0: line1
-        1: line2
-        3: line4
+        1: line1
+        2: line2
+        4: line4
     exit-code: 0

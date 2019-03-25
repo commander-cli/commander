@@ -35,17 +35,59 @@ func Test_ValidateStdoutShouldFail(t *testing.T) {
 	assert.Equal(t, "Stdout", got.FailedProperty)
 }
 
+func Test_ValidateExpectedOut_MatchLines(t *testing.T) {
+	value := `my
+multi
+line
+output`
+
+	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{1: "my", 3: "line"}})
+
+	assert.True(t, got.Success)
+	assert.Empty(t, got.Diff)
+}
+
+func Test_ValidateExpectedOut_PanicIfLineDoesNotExist_TooHigh(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			assert.Equal(t, "Invalid line number given 99", r)
+		}
+		assert.NotNil(t, r)
+	}()
+
+	value := `my
+multi
+line
+output`
+
+	_ = validateExpectedOut(value, ExpectedOut{Lines: map[int]string{99: "my"}})
+}
+
+func Test_ValidateExpectedOut_PanicIfLineDoesNotExist(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			assert.Equal(t, "Invalid line number given 0", r)
+		}
+		assert.NotNil(t, r)
+	}()
+
+	value := `my`
+	_ = validateExpectedOut(value, ExpectedOut{Lines: map[int]string{0: "my"}})
+}
+
 func getExampleTest() TestCase {
 	test := TestCase{
 		Expected: Expected{
 			Stdout: ExpectedOut{
-				Lines:     map[int]string{0: "hello"},
+				Lines:     map[int]string{1: "hello"},
 				LineCount: 1,
 				Exactly:   "hello",
 				Contains:  []string{"hello"},
 			},
 			Stderr: ExpectedOut{
-				Lines:     map[int]string{0: "error"},
+				Lines:     map[int]string{1: "error"},
 				LineCount: 1,
 				Exactly:   "error",
 				Contains:  []string{"error"},

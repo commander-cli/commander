@@ -27,7 +27,7 @@ func TestTextMatcher_Validate(t *testing.T) {
 }
 
 func TestNewMatcher_Fail(t *testing.T) {
-	defer func () {
+	defer func() {
 		r := recover()
 		if r != nil {
 			assert.Contains(t, r, "Validator 'no' does not exist!")

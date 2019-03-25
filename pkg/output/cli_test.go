@@ -121,4 +121,3 @@ func Test_SuccessSuite(t *testing.T) {
 	assert.True(t, strings.Contains(buf.String(), "Duration"))
 	assert.True(t, strings.Contains(buf.String(), "Count: 1, Failed: 0"))
 }
-
