@@ -158,7 +158,7 @@ func TestYAMLSuite_ShouldParseGlobalConfig(t *testing.T) {
 	yaml := []byte(`
 config:
     env:
-    - KEY=value
+        KEY: value
     dir: /home/commander/
 tests:
     echo hello:
@@ -166,8 +166,8 @@ tests:
 `)
 
 	got := ParseYAML(yaml)
-	assert.Equal(t, []string{"KEY=value"}, got.GetGlobalConfig().Env)
-	assert.Equal(t, []string{"KEY=value"}, got.GetTests()[0].Command.Env)
+	assert.Equal(t, map[string]string{"KEY": "value"}, got.GetGlobalConfig().Env)
+	assert.Equal(t, map[string]string{"KEY": "value"}, got.GetTests()[0].Command.Env)
 	assert.Equal(t, "/home/commander/", got.GetTests()[0].Command.Dir)
 	assert.Equal(t, "/home/commander/", got.GetGlobalConfig().Dir)
 }
@@ -176,7 +176,8 @@ func TestYAMLSuite_ShouldPreferLocalTestConfigs(t *testing.T) {
 	yaml := []byte(`
 config:
     env:
-    - KEY=global
+        KEY: global
+        ANOTHER_KEY: another_global
     dir: /home/commander/
     timeout: 10
 tests:
@@ -184,17 +185,17 @@ tests:
        exit-code: 0
        config:
            env:
-           - KEY=local
+               KEY: local
            dir: /home/test
            timeout: 1
 `)
 
 	got := ParseYAML(yaml)
-	assert.Equal(t, []string{"KEY=global"}, got.GetGlobalConfig().Env)
+	assert.Equal(t, map[string]string{"KEY": "global", "ANOTHER_KEY": "another_global"}, got.GetGlobalConfig().Env)
 	assert.Equal(t, "/home/commander/", got.GetGlobalConfig().Dir)
 	assert.Equal(t, 10, got.GetGlobalConfig().Timeout)
 
-	assert.Equal(t, []string{"KEY=local"}, got.GetTests()[0].Command.Env)
+	assert.Equal(t, map[string]string{"KEY": "local", "ANOTHER_KEY": "another_global"}, got.GetTests()[0].Command.Env)
 	assert.Equal(t, "/home/test", got.GetTests()[0].Command.Dir)
 	assert.Equal(t, 1, got.GetTests()[0].Command.Timeout)
 }

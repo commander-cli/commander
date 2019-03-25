@@ -17,9 +17,9 @@ type YAMLConfig struct {
 
 // YAMLTestConfig is a struct to represent the test config
 type YAMLTestConfig struct {
-	Env     []string `yaml:"env"`
-	Dir     string   `yaml:"dir"`
-	Timeout int      `yaml:"timeout"`
+	Env     map[string]string `yaml:"env"`
+	Dir     string            `yaml:"dir"`
+	Timeout int               `yaml:"timeout"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -205,11 +205,11 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 	return exp
 }
 
+// It is needed to create a new map to avoid overwriting the global configuration
 func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) YAMLTestConfig {
 	conf := global
-	if len(local.Env) > 0 {
-		conf.Env = local.Env
-	}
+
+	conf.Env = y.mergeEnvironmentVariables(global, local)
 
 	if local.Dir != "" {
 		conf.Dir = local.Dir
@@ -223,4 +223,15 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 	}
 
 	return conf
+}
+
+func (y *YAMLConfig) mergeEnvironmentVariables(global YAMLTestConfig, local YAMLTestConfig) map[string]string {
+	env := make(map[string]string)
+	for k, v := range global.Env {
+		env[k] = v
+	}
+	for k, v := range local.Env {
+		env[k] = v
+	}
+	return env
 }

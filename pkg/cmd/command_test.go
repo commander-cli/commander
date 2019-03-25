@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"runtime"
 	"testing"
+	"time"
 )
 
 func TestCommand_NewCommand(t *testing.T) {
@@ -55,4 +56,22 @@ func TestCommand_Executed(t *testing.T) {
 
 	c := NewCommand("echo will not be executed")
 	_ = c.Stdout()
+}
+
+func TestCommand_AddEnv(t *testing.T) {
+	c := NewCommand("echo test")
+	c.AddEnv("key", "value")
+	assert.Equal(t, []string{"key=value"}, c.Env)
+}
+
+func TestCommand_SetTimeoutMS_DefaultTimeout(t *testing.T) {
+	c := NewCommand("echo test")
+	c.SetTimeoutMS(0)
+	assert.Equal(t, (1 * time.Minute), c.Timeout)
+}
+
+func TestCommand_SetTimeoutMS(t *testing.T) {
+	c := NewCommand("echo test")
+	c.SetTimeoutMS(100)
+	assert.Equal(t, 100*time.Millisecond, c.Timeout)
 }

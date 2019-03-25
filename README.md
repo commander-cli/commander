@@ -59,7 +59,7 @@ GLOBAL OPTIONS:
 ```
 config:
     env:
-    - ENV_KEY=value
+        ENV_KEY: value
     dir: /tmp #set the current working dir
 tests:
     it will print hello world:
