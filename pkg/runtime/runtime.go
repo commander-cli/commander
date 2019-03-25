@@ -32,7 +32,7 @@ type TestCase struct {
 
 //Config
 type TestConfig struct {
-	Env     []string
+	Env     map[string]string
 	Dir     string
 	Timeout int
 }
@@ -68,7 +68,7 @@ type ExpectedOut struct {
 // CommandUnderTest represents the command under test
 type CommandUnderTest struct {
 	Cmd     string
-	Env     []string
+	Env     map[string]string
 	Dir     string
 	Timeout int
 }
@@ -117,8 +117,10 @@ func runTest(test TestCase) TestResult {
 	// cut = command under test
 	cut := cmd.NewCommand(test.Command.Cmd)
 	cut.SetTimeoutMS(test.Command.Timeout)
-	cut.Env = test.Command.Env
 	cut.Dir = test.Command.Dir
+	for k, v := range test.Command.Env {
+		cut.AddEnv(k, v)
+	}
 
 	if err := cut.Execute(); err != nil {
 		log.Println("Command failed ", err.Error())

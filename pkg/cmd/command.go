@@ -27,13 +27,19 @@ func NewCommand(cmd string) *Command {
 		Cmd:      cmd,
 		Timeout:  1 * time.Minute,
 		executed: false,
+		Env:      []string{},
 	}
+}
+
+func (c *Command) AddEnv(key string, value string) {
+	c.Env = append(c.Env, fmt.Sprintf("%s=%s", key, value))
 }
 
 //SetTimeoutMS sets the timeout in milliseconds
 func (c *Command) SetTimeoutMS(ms int) {
 	if ms == 0 {
 		c.Timeout = 1 * time.Minute
+		return
 	}
 	c.Timeout = time.Duration(ms) * time.Millisecond
 }

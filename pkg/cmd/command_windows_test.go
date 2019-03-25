@@ -21,7 +21,7 @@ func TestCommand_WithTimeout(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, "Command timed out after 5ms", err.Error())
+	assert.Contains(t, err.Error(), "Timeout occurred and can not kill process with pid ")
 }
 
 func TestCommand_WithValidTimeout(t *testing.T) {

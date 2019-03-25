@@ -1,6 +1,7 @@
 config:
   env:
-    - KEY=value
+    KEY: value
+    ANOTHER: global
 tests:
   should print global env value:
     command: echo $KEY
@@ -8,11 +9,11 @@ tests:
     exit-code: 0
 
   should print local env value:
-    command: echo $KEY
+    command: echo $KEY $ANOTHER
     config:
       env:
-        - KEY=local
-    stdout: local
+        KEY: local
+    stdout: local global
     exit-code: 0
 
   should execute in given dir:

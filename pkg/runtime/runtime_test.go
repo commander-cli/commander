@@ -32,7 +32,7 @@ func TestRuntime_WithEnvVariables(t *testing.T) {
 		Command: CommandUnderTest{
 			Cmd:     fmt.Sprintf("echo %s", envVar),
 			Timeout: 50,
-			Env:     []string{"KEY=value"},
+			Env:     map[string]string{"KEY": "value"},
 		},
 		Expected: Expected{
 			Stdout: ExpectedOut{

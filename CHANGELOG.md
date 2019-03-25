@@ -3,6 +3,7 @@
  - Add `windows` release
  - Add `darwin-386` release
  - Start counting for `lines` in `Stdout` and `Stderr` at `1` instead of `0`
+ - Use `maps` instead of `slices` for env variable
 
 # v0.2.1
 
