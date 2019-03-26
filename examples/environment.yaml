@@ -1,0 +1,15 @@
+config:
+  env:
+    KEY: global
+tests:
+  echo $KEY:
+    stdout: global
+    exit-code: 0
+
+  it should overwrite env:
+    command: echo $KEY
+    stdout: local
+    config:
+      env:
+        KEY: local
+    exit-code: 0
