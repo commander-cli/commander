@@ -26,7 +26,7 @@ test:
 	$(info INFO: Starting build $@)
 	go test ./...
 
-test-coverage: build
+test-coverage:
 	$(info INFO: Starting build $@)
 	go test -coverprofile c.out ./...
 
@@ -36,8 +36,7 @@ test-integration: build
 
 test-integration-windows: build
 	$(info INFO: Starting build $@)
-	#TODO: Use specific tested version instead of current build
-	./commander test commander_windows.yaml
+	commander test commander_windows.yaml
 
 release-amd64:
 	$(info INFO: Starting build $@)

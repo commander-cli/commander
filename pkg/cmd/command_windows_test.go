@@ -29,7 +29,7 @@ func TestCommand_WithTimeout(t *testing.T) {
 
 func TestCommand_WithValidTimeout(t *testing.T) {
 	cmd := NewCommand("timeout 0.01;")
-	cmd.SetTimeoutMS(500)
+	cmd.SetTimeoutMS(1000)
 
 	err := cmd.Execute()
 
