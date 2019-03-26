@@ -33,14 +33,16 @@ func NewContextFromCli(c *cli.Context) CommanderContext {
 }
 
 func main() {
-	log.SetOutput(ioutil.Discard)
+	run(os.Args)
+}
 
+func run(args []string) bool {
 	app := createCliApp()
-
-	if err := app.Run(os.Args); err != nil {
+	if err := app.Run(args); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
+	return true
 }
 
 func createCliApp() *cli.App {
