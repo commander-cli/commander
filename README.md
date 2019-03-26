@@ -19,9 +19,9 @@ Define `YAML` based test suites for your command line applications.
 
 ## Quick start
 
- - [Install](#installation) `commander` and it to your `path`
+ - [Install](#installation) `commander` and add it to your `path` environment variable
  - Create a `commander.yaml` in your project root
- - Add a test [Minimal test](#minimal-test)
+ - Add a [minimal test](#minimal-test)
  - Run `./commander test`
  
 For more information take a look at the [manual](docs/manual.md), the [examples](examples) or the [integration tests](integration).
