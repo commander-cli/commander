@@ -1,5 +1,6 @@
 .idea
 commander
+!cmd/commander
 release
 
 tmp.yml
