@@ -34,7 +34,7 @@ tests:
 	assert.Nil(t, err)
 
 	got := testCommand(TestSuiteFile, "", CommanderContext{})
-	assert.Equal(t, "Test suite failed", got.Error())
+	assert.Equal(t, "Test suite failed, use --verbose for more detailed output", got.Error())
 
 }
 

@@ -127,7 +127,7 @@ func runTest(test TestCase) TestResult {
 	}
 
 	if err := cut.Execute(); err != nil {
-		log.Println("Command failed ", err.Error())
+		log.Println(test.Title, " failed ", err.Error())
 		test.Result = CommandResult{
 			Error: err,
 		}
@@ -137,7 +137,7 @@ func runTest(test TestCase) TestResult {
 		}
 	}
 
-	log.Println("Executed command ", test.Command.Cmd)
+	log.Println("title: '"+test.Title+"'", " Command: ", cut.Cmd)
 
 	// Write test result
 	test.Result = CommandResult{
@@ -145,6 +145,10 @@ func runTest(test TestCase) TestResult {
 		Stdout:   strings.Replace(cut.Stdout(), "\r\n", "\n", -1),
 		Stderr:   strings.Replace(cut.Stderr(), "\r\n", "\n", -1),
 	}
+
+	log.Println("title: '"+test.Title+"'", " ExitCode: ", test.Result.ExitCode)
+	log.Println("title: '"+test.Title+"'", " Stdout: ", test.Result.Stdout)
+	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
 	return Validate(test)
 }
