@@ -1,9 +1,9 @@
 # v0.4.0
- - Add flags `test` command
+ - Add flags to `test` command
    - `--verbose` will print more detailed output
    - `--no-color` will discard all colors
    - `--concurrent [int value]` sets the maximum concurrently executed tests in `go routines`  
- - Add default test concurrency of `runtime.NumCPU() * 5`
+ - Add default test concurrency to `runtime.NumCPU() * 5`
 
 # v0.3.0
 

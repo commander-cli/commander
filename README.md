@@ -8,7 +8,27 @@
 
 Define `YAML` based test suites for your command line applications.
 
+- [Quick start](#quick-start)
+- [Installation](#installation)
+  * [Linux & osx](#linux---osx)
+  * [Windows](#windows)
+- [Example](#example)
+- [Minimal test](#minimal-test)
+- [Usage](#usage)
+- [Development](#development)
+
+## Quick start
+
+ - [Install](#installation) `commander` and it to your `path`
+ - Create a `commander.yaml` in your project root
+ - Add a test [Minimal test](#minimal-test)
+ - Run `./commander test`
+ 
+For more information take a look at the [manual](docs/manual.md), the [examples](examples) or the [integration tests](integration).
+
 ## Installation
+
+### Linux & osx
 
 ```bash
 # Install latest version to /usr/local/bin
@@ -18,21 +38,39 @@ curl -fsSL https://raw.githubusercontent.com/SimonBaeumer/commander/master/insta
 curl -fsSL https://raw.githubusercontent.com/SimonBaeumer/commander/master/install.sh | COMMANDER_VER=v0.1.0 COMMANDER_DST=~/bin sh
 ```
 
+### Windows
+
+ - Download the current [release](https://github.com/SimonBaeumer/commander/releases/latest)
+ - Add the path to your [path](https://docs.alfresco.com/4.2/tasks/fot-addpath.html) environment variable
+ - Test it: `commander --version`
+
 ## Example
+
+You can find more examples in `examples/`
 
 ```
 # Build the project
 $ make build
 
-# Execute testsuite
-$ ./commander test examples/commander.yaml
+# Execute test suite
 Starting test file examples/commander.yaml...
 
-✓ it should exit with error code
 ✓ it should print hello world
+✓ echo hello
+✓ it should validate exit code
+✓ it should fail
 
 Duration: 0.005s
-Count: 2, Failed: 0
+Count: 4, Failed: 0
+```
+
+## Minimal test
+
+```yaml
+tests:
+    echo hello:
+        stdout: hello
+        exit-code: 0
 ```
 
 ## Usage
@@ -49,46 +87,11 @@ COMMANDS:
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --verbose      More output for debugging [$COMMANDER_VERBOSE]
    --help, -h     show help
    --version, -v  print the version
-```
-
-## Example yaml file
 
 ```
-config:
-    env:
-        ENV_KEY: value
-    dir: /tmp #set the current working dir
-tests:
-    it will print hello world:
-        cmd: echo hello world
-        stdout:
-            lines:
-                1: hello world
-            contains: 
-                - hello world
-            exactly: hello world
-        exit-code: 0
-            
-    it will print hello:
-        cmd: echo hello
-        stdout: hello
-        exit-code: 0
-        
-    it prints variable:
-        cmd: echo $ENV_KEY
-        stdout: value
-        exit-code: 0
-    
-    it overwrites dir:
-        cmd: pwd
-        config:
-            dir: /home/commander
-        stdout: /home/commander
-        exit-code: 0
-```
+
 
 ## Development
 

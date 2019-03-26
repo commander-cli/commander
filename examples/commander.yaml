@@ -3,6 +3,20 @@ tests:
     command: echo hello world
     stdout: hello world
     exit-code: 0
-  it should exit with error code:
+
+  it should validate exit code:
     command: exit 1
     exit-code: 1
+
+  echo hello: #Use title as command
+    stdout:
+      exactly: hello
+      line-count: 1
+      lines:
+        1: hello
+    exit-code: 0
+
+  it should fail:
+    command: invalid
+    stderr: "/bin/sh: 1: invalid: not found"
+    exit-code: 127
