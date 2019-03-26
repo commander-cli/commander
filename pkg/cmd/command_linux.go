@@ -6,7 +6,7 @@ import (
 )
 
 func createBaseCommand(c *Command) *exec.Cmd {
-	cmd := exec.Command("sh", "-c", c.Cmd)
+	cmd := exec.Command("/bin/sh", "-c", c.Cmd)
 	return cmd
 }
 
