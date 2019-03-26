@@ -11,7 +11,7 @@ import (
 )
 
 func Test_NewCliOutput(t *testing.T) {
-	got := NewCliOutput()
+	got := NewCliOutput(true)
 	assert.IsType(t, OutputWriter{}, got)
 }
 

@@ -7,9 +7,11 @@ import (
 	"testing"
 )
 
+const SingleConcurrent = 1
+
 func TestRuntime_Start(t *testing.T) {
 	s := getExampleTestSuite()
-	got := Start(s)
+	got := Start(s, SingleConcurrent)
 
 	assert.IsType(t, make(<-chan TestResult), got)
 

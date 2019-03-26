@@ -18,7 +18,7 @@ tests:
 
 	assert.Nil(t, err)
 
-	got := testCommand(TestSuiteFile, "")
+	got := testCommand(TestSuiteFile, "", CommanderContext{})
 	assert.Nil(t, got)
 }
 
@@ -32,7 +32,7 @@ tests:
 
 	assert.Nil(t, err)
 
-	got := testCommand(TestSuiteFile, "")
+	got := testCommand(TestSuiteFile, "", CommanderContext{})
 	assert.Equal(t, "Test suite failed", got.Error())
 
 }
