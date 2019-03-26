@@ -84,16 +84,6 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 		if !r.ValidationResult.Success {
 			w.fprintf(au.Bold(au.Red("✗ '" + r.TestCase.Title + "', on property '" + r.FailedProperty + "'")))
 			w.fprintf(r.ValidationResult.Diff)
-
-			if r.FailedProperty == "Stdout" {
-				w.fprintf(au.Bold("Stderr:"))
-				w.fprintf(au.Red(r.TestCase.Result.Stderr))
-			}
-
-			if r.FailedProperty == "Stderr" {
-				w.fprintf(au.Bold("Stdout:"))
-				w.fprintf(r.TestCase.Result.Stdout)
-			}
 		}
 	}
 }

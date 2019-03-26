@@ -21,6 +21,7 @@ var version string
 type CommanderContext struct {
 	Verbose    bool
 	NoColor    bool
+	Debug      bool
 	Concurrent int
 }
 
@@ -113,7 +114,7 @@ func testCommand(file string, title string, ctx CommanderContext) error {
 	results := runtime.Start(tests, ctx.Concurrent)
 	out := output.NewCliOutput(!ctx.NoColor)
 	if !out.Start(results) {
-		return fmt.Errorf("Test suite failed")
+		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}
 
 	return nil

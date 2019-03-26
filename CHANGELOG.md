@@ -4,6 +4,7 @@
    - `--no-color` will discard all colors
    - `--concurrent [int value]` sets the maximum concurrently executed tests in `go routines`  
  - Add default test concurrency to `runtime.NumCPU() * 5`
+ - Add more details to log output for each test if `--verbose` is set
 
 # v0.3.0
 
