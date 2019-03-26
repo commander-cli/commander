@@ -18,7 +18,7 @@ dist: trusty
 before_install:
   - go get -u golang.org/x/lint/golint
   - make deps
-  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.2.1/commander-linux-amd64 -o ~/bin/commander
+  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-linux-amd64 -o ~/bin/commander
   - chmod +x ~/bin/commander
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
   - name: macOS integration
     os: osx
     script:
-      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.2.1/commander-darwin-amd64 -o ~/bin/commander
+      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-darwin-amd64 -o ~/bin/commander
       - chmod +x ~/bin/commander
       - make test-integration
 
@@ -50,6 +50,8 @@ jobs:
     os: windows
     before_install:
       - choco install make
+      - choco install curl
+      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-windows-amd64 -o C:\Windows\system32\commander.exe
     script:
       - make test-integration-windows
 
