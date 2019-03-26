@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -21,7 +22,9 @@ func TestCommand_WithTimeout(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Timeout occurred and can not kill process with pid ")
+	// This is needed because windows sometimes can not kill the process :(
+	containsMsg := strings.Contains(err.Error(), "Timeout occurred and can not kill process with pid") || strings.Contains(err.Error(), "Command timed out after 5ms")
+	assert.True(t, containsMsg)
 }
 
 func TestCommand_WithValidTimeout(t *testing.T) {

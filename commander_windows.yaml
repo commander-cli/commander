@@ -23,7 +23,6 @@ tests:
       contains:
         - ✗ 'it will fail', on property 'ExitCode'
         - ✗ 'test timeout' could not be executed with error message
-        - Timeout occurred and can not kill process with pid
         - "Count: 2, Failed: 2"
     exit-code: 1
 
