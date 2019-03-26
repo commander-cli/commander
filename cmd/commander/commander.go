@@ -18,17 +18,31 @@ const (
 
 var version string
 
+type CommanderContext struct {
+	Verbose    bool
+	NoColor    bool
+	Concurrent int
+}
+
+func NewContextFromCli(c *cli.Context) CommanderContext {
+	return CommanderContext{
+		Verbose:    c.Bool("verbose"),
+		NoColor:    c.Bool("no-color"),
+		Concurrent: c.Int("concurrent"),
+	}
+}
+
 func main() {
-	log.SetOutput(ioutil.Discard)
+	run(os.Args)
+}
 
-	log.Println("Starting commander")
-
+func run(args []string) bool {
 	app := createCliApp()
-
-	if err := app.Run(os.Args); err != nil {
+	if err := app.Run(args); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
+	return true
 }
 
 func createCliApp() *cli.App {
@@ -37,28 +51,42 @@ func createCliApp() *cli.App {
 	app.Usage = "CLI app testing"
 	app.Version = version
 
-	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:   "verbose",
-			Usage:  "More output for debugging",
-			EnvVar: "COMMANDER_VERBOSE",
-		},
-	}
-
 	app.Commands = []cli.Command{
 		{
 			Name:      "test",
 			Usage:     "Execute the test suite",
 			ArgsUsage: "[file] [test]",
+			Flags: []cli.Flag{
+				cli.IntFlag{
+					Name:   "concurrent",
+					EnvVar: "COMMANDER_CONCURRENT",
+					Usage:  "Set the max amount of tests which should run concurrently",
+				},
+				cli.BoolFlag{
+					Name:   "no-color",
+					EnvVar: "COMMANDER_NO_COLOR",
+					Usage:  "Activate or deactivate colored output",
+				},
+				cli.BoolFlag{
+					Name:   "verbose",
+					Usage:  "More output for debugging",
+					EnvVar: "COMMANDER_VERBOSE",
+				},
+			},
 			Action: func(c *cli.Context) error {
-				return testCommand(c.Args().First(), c.Args().Get(1))
+				return testCommand(c.Args().First(), c.Args().Get(1), NewContextFromCli(c))
 			},
 		},
 	}
 	return app
 }
 
-func testCommand(file string, title string) error {
+func testCommand(file string, title string, ctx CommanderContext) error {
+	log.SetOutput(ioutil.Discard)
+	if ctx.Verbose == true {
+		log.SetOutput(os.Stdout)
+	}
+
 	if file == "" {
 		file = commanderFile
 	}
@@ -82,8 +110,8 @@ func testCommand(file string, title string) error {
 		tests = []runtime.TestCase{test}
 	}
 
-	results := runtime.Start(tests)
-	out := output.NewCliOutput()
+	results := runtime.Start(tests, ctx.Concurrent)
+	out := output.NewCliOutput(!ctx.NoColor)
 	if !out.Start(results) {
 		return fmt.Errorf("Test suite failed")
 	}

@@ -3,6 +3,7 @@ package runtime
 import (
 	"github.com/SimonBaeumer/commander/pkg/cmd"
 	"log"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -81,7 +82,7 @@ type TestResult struct {
 }
 
 // Start starts the given test suite
-func Start(tests []TestCase) <-chan TestResult {
+func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	in := make(chan TestCase)
 	out := make(chan TestResult)
 
@@ -92,8 +93,11 @@ func Start(tests []TestCase) <-chan TestResult {
 		}
 	}(tests)
 
-	//TODO: Add more concurrency
-	workerCount := 1
+	workerCount := maxConcurrent
+	if maxConcurrent == 0 {
+		workerCount = runtime.NumCPU() * 5
+	}
+
 	var wg sync.WaitGroup
 	for i := 0; i < workerCount; i++ {
 		wg.Add(1)

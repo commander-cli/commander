@@ -16,19 +16,21 @@ var au aurora.Aurora
 
 // OutputWriter represents the output
 type OutputWriter struct {
-	out io.Writer
+	out   io.Writer
+	color bool
 }
 
 // NewCliOutput creates a new OutputWriter with a stdout writer
-func NewCliOutput() OutputWriter {
+func NewCliOutput(color bool) OutputWriter {
 	return OutputWriter{
-		out: os.Stdout,
+		out:   os.Stdout,
+		color: color,
 	}
 }
 
 // Start starts the writing sequence
 func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
-	au = aurora.NewAurora(true)
+	au = aurora.NewAurora(w.color)
 	if run.GOOS == "windows" {
 		au = aurora.NewAurora(false)
 	}

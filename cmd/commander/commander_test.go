@@ -14,7 +14,7 @@ func Test_CreateCliApp(t *testing.T) {
 }
 
 func Test_TestCommand(t *testing.T) {
-	err := testCommand("commander.yaml", "")
+	err := testCommand("commander.yaml", "", CommanderContext{})
 
 	if runtime.GOOS == "windows" {
 		assert.Equal(t, "Error open commander.yaml: The system cannot find the file specified.", err.Error())
@@ -24,7 +24,7 @@ func Test_TestCommand(t *testing.T) {
 }
 
 func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
-	err := testCommand("my-test.yaml", "")
+	err := testCommand("my-test.yaml", "", CommanderContext{})
 
 	if runtime.GOOS == "windows" {
 		assert.Equal(t, "Error open my-test.yaml: The system cannot find the file specified.", err.Error())
