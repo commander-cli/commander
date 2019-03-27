@@ -2,44 +2,27 @@ package main
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/output"
-	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/SimonBaeumer/commander/pkg/suite"
+	"github.com/SimonBaeumer/commander/pkg/app"
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"log"
 	"os"
-)
-
-const (
-	appName       = "Commander"
-	commanderFile = "commander.yaml"
+	"path"
+	"strings"
 )
 
 var version string
-
-type CommanderContext struct {
-	Verbose    bool
-	NoColor    bool
-	Debug      bool
-	Concurrent int
-}
-
-func NewContextFromCli(c *cli.Context) CommanderContext {
-	return CommanderContext{
-		Verbose:    c.Bool("verbose"),
-		NoColor:    c.Bool("no-color"),
-		Concurrent: c.Int("concurrent"),
-	}
-}
 
 func main() {
 	run(os.Args)
 }
 
 func run(args []string) bool {
-	app := createCliApp()
-	if err := app.Run(args); err != nil {
+	log.SetOutput(ioutil.Discard)
+
+	cliapp := createCliApp()
+
+	if err := cliapp.Run(args); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
@@ -47,74 +30,93 @@ func run(args []string) bool {
 }
 
 func createCliApp() *cli.App {
-	app := cli.NewApp()
-	app.Name = appName
-	app.Usage = "CLI app testing"
-	app.Version = version
+	cliapp := cli.NewApp()
+	cliapp.Name = app.AppName
+	cliapp.Usage = "CLI app testing"
+	cliapp.Version = version
 
-	app.Commands = []cli.Command{
+	cliapp.Commands = []cli.Command{
+		createAddCommand(),
 		{
-			Name:      "test",
-			Usage:     "Execute the test suite",
-			ArgsUsage: "[file] [test]",
+			Name:      "add",
+			Usage:     "Automatically add a test to your test suite",
+			ArgsUsage: "[command]",
 			Flags: []cli.Flag{
-				cli.IntFlag{
-					Name:   "concurrent",
-					EnvVar: "COMMANDER_CONCURRENT",
-					Usage:  "Set the max amount of tests which should run concurrently",
+				cli.BoolFlag{
+					Name:  "stdout",
+					Usage: "Output test file to stdout",
 				},
 				cli.BoolFlag{
-					Name:   "no-color",
-					EnvVar: "COMMANDER_NO_COLOR",
-					Usage:  "Activate or deactivate colored output",
+					Name:  "no-file",
+					Usage: "Don't create a commander.yaml",
 				},
-				cli.BoolFlag{
-					Name:   "verbose",
-					Usage:  "More output for debugging",
-					EnvVar: "COMMANDER_VERBOSE",
+				cli.StringFlag{
+					Name:  "file",
+					Usage: "Write to another file, default is commander.yaml",
 				},
 			},
-			Action: func(c *cli.Context) error {
-				return testCommand(c.Args().First(), c.Args().Get(1), NewContextFromCli(c))
-			},
+			Action: addCommand,
 		},
 	}
-	return app
+	return cliapp
 }
 
-func testCommand(file string, title string, ctx CommanderContext) error {
-	log.SetOutput(ioutil.Discard)
-	if ctx.Verbose == true {
-		log.SetOutput(os.Stdout)
+func createAddCommand() cli.Command {
+	return cli.Command{
+		Name:      "test",
+		Usage:     "Execute the test suite",
+		ArgsUsage: "[file] [title]",
+		Flags: []cli.Flag{
+			cli.IntFlag{
+				Name:   "concurrent",
+				EnvVar: "COMMANDER_CONCURRENT",
+				Usage:  "Set the max amount of tests which should run concurrently",
+			},
+			cli.BoolFlag{
+				Name:   "no-color",
+				EnvVar: "COMMANDER_NO_COLOR",
+				Usage:  "Activate or deactivate colored output",
+			},
+			cli.BoolFlag{
+				Name:   "verbose",
+				Usage:  "More output for debugging",
+				EnvVar: "COMMANDER_VERBOSE",
+			},
+		},
+		Action: func(c *cli.Context) error {
+			return app.TestCommand(c.Args().First(), c.Args().Get(1), app.NewAddContextFromCli(c))
+		},
+	}
+}
+
+func addCommand(c *cli.Context) error {
+	file := ""
+	var existedContent []byte
+
+	if !c.Bool("no-file") {
+		dir, _ := os.Getwd()
+		file = path.Join(dir, app.CommanderFile)
+		if c.String("file") != "" {
+			file = c.String("file")
+		}
+		existedContent, _ = ioutil.ReadFile(file)
 	}
 
-	if file == "" {
-		file = commanderFile
-	}
+	content, err := app.AddCommand(strings.Join(c.Args(), " "), existedContent)
 
-	fmt.Println("Starting test file " + file + "...")
-	fmt.Println("")
-	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		return fmt.Errorf("Error " + err.Error())
+		return err
 	}
 
-	var s suite.Suite
-	s = suite.ParseYAML(content)
-	tests := s.GetTests()
-	// Filter tests if test title was given
-	if title != "" {
-		test, err := s.GetTestByTitle(title)
+	if c.Bool("stdout") {
+		fmt.Println(string(content))
+	}
+	if !c.Bool("no-file") {
+		fmt.Println("written to", file)
+		err := ioutil.WriteFile(file, content, 0755)
 		if err != nil {
 			return err
 		}
-		tests = []runtime.TestCase{test}
-	}
-
-	results := runtime.Start(tests, ctx.Concurrent)
-	out := output.NewCliOutput(!ctx.NoColor)
-	if !out.Start(results) {
-		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}
 
 	return nil

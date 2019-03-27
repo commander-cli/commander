@@ -40,3 +40,12 @@ tests:
       contains:
         - should print global
     exit-code: 0
+
+  test add command:
+    command: commander.exe add --no-file --stdout echo hello
+    stdout: |-
+      tests:
+        echo hello:
+          exit-code: 0
+          stdout: hello
+    exit-code: 0

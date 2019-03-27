@@ -7,25 +7,23 @@ import (
 	"strings"
 )
 
-const defaultTimeoutMs = 5000
-
 // YAMLConfig will be used for unmarshalling the yaml test suite
 type YAMLConfig struct {
 	Tests  map[string]YAMLTest `yaml:"tests"`
-	Config YAMLTestConfig      `yaml:"config"`
+	Config YAMLTestConfig      `yaml:"config,omitempty"`
 }
 
 // YAMLTestConfig is a struct to represent the test config
 type YAMLTestConfig struct {
-	Env     map[string]string `yaml:"env"`
-	Dir     string            `yaml:"dir"`
-	Timeout int               `yaml:"timeout"`
+	Env     map[string]string `yaml:"env,omitempty"`
+	Dir     string            `yaml:"dir,omitempty"`
+	Timeout int               `yaml:"timeout,omitempty"`
 }
 
 // YAMLTest represents a test in the yaml test suite
 type YAMLTest struct {
 	Title    string         `yaml:"-"`
-	Command  string         `yaml:"command"`
+	Command  string         `yaml:"command,omitempty"`
 	ExitCode int            `yaml:"exit-code"`
 	Stdout   interface{}    `yaml:"stdout,omitempty"`
 	Stderr   interface{}    `yaml:"stderr,omitempty"`
@@ -53,6 +51,7 @@ func (s YAMLSuite) GetTestByTitle(title string) (runtime.TestCase, error) {
 	return runtime.TestCase{}, fmt.Errorf("Could not find test " + title)
 }
 
+//GetGlobalConfig returns the global suite configuraiton
 func (s YAMLSuite) GetGlobalConfig() runtime.TestConfig {
 	return s.Config
 }
@@ -161,7 +160,7 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 		v := value.(map[interface{}]interface{})
 		// Check if keys are parsable
 		// TODO: Could be refactored into a registry maybe which holds all parsers
-		for k, _ := range v {
+		for k := range v {
 			switch k {
 			case
 				"contains",
@@ -217,9 +216,6 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 
 	if local.Timeout != 0 {
 		conf.Timeout = local.Timeout
-	}
-	if conf.Timeout == 0 {
-		conf.Timeout = defaultTimeoutMs
 	}
 
 	return conf
