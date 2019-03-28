@@ -18,6 +18,7 @@ type YAMLTestConfig struct {
 	Env     map[string]string `yaml:"env,omitempty"`
 	Dir     string            `yaml:"dir,omitempty"`
 	Timeout int               `yaml:"timeout,omitempty"`
+	Retries int               `yaml:"retries,omitempty"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -71,6 +72,7 @@ func ParseYAML(content []byte) Suite {
 			Env:     yamlConfig.Config.Env,
 			Dir:     yamlConfig.Config.Dir,
 			Timeout: yamlConfig.Config.Timeout,
+			Retries: yamlConfig.Config.Retries,
 		},
 	}
 }
@@ -86,6 +88,7 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 				Env:     t.Config.Env,
 				Dir:     t.Config.Dir,
 				Timeout: t.Config.Timeout,
+				Retries: t.Config.Retries,
 			},
 			Expected: runtime.Expected{
 				ExitCode: t.ExitCode,
@@ -140,6 +143,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Env:     params.Config.Env,
 		Dir:     params.Config.Dir,
 		Timeout: params.Config.Timeout,
+		Retries: params.Config.Retries,
 	}
 
 	return nil
@@ -216,6 +220,10 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 
 	if local.Timeout != 0 {
 		conf.Timeout = local.Timeout
+	}
+
+	if local.Retries != 0 {
+		conf.Retries = local.Retries
 	}
 
 	return conf

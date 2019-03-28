@@ -39,6 +39,7 @@ type TestConfig struct {
 	Env     map[string]string
 	Dir     string
 	Timeout int
+	Retries int
 }
 
 // ResultStatus represents the status code of a test result
@@ -76,6 +77,7 @@ type CommandUnderTest struct {
 	Env     map[string]string
 	Dir     string
 	Timeout int
+	Retries int
 }
 
 // TestResult represents the TestCase and the ValidationResult
@@ -83,6 +85,7 @@ type TestResult struct {
 	TestCase         TestCase
 	ValidationResult ValidationResult
 	FailedProperty   string
+	Tries            int
 }
 
 // Start starts the given test suite
@@ -108,7 +111,16 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 		go func(tests chan TestCase) {
 			defer wg.Done()
 			for t := range tests {
-				out <- runTest(t)
+				result := TestResult{}
+				for i := 1; i <= t.Command.GetRetries(); i++ {
+					result = runTest(t)
+					result.Tries = i
+					if result.ValidationResult.Success {
+						break
+					}
+				}
+
+				out <- result
 			}
 		}(in)
 	}
@@ -155,4 +167,11 @@ func runTest(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
 	return Validate(test)
+}
+
+func (c *CommandUnderTest) GetRetries() int {
+	if c.Retries == 0 {
+		return 1
+	}
+	return c.Retries
 }

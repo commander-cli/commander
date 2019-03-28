@@ -1,0 +1,5 @@
+tests:
+  echo hello:
+    stdout: fail
+    config:
+      retries: 3

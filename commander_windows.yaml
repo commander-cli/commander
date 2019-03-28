@@ -49,3 +49,10 @@ tests:
           exit-code: 0
           stdout: hello
     exit-code: 0
+
+  test retries:
+    command: commander.exe test integration/windows/retries.yaml
+    stdout:
+      contains:
+        - ✗ echo hello, retries 3
+    exit-code: 1
