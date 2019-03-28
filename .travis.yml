@@ -2,6 +2,8 @@ language: go
 
 env:
   global:
+    - COMMANDER_VER=v0.4.0
+    - COMMANDER_DST=~/bin
     - GO111MODULE=on
     - CC_TEST_REPORTER_ID=4015795135868ee4781bd8cad1d345c20e7d0c2ef6ad5b0f08ccb13da24e66a1
 
@@ -18,8 +20,7 @@ dist: trusty
 before_install:
   - go get -u golang.org/x/lint/golint
   - make deps
-  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-linux-amd64 -o ~/bin/commander
-  - chmod +x ~/bin/commander
+  - ./install.sh
 
 jobs:
   include:
@@ -35,8 +36,6 @@ jobs:
   - name: macOS integration
     os: osx
     script:
-      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-darwin-amd64 -o ~/bin/commander
-      - chmod +x ~/bin/commander
       - make test-integration
 
   - name: windows Unit

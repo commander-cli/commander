@@ -19,7 +19,12 @@ else
     arch="386"
 fi
 
-url="https://github.com/SimonBaeumer/commander/releases/download/$COMMANDER_VER/commander-linux-$arch"
+os="linux"
+if [ "$OSTYPE" = "darwin"* ]; then
+    os="darwin"
+fi
+
+url="https://github.com/SimonBaeumer/commander/releases/download/$COMMANDER_VER/commander-$os-$arch"
 
 echo "Downloading $url"
 curl -L "$url" -o "$INSTALL_LOC"
