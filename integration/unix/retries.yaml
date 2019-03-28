@@ -1,0 +1,10 @@
+tests:
+  echo hello:
+    stdout: fail
+    config:
+      retries: 3
+
+  ./integration/unix/_fixtures/retries.sh:
+    exit-code: 0
+    config:
+      retries: 2

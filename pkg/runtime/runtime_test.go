@@ -24,6 +24,22 @@ func TestRuntime_Start(t *testing.T) {
 	assert.Equal(t, 1, count)
 }
 
+func TestRuntime_WithRetries(t *testing.T) {
+	s := getExampleTestSuite()
+	s[0].Command.Retries = 3
+	s[0].Command.Cmd = "echo fail"
+
+	got := Start(s, 1)
+
+	var counter = 0
+	for r := range got {
+		counter++
+		assert.False(t, r.ValidationResult.Success)
+		assert.Equal(t, 3, r.Tries)
+	}
+	assert.Equal(t, 1, counter)
+}
+
 func TestRuntime_WithEnvVariables(t *testing.T) {
 	envVar := "$KEY"
 	if runtime.GOOS == "windows" {

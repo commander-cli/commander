@@ -42,12 +42,14 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 	for r := range results {
 		testResults = append(testResults, r)
 		if r.ValidationResult.Success {
-			w.fprintf("✓ " + r.TestCase.Title)
+			s := w.addTries("✓ "+r.TestCase.Title, r)
+			w.fprintf(s)
 		}
 
 		if !r.ValidationResult.Success {
 			failed++
-			w.fprintf(au.Red("✗ " + r.TestCase.Title))
+			s := w.addTries("✗ "+r.TestCase.Title, r)
+			w.fprintf(au.Red(s))
 		}
 	}
 
@@ -67,6 +69,13 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 	}
 
 	return failed == 0
+}
+
+func (w *OutputWriter) addTries(s string, r runtime.TestResult) string {
+	if r.Tries > 1 {
+		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
+	}
+	return s
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {

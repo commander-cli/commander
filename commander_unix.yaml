@@ -46,3 +46,11 @@ tests:
           exit-code: 0
           stdout: hello
     exit-code: 0
+
+  test retries:
+    command: ./commander test integration/unix/retries.yaml
+    stdout:
+      contains:
+        - ✗ echo hello, retries 3
+        - ✓ ./integration/unix/_fixtures/retries.sh, retries 2
+    exit-code: 1

@@ -33,7 +33,8 @@ config: # Config for all tests
     dir: /tmp #Set working directory
     env: # Environment variables
         KEY: global
-    timeout: 5000 #Timeout in ms
+    timeout: 5000 # Timeout in ms
+    retries: 2 # Define retries for each test
     
 tests:
     echo hello: # Define command as title
@@ -64,5 +65,6 @@ tests:
                 KEY: local # Overwrite env variable
                 ANOTHER: yeah # Add another env variable
             timeout: 1000 # Overwrite timeout
+            retries: 5
         exit-code: 0
 ```

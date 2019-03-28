@@ -1,7 +1,10 @@
 # v1.0.0
- - Add `add` command
+
+ - Add `add` command which automatically adds tests to your test suite
+ - Add `retries` to test configs
 
 # v0.4.0
+
  - Add flags to `test` command
    - `--verbose` will print more detailed output
    - `--no-color` will discard all colors
