@@ -49,8 +49,8 @@ func (c *Command) SetTimeoutMS(ms int) {
 func (c *Command) SetTimeout(timeout string) error {
 	d, err := time.ParseDuration(timeout)
 	if err != nil {
-        return err
-    }
+		return err
+	}
 
 	c.Timeout = d
 	return nil
