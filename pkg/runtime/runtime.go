@@ -38,7 +38,7 @@ type TestCase struct {
 type TestConfig struct {
 	Env     map[string]string
 	Dir     string
-	Timeout int
+	Timeout string
 	Retries int
 }
 
@@ -76,7 +76,7 @@ type CommandUnderTest struct {
 	Cmd     string
 	Env     map[string]string
 	Dir     string
-	Timeout int
+	Timeout string
 	Retries int
 }
 
@@ -136,7 +136,7 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 func runTest(test TestCase) TestResult {
 	// cut = command under test
 	cut := cmd.NewCommand(test.Command.Cmd)
-	cut.SetTimeoutMS(test.Command.Timeout)
+	cut.SetTimeout(test.Command.Timeout)
 	cut.Dir = test.Command.Dir
 	for k, v := range test.Command.Env {
 		cut.AddEnv(k, v)
