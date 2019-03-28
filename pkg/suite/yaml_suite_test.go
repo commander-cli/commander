@@ -179,7 +179,7 @@ config:
         KEY: global
         ANOTHER_KEY: another_global
     dir: /home/commander/
-    timeout: 10
+    timeout: 10ms
     retries: 2
 
 tests:
@@ -189,19 +189,19 @@ tests:
            env:
                KEY: local
            dir: /home/test
-           timeout: 1
+           timeout: 1s
            retries: 10
 `)
 
 	got := ParseYAML(yaml)
 	assert.Equal(t, map[string]string{"KEY": "global", "ANOTHER_KEY": "another_global"}, got.GetGlobalConfig().Env)
 	assert.Equal(t, "/home/commander/", got.GetGlobalConfig().Dir)
-	assert.Equal(t, 10, got.GetGlobalConfig().Timeout)
+	assert.Equal(t, "10ms", got.GetGlobalConfig().Timeout)
 	assert.Equal(t, 2, got.GetGlobalConfig().Retries)
 
 	assert.Equal(t, map[string]string{"KEY": "local", "ANOTHER_KEY": "another_global"}, got.GetTests()[0].Command.Env)
 	assert.Equal(t, "/home/test", got.GetTests()[0].Command.Dir)
-	assert.Equal(t, 1, got.GetTests()[0].Command.Timeout)
+	assert.Equal(t, "1s", got.GetTests()[0].Command.Timeout)
 	assert.Equal(t, 10, got.GetTests()[0].Command.Retries)
 }
 

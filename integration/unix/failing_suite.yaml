@@ -6,5 +6,5 @@ tests:
   test timeout:
     command: sleep 1
     config:
-      timeout: 10 #in milliseconds
+      timeout: 10ms
     exit-code: 0

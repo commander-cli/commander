@@ -49,7 +49,7 @@ func TestRuntime_WithEnvVariables(t *testing.T) {
 	s := TestCase{
 		Command: CommandUnderTest{
 			Cmd:     fmt.Sprintf("echo %s", envVar),
-			Timeout: 50,
+			Timeout: "50ms",
 			Env:     map[string]string{"KEY": "value"},
 		},
 		Expected: Expected{
@@ -87,7 +87,7 @@ func getExampleTestSuite() []TestCase {
 		{
 			Command: CommandUnderTest{
 				Cmd:     "echo hello",
-				Timeout: 50,
+				Timeout: "50ms",
 			},
 			Expected: Expected{
 				Stdout: ExpectedOut{

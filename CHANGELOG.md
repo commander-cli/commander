@@ -1,7 +1,9 @@
 # v1.0.0
 
  - Add `add` command which automatically adds tests to your test suite
- - Add `retries` to test configs
+ - Changes to `config` properties
+    - Add `retries` to test configs
+    - Add time units to `timeout` config
 
 # v0.4.0
 

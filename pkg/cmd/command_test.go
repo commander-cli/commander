@@ -75,3 +75,16 @@ func TestCommand_SetTimeoutMS(t *testing.T) {
 	c.SetTimeoutMS(100)
 	assert.Equal(t, 100*time.Millisecond, c.Timeout)
 }
+
+func TestCommand_SetTimeout(t *testing.T) {
+	c := NewCommand("echo test")
+	_ = c.SetTimeout("100s")
+	duration, _ := time.ParseDuration("100s")
+	assert.Equal(t, duration, c.Timeout)
+}
+
+func TestCommand_SetInvalidTimeout(t *testing.T) {
+	c := NewCommand("echo test")
+	err := c.SetTimeout("1")
+	assert.Equal(t, "time: missing unit in duration 1", err.Error())
+}

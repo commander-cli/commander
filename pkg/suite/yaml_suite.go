@@ -17,7 +17,7 @@ type YAMLConfig struct {
 type YAMLTestConfig struct {
 	Env     map[string]string `yaml:"env,omitempty"`
 	Dir     string            `yaml:"dir,omitempty"`
-	Timeout int               `yaml:"timeout,omitempty"`
+	Timeout string            `yaml:"timeout,omitempty"`
 	Retries int               `yaml:"retries,omitempty"`
 }
 
@@ -218,7 +218,7 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 		conf.Dir = local.Dir
 	}
 
-	if local.Timeout != 0 {
+	if local.Timeout != "" {
 		conf.Timeout = local.Timeout
 	}
 

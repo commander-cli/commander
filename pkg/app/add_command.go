@@ -58,7 +58,7 @@ func stringOrNil(str string) interface{} {
 }
 
 func convertConfig(config suite.YAMLTestConfig) suite.YAMLTestConfig {
-	if config.Dir == "" && len(config.Env) == 0 && config.Timeout == 0 {
+	if config.Dir == "" && len(config.Env) == 0 && config.Timeout == "" {
 		return suite.YAMLTestConfig{}
 	}
 	return config

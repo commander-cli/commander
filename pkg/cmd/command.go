@@ -44,6 +44,18 @@ func (c *Command) SetTimeoutMS(ms int) {
 	c.Timeout = time.Duration(ms) * time.Millisecond
 }
 
+// SetTimeout sets the timeout given a time unit
+// Example: SetTimeout("100s") sets the timeout to 100 seconds
+func (c *Command) SetTimeout(timeout string) error {
+	d, err := time.ParseDuration(timeout)
+	if err != nil {
+		return err
+	}
+
+	c.Timeout = d
+	return nil
+}
+
 //Stdout returns the output to stdout
 func (c *Command) Stdout() string {
 	c.isExecuted("Stdout")

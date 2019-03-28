@@ -8,22 +8,12 @@
 
 `Commander` is an alternative to `bats` and `gotest.tools/icmd` for testing cli apps.
 
+ - It runs on `windows`, `osx` and `linux` 
+ - It is a self-contained binary - no need to install a heavy lib or language
+ - It is easy and fast to write
+ 
 [![asciicast](https://asciinema.org/a/GLgIexHSaSdic5iaX9GTQpr5f.svg)](https://asciinema.org/a/GLgIexHSaSdic5iaX9GTQpr5f?autoplay=1)
 
- - It runs on `windows`, `osx` and `linux`
- - It is a self-contained binary
- - It is easy - just run `commander add`
-
-
-- [Installation](#installation)
-  * [Linux and osx](#linux-and-osx)
-  * [Windows](#windows)
-- [Example](#example)
-- [Minimal test](#minimal-test)
-- [Usage](#usage)
-- [Development](#development)
-- [Misc](#misc)
- 
 For more information take a look at the [manual](docs/manual.md), the [examples](examples) or the [integration tests](integration).
 
 ## Installation
