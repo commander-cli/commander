@@ -18,8 +18,11 @@ const (
 
 // Result status codes
 const (
+	//Success status
 	Success ResultStatus = iota
+	// Failed status
 	Failed
+	// Skipped status
 	Skipped
 )
 
@@ -31,7 +34,7 @@ type TestCase struct {
 	Result   CommandResult
 }
 
-//Config
+//TestConfig represents the configuration for a test
 type TestConfig struct {
 	Env     map[string]string
 	Dir     string
@@ -59,6 +62,7 @@ type Expected struct {
 	ExitCode  int
 }
 
+//ExpectedOut represents the assertions on stdout and stderr
 type ExpectedOut struct {
 	Contains  []string
 	Lines     map[int]string
@@ -74,7 +78,7 @@ type CommandUnderTest struct {
 	Timeout int
 }
 
-// CommandResult represents the TestCase and the ValidationResult
+// TestResult represents the TestCase and the ValidationResult
 type TestResult struct {
 	TestCase         TestCase
 	ValidationResult ValidationResult

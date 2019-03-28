@@ -2,7 +2,31 @@
 
 `commander` will automatically search for a `commander.yaml` in the current working directory.
 
-## Tests
+## Commands
+
+## add
+
+The `add` command allows you to automatically create tests. It will automatically create a `comannder.yaml`.
+
+**Example**
+
+```bash
+./commander add --no-file --stdout echo hello
+tests:
+  echo hello:
+    exit-code: 0
+    stdout: hello
+```
+
+**Options**
+
+```
+--stdout      Output test file to stdout
+--no-file     Don't create a commander.yaml
+--file value  Write to another file, default is commander.yaml
+```
+
+## test
 
 ```yaml
 config: # Config for all tests

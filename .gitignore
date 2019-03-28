@@ -7,3 +7,4 @@ tmp.yml
 *.out
 coverage
 *.exe
+commander.yaml

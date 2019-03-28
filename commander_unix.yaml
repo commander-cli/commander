@@ -37,3 +37,12 @@ tests:
         - ✓ should print global env value
         - ✓ should print local env value
     exit-code: 0
+
+  test add command:
+    command: ./commander add --no-file --stdout "echo hello"
+    stdout: |-
+      tests:
+        echo hello:
+          exit-code: 0
+          stdout: hello
+    exit-code: 0

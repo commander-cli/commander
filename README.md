@@ -6,29 +6,29 @@
 
 # Commander
 
-Define `YAML` based test suites for your command line applications.
+`Commander` is an alternative to `bats` and `gotest.tools/icmd` for testing cli apps.
 
-- [Quick start](#quick-start)
+[![asciicast](https://asciinema.org/a/GLgIexHSaSdic5iaX9GTQpr5f.svg)](https://asciinema.org/a/GLgIexHSaSdic5iaX9GTQpr5f?autoplay=1)
+
+ - It runs on `windows`, `osx` and `linux`
+ - It is a self-contained binary
+ - It is easy - just run `commander add`
+
+
 - [Installation](#installation)
-  * [Linux & osx](#linux---osx)
+  * [Linux and osx](#linux-and-osx)
   * [Windows](#windows)
 - [Example](#example)
 - [Minimal test](#minimal-test)
 - [Usage](#usage)
 - [Development](#development)
-
-## Quick start
-
- - [Install](#installation) `commander` and add it to your `path` environment variable
- - Create a `commander.yaml` in your project root
- - Add a [minimal test](#minimal-test)
- - Run `./commander test`
+- [Misc](#misc)
  
 For more information take a look at the [manual](docs/manual.md), the [examples](examples) or the [integration tests](integration).
 
 ## Installation
 
-### Linux & osx
+### Linux and osx
 
 ```bash
 # Install latest version to /usr/local/bin
@@ -84,12 +84,12 @@ USAGE:
 
 COMMANDS:
      test     Execute the test suite
+     add      Automatically add a test to your test suite
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --help, -h     show help
    --version, -v  print the version
-
 ```
 
 
@@ -114,3 +114,12 @@ $ make test-integration
 # Add depdencies to vendor
 $ make deps
 ```
+
+# Misc
+
+Heavily inspired by [goss](https://github.com/aelsabbahy/goss).
+
+Similar projects:
+ - [bats](https://github.com/sstephenson/bats)
+ - [icmd](https://godoc.org/gotest.tools/icmd)
+ - [testcli](https://github.com/rendon/testcli)

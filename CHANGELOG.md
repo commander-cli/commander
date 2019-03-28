@@ -1,3 +1,6 @@
+# v1.0.0
+ - Add `add` command
+
 # v0.4.0
  - Add flags to `test` command
    - `--verbose` will print more detailed output
