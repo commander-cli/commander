@@ -36,7 +36,7 @@ func createCliApp() *cli.App {
 	cliapp.Version = version
 
 	cliapp.Commands = []cli.Command{
-		createAddCommand(),
+		createTestCommand(),
 		{
 			Name:      "add",
 			Usage:     "Automatically add a test to your test suite",
@@ -61,7 +61,7 @@ func createCliApp() *cli.App {
 	return cliapp
 }
 
-func createAddCommand() cli.Command {
+func createTestCommand() cli.Command {
 	return cli.Command{
 		Name:      "test",
 		Usage:     "Execute the test suite",
