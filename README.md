@@ -18,14 +18,13 @@ For more information take a look at the [manual](docs/manual.md), the [examples]
 
 ## Installation
 
-### Linux and osx
+### Linux & osx
+
+Visit the [release](https://github.com/SimonBaeumer/commander/releases) page to get the binary for you system. 
 
 ```bash
-# Install latest version to /usr/local/bin
-curl -fsSL https://raw.githubusercontent.com/SimonBaeumer/commander/master/install.sh | sh
-
-# Install v0.1.0 version to ~/bin
-curl -fsSL https://raw.githubusercontent.com/SimonBaeumer/commander/master/install.sh | COMMANDER_VER=v0.1.0 COMMANDER_DST=~/bin sh
+curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.0.0/commander-linux-amd64 -o commander
+chmod +x commander
 ```
 
 ### Windows

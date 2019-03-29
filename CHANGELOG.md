@@ -1,3 +1,7 @@
+# v1.0.1
+
+ - Remove unnecessary command logs
+
 # v1.0.0
 
  - Add `add` command which automatically adds tests to your test suite
