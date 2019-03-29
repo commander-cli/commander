@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os/exec"
 	"syscall"
 	"time"
@@ -111,14 +110,11 @@ func (c *Command) Execute() error {
 	select {
 	case err := <-done:
 		if err != nil {
-			log.Println("Command exited with error", c.Cmd, err.Error())
 			c.getExitCode(err)
 			break
 		}
-		log.Println("Command exited successfully", c.Cmd)
 		c.exitCode = 0
 	case <-time.After(c.Timeout):
-		log.Println("Command timed out", c.Cmd)
 		if err := cmd.Process.Kill(); err != nil {
 			return fmt.Errorf("Timeout occurred and can not kill process with pid %v", cmd.Process.Pid)
 		}
