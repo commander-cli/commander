@@ -6,7 +6,8 @@
 
 # Commander
 
-`Commander` is an alternative to `bats` and `gotest.tools/icmd` for testing cli apps.
+
+Define language independent tests for your command line scripts and programs in simple `yaml` files.
 
  - It runs on `windows`, `osx` and `linux` 
  - It is a self-contained binary - no need to install a heavy lib or language
@@ -33,33 +34,118 @@ chmod +x commander
  - Add the path to your [path](https://docs.alfresco.com/4.2/tasks/fot-addpath.html) environment variable
  - Test it: `commander --version`
 
-## Example
 
-You can find more examples in `examples/`
+## Quick start
 
-```
-# Build the project
-$ make build
+`Commander` will always search for a default `commander.yaml` in the current working directory and execute all defined tests in it.
 
-# Execute test suite
-Starting test file examples/commander.yaml...
 
-✓ it should print hello world
+```bash
+# You can even let commander add tests for you!
+$ ./commander test examples/commander.yaml
+tests:
+  echo hello:
+    exit-code: 0
+    stdout: hello
+
+written to /tmp/commander.yaml
+
+# ... and execute!
+$ ./commander test
+Starting test file commander.yaml...
+
 ✓ echo hello
-✓ it should validate exit code
-✓ it should fail
 
-Duration: 0.005s
-Count: 4, Failed: 0
+Duration: 0.002s
+Count: 1, Failed: 0
 ```
 
-## Minimal test
+## Complete YAML file
+
+Here you can see an example with all features.
 
 ```yaml
+config: # Config for all executed tests
+    dir: /tmp #Set working directory
+    env: # Environment variables
+        KEY: global
+    timeout: 5000 # Timeout in ms
+    retries: 2 # Define retries for each test
+    
 tests:
-    echo hello:
-        stdout: hello
+    echo hello: # Define command as title
+        stdout: hello # Default is to check if it contains the given characters
+        exit-code: 0 # Assert exit-code
+        
+    it should fail:
+        command: invalid
+        stderr:
+            contains: 
+                - invalid # Assert only contain work
+            exactly: "/bin/sh: 1: invalid: not found"
+            line-count: 1 # Assert amount of lines
+            lines: # Assert specific lines
+                1: "/bin/sh: 1: invalid: not found"
+        exit-code: 127
+        
+    it has configs:
+        command: echo hello
+        stdout:
+            contains: 
+                - hello #See test "it should fail"
+            exactly: hello
+            line-count: 1
+        config:
+            dir: /home/user # Overwrite working dir
+            env:
+                KEY: local # Overwrite env variable
+                ANOTHER: yeah # Add another env variable
+            timeout: 1000 # Overwrite timeout
+            retries: 5
         exit-code: 0
+```
+
+## Executing
+
+```bash
+# Execute file commander.yaml in current directory
+$ ./commander test 
+
+# Execute a specific suite
+$ ./commander test /tmp/test.yaml
+
+# Execute a single test
+$ ./commander test /tmp/test.yaml "my test"
+```
+
+## Adding tests
+
+You can use the `add` argument if you want to `commander` to create your tests.
+
+```bash
+# Add a test to the default commander.yaml
+$ ./commander add echo hello
+written to /tmp/commander.yaml
+
+# Write to a given file
+$ ./commander add --file=test.yaml echo hello
+written to test.yaml
+
+# Write to stdout and file
+$ ./commander add --stdout echo hello
+tests:
+  echo hello:
+    exit-code: 0
+    stdout: hello
+
+written to /tmp/commander.yaml
+
+# Only to stdout
+$ ./commander add --stdout --no-file echo hello
+tests:
+  echo hello:
+    exit-code: 0
+    stdout: hello
 ```
 
 ## Usage
@@ -85,7 +171,7 @@ GLOBAL OPTIONS:
 ## Development
 
 ```
-# Initialise dev env
+# Initialise dev environment
 $ make init
 
 # Build the project binary
