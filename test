@@ -1,4 +1,0 @@
-tests:
-  echo hello:
-    exit-code: 0
-    stdout: hello

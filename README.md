@@ -69,7 +69,7 @@ config: # Config for all executed tests
     dir: /tmp #Set working directory
     env: # Environment variables
         KEY: global
-    timeout: 5000 # Timeout in ms
+    timeout: 50s # Define a timeout for a command under test
     retries: 2 # Define retries for each test
     
 tests:
@@ -100,7 +100,7 @@ tests:
             env:
                 KEY: local # Overwrite env variable
                 ANOTHER: yeah # Add another env variable
-            timeout: 1000 # Overwrite timeout
+            timeout: 1s # Overwrite timeout
             retries: 5
         exit-code: 0
 ```
