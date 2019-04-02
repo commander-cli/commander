@@ -3,9 +3,9 @@ package app
 import "github.com/urfave/cli"
 
 const (
-	//Defines the app name
+	//AppName defines the app name
 	AppName = "Commander"
-	//Default config file which is loaded
+	//CommanderFile holds the default config file which is loaded
 	CommanderFile = "commander.yaml"
 )
 

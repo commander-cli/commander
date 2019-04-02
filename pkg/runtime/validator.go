@@ -20,6 +20,7 @@ func newValidationResult(m matcher.MatcherResult) ValidationResult {
 }
 
 // Validate validates the test results with the expected values
+// The test should hold the result and expected to validate the result
 func Validate(test TestCase) TestResult {
 	equalMatcher := matcher.NewMatcher(matcher.Equal)
 
