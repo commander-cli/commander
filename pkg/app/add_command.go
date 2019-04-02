@@ -7,6 +7,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// AddCommand executes the add command
+// command is the command which should be added to the test suite
+// existed holds the existing yaml content
 func AddCommand(command string, existed []byte) ([]byte, error) {
 	conf := suite.YAMLConfig{
 		Tests:  make(map[string]suite.YAMLTest),

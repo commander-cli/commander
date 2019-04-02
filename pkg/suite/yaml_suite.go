@@ -52,7 +52,7 @@ func (s YAMLSuite) GetTestByTitle(title string) (runtime.TestCase, error) {
 	return runtime.TestCase{}, fmt.Errorf("Could not find test " + title)
 }
 
-//GetGlobalConfig returns the global suite configuraiton
+//GetGlobalConfig returns the global suite configuration
 func (s YAMLSuite) GetGlobalConfig() runtime.TestConfig {
 	return s.Config
 }

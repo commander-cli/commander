@@ -88,7 +88,8 @@ type TestResult struct {
 	Tries            int
 }
 
-// Start starts the given test suite
+// Start starts the given test suite and executes all tests
+// maxConcurrent configures the amount of go routines which will be started
 func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	in := make(chan TestCase)
 	out := make(chan TestResult)
@@ -133,6 +134,7 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	return out
 }
 
+// runTest executes the current test case
 func runTest(test TestCase) TestResult {
 	// cut = command under test
 	cut := cmd.NewCommand(test.Command.Cmd)
@@ -169,6 +171,7 @@ func runTest(test TestCase) TestResult {
 	return Validate(test)
 }
 
+// GetRetries returns the retries of the command
 func (c *CommandUnderTest) GetRetries() int {
 	if c.Retries == 0 {
 		return 1

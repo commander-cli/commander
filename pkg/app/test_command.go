@@ -10,6 +10,10 @@ import (
 	"os"
 )
 
+// TestCommand executes the test argument
+// file is the path to the configuration file
+// title ist the title of test which should be executed, if empty it will execute all tests
+// ctx holds the command flags
 func TestCommand(file string, title string, ctx AddCommandContext) error {
 	if ctx.Verbose == true {
 		log.SetOutput(os.Stdout)

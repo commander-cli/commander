@@ -30,6 +30,7 @@ func NewCommand(cmd string) *Command {
 	}
 }
 
+// AddEnv adds an environment variable to the command
 func (c *Command) AddEnv(key string, value string) {
 	c.Env = append(c.Env, fmt.Sprintf("%s=%s", key, value))
 }
@@ -84,7 +85,8 @@ func (c *Command) isExecuted(property string) {
 	}
 }
 
-//Execute executes the commande
+// Execute executes the command and writes the results into it's own instance
+// The results can be received with the Stdout(), Stderr() and ExitCode() methods
 func (c *Command) Execute() error {
 	cmd := createBaseCommand(c)
 	cmd.Env = c.Env
