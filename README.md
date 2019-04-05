@@ -13,8 +13,6 @@ Define language independent tests for your command line scripts and programs in 
  - It runs on `windows`, `osx` and `linux` 
  - It is a self-contained binary - no need to install a heavy lib or language
  - It is easy and fast to write
- 
-[![asciicast](https://asciinema.org/a/GLgIexHSaSdic5iaX9GTQpr5f.svg)](https://asciinema.org/a/GLgIexHSaSdic5iaX9GTQpr5f?autoplay=1)
 
 For more information take a look at the [manual](docs/manual.md), the [examples](examples) or the [integration tests](integration).
 
