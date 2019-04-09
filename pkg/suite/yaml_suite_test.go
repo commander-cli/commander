@@ -82,12 +82,15 @@ tests:
             contains:
                 - hello
                 - another hello
+            not-contains:
+                - bonjour
             exactly: exactly hello
 `)
 	tests := ParseYAML(yaml).GetTests()
 
 	assert.Equal(t, "hello", tests[0].Expected.Stdout.Contains[0])
 	assert.Equal(t, "exactly hello", tests[0].Expected.Stdout.Exactly)
+	assert.Equal(t, "bonjour", tests[0].Expected.Stdout.NotContains[0])
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldConvertWithoutContains(t *testing.T) {

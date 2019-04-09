@@ -38,3 +38,9 @@ tests:
         2: line2
         4: line4
     exit-code: 0
+
+  it should validate not contains:
+    command: echo lorem ipsum
+    stdout:
+      not-contains:
+        - not contains

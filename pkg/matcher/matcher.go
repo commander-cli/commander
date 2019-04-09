@@ -13,6 +13,8 @@ const (
 	Contains = "contains"
 	// Equal matcher type
 	Equal = "equal"
+	// Not contains matcher type
+	NotContains = "notcontains"
 )
 
 // NewMatcher creates a new matcher by type
@@ -24,6 +26,8 @@ func NewMatcher(matcher string) Matcher {
 		return ContainsMatcher{}
 	case Equal:
 		return EqualMatcher{}
+	case NotContains:
+		return NotContainsMatcher{}
 	default:
 		panic(fmt.Sprintf("Validator '%s' does not exist!", matcher))
 	}
@@ -116,5 +120,20 @@ func (m EqualMatcher) Match(got interface{}, expected interface{}) MatcherResult
 	return MatcherResult{
 		Success: false,
 		Diff:    diffText,
+	}
+}
+
+type NotContainsMatcher struct {
+}
+
+func (m NotContainsMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+	result := true
+	if strings.Contains(got.(string), expected.(string)) {
+		result = false
+	}
+
+	return MatcherResult{
+		Success: result,
+		Diff:    "",
 	}
 }
