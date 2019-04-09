@@ -170,7 +170,8 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 				"contains",
 				"exactly",
 				"line-count",
-				"lines":
+				"lines",
+				"not-contains":
 				break
 			default:
 				panic(fmt.Sprintf("Key %s is not allowed.", k))
@@ -200,6 +201,13 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 			exp.Lines = make(map[int]string)
 			for k, v := range l.(map[interface{}]interface{}) {
 				exp.Lines[k.(int)] = toString(v)
+			}
+		}
+
+		if notContains := v["not-contains"]; notContains != nil {
+			values := notContains.([]interface{})
+			for _, v := range values {
+				exp.NotContains = append(exp.NotContains, toString(v))
 			}
 		}
 		break

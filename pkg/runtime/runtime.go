@@ -65,10 +65,11 @@ type Expected struct {
 
 //ExpectedOut represents the assertions on stdout and stderr
 type ExpectedOut struct {
-	Contains  []string
-	Lines     map[int]string
-	Exactly   string
-	LineCount int
+	Contains    []string
+	Lines       map[int]string
+	Exactly     string
+	LineCount   int
+	NotContains []string
 }
 
 // CommandUnderTest represents the command under test

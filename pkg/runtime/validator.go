@@ -92,6 +92,15 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 		}
 	}
 
+	if len(expected.NotContains) > 0 {
+		m = matcher.NewMatcher(matcher.NotContains)
+		for _, c := range expected.NotContains {
+			if result = m.Match(got, c); !result.Success {
+				return result
+			}
+		}
+	}
+
 	return result
 }
 

@@ -1,3 +1,7 @@
+# v1.1.0
+
+ - Add `not-contains` assertion on `stdout` and `stderr`
+
 # v1.0.1
 
  - Remove unnecessary command logs

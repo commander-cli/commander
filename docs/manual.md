@@ -46,6 +46,8 @@ tests:
         stderr:
             contains: 
                 - invalid # Assert only contain work
+            not-contains:
+                - does not contains # validate that a string does not occur in stdout
             exactly: "/bin/sh: 1: invalid: not found"
             line-count: 1 # Assert amount of lines
             lines: # Assert specific lines

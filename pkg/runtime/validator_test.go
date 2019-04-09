@@ -81,16 +81,18 @@ func getExampleTest() TestCase {
 	test := TestCase{
 		Expected: Expected{
 			Stdout: ExpectedOut{
-				Lines:     map[int]string{1: "hello"},
-				LineCount: 1,
-				Exactly:   "hello",
-				Contains:  []string{"hello"},
+				Lines:       map[int]string{1: "hello"},
+				LineCount:   1,
+				Exactly:     "hello",
+				Contains:    []string{"hello"},
+				NotContains: []string{"not-exist"},
 			},
 			Stderr: ExpectedOut{
-				Lines:     map[int]string{1: "error"},
-				LineCount: 1,
-				Exactly:   "error",
-				Contains:  []string{"error"},
+				Lines:       map[int]string{1: "error"},
+				LineCount:   1,
+				Exactly:     "error",
+				Contains:    []string{"error"},
+				NotContains: []string{"not-exist"},
 			},
 			LineCount: 1,
 		},

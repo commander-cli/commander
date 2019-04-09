@@ -71,3 +71,22 @@ func TestContainsMatcher_MatchFail(t *testing.T) {
 	got := m.Match("hello world", "nope")
 	assert.False(t, got.Success)
 }
+
+func TestNewMatcher_NotContains(t *testing.T) {
+	m := NewMatcher(NotContains)
+	assert.IsType(t, NotContainsMatcher{}, m)
+}
+
+func TestNotContainsMatcher(t *testing.T) {
+	m := NotContainsMatcher{}
+	r := m.Match("lore ipsum donor", "hello")
+	assert.True(t, r.Success)
+	assert.Empty(t, r.Diff)
+}
+
+func TestNotContainsMatcher_Fails(t *testing.T) {
+	m := NotContainsMatcher{}
+	r := m.Match("lore ipsum donor", "donor")
+	assert.False(t, r.Success)
+	assert.Empty(t, r.Diff)
+}
