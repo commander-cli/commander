@@ -36,10 +36,11 @@ type TestCase struct {
 
 //TestConfig represents the configuration for a test
 type TestConfig struct {
-	Env     map[string]string
-	Dir     string
-	Timeout string
-	Retries int
+	Env      map[string]string
+	Dir      string
+	Timeout  string
+	Retries  int
+	Interval string
 }
 
 // ResultStatus represents the status code of a test result
@@ -74,11 +75,12 @@ type ExpectedOut struct {
 
 // CommandUnderTest represents the command under test
 type CommandUnderTest struct {
-	Cmd     string
-	Env     map[string]string
-	Dir     string
-	Timeout string
-	Retries int
+	Cmd      string
+	Env      map[string]string
+	Dir      string
+	Timeout  string
+	Retries  int
+	Interval string
 }
 
 // TestResult represents the TestCase and the ValidationResult
