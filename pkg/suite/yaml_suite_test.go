@@ -225,3 +225,22 @@ tests:
 
 	_ = ParseYAML(yaml)
 }
+
+func TestYamlSuite_ShouldFailIfArrayIsGivenToExpectedOut(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			assert.Contains(t, r, "Failed to parse Stdout or Stderr with values: [yeah]")
+		}
+		assert.NotNil(t, r)
+	}()
+
+	yaml := []byte(`
+tests:
+    echo hello:
+        stdout: 
+          - yeah
+`)
+
+	_ = ParseYAML(yaml)
+}
