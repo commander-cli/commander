@@ -157,6 +157,8 @@ func runTest(test TestCase) TestResult {
 	}
 
 	log.Println("title: '"+test.Title+"'", " Command: ", cut.Cmd)
+	log.Println("title: '"+test.Title+"'", " Directory: ", cut.Dir)
+	log.Println("title: '"+test.Title+"'", " Env: ", cut.Env)
 
 	// Write test result
 	test.Result = CommandResult{
