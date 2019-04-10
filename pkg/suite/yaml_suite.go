@@ -211,6 +211,11 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 			}
 		}
 		break
+
+	case nil:
+		break
+	default:
+		panic(fmt.Sprintf("Failed to parse Stdout or Stderr with values: %v", value))
 	}
 
 	return exp

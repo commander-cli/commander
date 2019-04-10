@@ -3,6 +3,7 @@ package runtime
 import (
 	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/matcher"
+	"log"
 	"strings"
 )
 
@@ -24,7 +25,9 @@ func newValidationResult(m matcher.MatcherResult) ValidationResult {
 func Validate(test TestCase) TestResult {
 	equalMatcher := matcher.NewMatcher(matcher.Equal)
 
+	log.Println("title: '"+test.Title+"'", " Stdout-Expected: ", test.Expected.Stdout)
 	matcherResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
+	log.Println("title: '"+test.Title+"'", " Stdout-Result: ", matcherResult.Success)
 	if !matcherResult.Success {
 		return TestResult{
 			ValidationResult: newValidationResult(matcherResult),
@@ -33,7 +36,9 @@ func Validate(test TestCase) TestResult {
 		}
 	}
 
+	log.Println("title: '"+test.Title+"'", " Stderr-Expected: ", test.Expected.Stderr)
 	matcherResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
+	log.Println("title: '"+test.Title+"'", " Stderr-Result: ", matcherResult.Success)
 	if !matcherResult.Success {
 		return TestResult{
 			ValidationResult: newValidationResult(matcherResult),
@@ -42,7 +47,9 @@ func Validate(test TestCase) TestResult {
 		}
 	}
 
+	log.Println("title: '"+test.Title+"'", " Exit-Expected: ", test.Expected.ExitCode)
 	matcherResult = equalMatcher.Match(test.Result.ExitCode, test.Expected.ExitCode)
+	log.Println("title: '"+test.Title+"'", " Exit-Result: ", matcherResult.Success)
 	if !matcherResult.Success {
 		return TestResult{
 			ValidationResult: newValidationResult(matcherResult),
