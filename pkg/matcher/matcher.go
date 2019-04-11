@@ -81,18 +81,20 @@ func (m ContainsMatcher) Match(got interface{}, expected interface{}) MatcherRes
 		result = false
 	}
 
-	diff := difflib.UnifiedDiff{
-		A:        difflib.SplitLines(fmt.Sprintf("%s", got.(string))),
-		B:        difflib.SplitLines(fmt.Sprintf("%s", expected.(string))),
-		FromFile: "Got",
-		ToFile:   "Expected",
-		Context:  3,
-	}
-	diffText, _ := difflib.GetUnifiedDiffString(diff)
+	diff := `
+Expected
+
+%s
+
+to contain
+
+%s
+`
+	diff = fmt.Sprintf(diff, got, expected)
 
 	return MatcherResult{
 		Success: result,
-		Diff:    diffText,
+		Diff:    diff,
 	}
 }
 
@@ -132,8 +134,19 @@ func (m NotContainsMatcher) Match(got interface{}, expected interface{}) Matcher
 		result = false
 	}
 
+	diff := `
+Expected
+
+%s
+
+to not contain
+
+%s
+`
+	diff = fmt.Sprintf(diff, got, expected)
+
 	return MatcherResult{
 		Success: result,
-		Diff:    "",
+		Diff:    diff,
 	}
 }

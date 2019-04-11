@@ -3,6 +3,7 @@
  - Add `not-contains` assertion on `stdout` and `stderr`
  - Add validation for invalid data types in `stdout` and `stderr` assertions
  - More logging for `--verbose` option on the `test` command
+ - Add better diff format for `contains` and `not-contains` assertions on `stdout` and `stderr`
 
 # v1.0.1
 
