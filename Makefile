@@ -2,7 +2,7 @@ exe = cmd/commander/*
 cmd = commander
 TRAVIS_TAG ?= "0.0.0"
 
-.PHONY: deps lint test test-integration git-hooks init
+.PHONY: deps lint test integration integration-windows git-hooks init
 
 init: git-hooks
 
@@ -30,11 +30,11 @@ test-coverage:
 	$(info INFO: Starting build $@)
 	go test -coverprofile c.out ./...
 
-test-integration: build
+integration: build
 	$(info INFO: Starting build $@)
 	commander test commander_unix.yaml
 
-test-integration-windows: build
+integration-windows: build
 	$(info INFO: Starting build $@)
 	commander test commander_windows.yaml
 

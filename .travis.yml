@@ -37,7 +37,7 @@ jobs:
     script:
       - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-darwin-amd64 -o ~/bin/commander
       - chmod +x ~/bin/commander
-      - make test-integration
+      - make integration
 
   - name: windows Unit
     os: windows
@@ -53,7 +53,7 @@ jobs:
       - choco install curl
       - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-windows-amd64 -o C:\Windows\system32\commander.exe
     script:
-      - make test-integration-windows
+      - make integration-windows
 
   - name: Unit tests
     before_script:
@@ -66,7 +66,7 @@ jobs:
       - ./test-reporter after-build -t gocov --exit-code $TRAVIS_TEST_RESULT
 
   - name: Integration test
-    script: make test-integration
+    script: make integration
 
   - stage: deploy
     name: "Deployment"
