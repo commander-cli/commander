@@ -81,12 +81,14 @@ func TestNotContainsMatcher(t *testing.T) {
 	m := NotContainsMatcher{}
 	r := m.Match("lore ipsum donor", "hello")
 	assert.True(t, r.Success)
-	assert.Empty(t, r.Diff)
+	assert.Equal(t, "\nExpected\n\nlore ipsum donor\n\nto not contain\n\nhello\n", r.Diff)
 }
 
 func TestNotContainsMatcher_Fails(t *testing.T) {
 	m := NotContainsMatcher{}
 	r := m.Match("lore ipsum donor", "donor")
 	assert.False(t, r.Success)
-	assert.Empty(t, r.Diff)
+
+	diffText := "\nExpected\n\nlore ipsum donor\n\nto not contain\n\ndonor\n"
+	assert.Equal(t, diffText, r.Diff)
 }

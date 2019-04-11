@@ -185,7 +185,7 @@ $ make test
 $ make test-coverage
 
 # Integration tests
-$ make test-integration
+$ make integration
 
 # Add depdencies to vendor
 $ make deps
