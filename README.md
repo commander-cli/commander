@@ -18,6 +18,16 @@ For more information take a look at the [manual](docs/manual.md), the [examples]
 
 ## Installation
 
+### Any system with Go installed
+
+Probably the easiest way to install `commander` is by using `go get` to download and install it in one simple command:
+
+```bash
+go get github.com/svenfinke/commander/cmd/commander
+```
+
+This works on any OS, as long as go is installed. If go is not installed on your system, follow one of the methods below.
+
 ### Linux & osx
 
 Visit the [release](https://github.com/SimonBaeumer/commander/releases) page to get the binary for you system. 
