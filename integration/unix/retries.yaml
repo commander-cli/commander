@@ -4,7 +4,16 @@ tests:
     config:
       retries: 3
 
-  ./integration/unix/_fixtures/retries.sh:
+  it should retry failed commands:
+    command: ./integration/unix/_fixtures/retries.sh
     exit-code: 0
     config:
+      retries: 2
+
+  it should retry failed commands with an interval:
+    command: echo hello
+    stdout: fail
+    exit-code: 0
+    config:
+      interval: 50ms
       retries: 2

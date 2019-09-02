@@ -1,11 +1,13 @@
 package runtime
 
 import (
+	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/cmd"
 	"log"
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Constants for defining the various tested properties
@@ -36,10 +38,11 @@ type TestCase struct {
 
 //TestConfig represents the configuration for a test
 type TestConfig struct {
-	Env     map[string]string
-	Dir     string
-	Timeout string
-	Retries int
+	Env      map[string]string
+	Dir      string
+	Timeout  string
+	Retries  int
+	Interval string
 }
 
 // ResultStatus represents the status code of a test result
@@ -74,11 +77,12 @@ type ExpectedOut struct {
 
 // CommandUnderTest represents the command under test
 type CommandUnderTest struct {
-	Cmd     string
-	Env     map[string]string
-	Dir     string
-	Timeout string
-	Retries int
+	Cmd      string
+	Env      map[string]string
+	Dir      string
+	Timeout  string
+	Retries  int
+	Interval string
 }
 
 // TestResult represents the TestCase and the ValidationResult
@@ -120,6 +124,8 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 					if result.ValidationResult.Success {
 						break
 					}
+
+					executeRetryInterval(t)
 				}
 
 				out <- result
@@ -133,6 +139,16 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	}(out)
 
 	return out
+}
+
+func executeRetryInterval(t TestCase) {
+	if t.Command.GetRetries() > 1 && t.Command.Interval != "" {
+		interval, err := time.ParseDuration(t.Command.Interval)
+		if err != nil {
+			panic(fmt.Sprintf("'%s' interval error: %s", t.Command.Cmd, err))
+		}
+		time.Sleep(interval)
+	}
 }
 
 // runTest executes the current test case

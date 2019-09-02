@@ -15,10 +15,11 @@ type YAMLConfig struct {
 
 // YAMLTestConfig is a struct to represent the test config
 type YAMLTestConfig struct {
-	Env     map[string]string `yaml:"env,omitempty"`
-	Dir     string            `yaml:"dir,omitempty"`
-	Timeout string            `yaml:"timeout,omitempty"`
-	Retries int               `yaml:"retries,omitempty"`
+	Env      map[string]string `yaml:"env,omitempty"`
+	Dir      string            `yaml:"dir,omitempty"`
+	Timeout  string            `yaml:"timeout,omitempty"`
+	Retries  int               `yaml:"retries,omitempty"`
+	Interval string            `yaml:"interval,omitempty"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -69,10 +70,11 @@ func ParseYAML(content []byte) Suite {
 	return YAMLSuite{
 		TestCases: convertYAMLConfToTestCases(yamlConfig),
 		Config: runtime.TestConfig{
-			Env:     yamlConfig.Config.Env,
-			Dir:     yamlConfig.Config.Dir,
-			Timeout: yamlConfig.Config.Timeout,
-			Retries: yamlConfig.Config.Retries,
+			Env:      yamlConfig.Config.Env,
+			Dir:      yamlConfig.Config.Dir,
+			Timeout:  yamlConfig.Config.Timeout,
+			Retries:  yamlConfig.Config.Retries,
+			Interval: yamlConfig.Config.Interval,
 		},
 	}
 }
@@ -84,11 +86,12 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 		tests = append(tests, runtime.TestCase{
 			Title: t.Title,
 			Command: runtime.CommandUnderTest{
-				Cmd:     t.Command,
-				Env:     t.Config.Env,
-				Dir:     t.Config.Dir,
-				Timeout: t.Config.Timeout,
-				Retries: t.Config.Retries,
+				Cmd:      t.Command,
+				Env:      t.Config.Env,
+				Dir:      t.Config.Dir,
+				Timeout:  t.Config.Timeout,
+				Retries:  t.Config.Retries,
+				Interval: t.Config.Interval,
 			},
 			Expected: runtime.Expected{
 				ExitCode: t.ExitCode,
@@ -140,10 +143,11 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	//Parse global configuration
 	y.Config = YAMLTestConfig{
-		Env:     params.Config.Env,
-		Dir:     params.Config.Dir,
-		Timeout: params.Config.Timeout,
-		Retries: params.Config.Retries,
+		Env:      params.Config.Env,
+		Dir:      params.Config.Dir,
+		Timeout:  params.Config.Timeout,
+		Retries:  params.Config.Retries,
+		Interval: params.Config.Interval,
 	}
 
 	return nil
@@ -237,6 +241,10 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 
 	if local.Retries != 0 {
 		conf.Retries = local.Retries
+	}
+
+	if local.Interval != "" {
+		conf.Interval = local.Interval
 	}
 
 	return conf
