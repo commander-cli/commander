@@ -33,6 +33,7 @@ config: # Config for all tests
     dir: /tmp #Set working directory
     env: # Environment variables
         KEY: global
+        PATH_FROM_SHELL: ${PATH} # Read an env variable from the current shell
     timeout: 5000 # Timeout in ms
     retries: 2 # Define retries for each test
     

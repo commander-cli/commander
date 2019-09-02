@@ -70,7 +70,7 @@ func TestCommand_AddEnvWithShellVariable(t *testing.T) {
 	os.Setenv(TestEnvKey, "test from shell")
 	defer os.Unsetenv(TestEnvKey)
 
-	c := NewCommand("echo $SOME_KEY")
+	c := NewCommand(getCommand())
 	c.AddEnv("SOME_KEY", fmt.Sprintf("${%s}", TestEnvKey))
 
 	err := c.Execute()
@@ -89,7 +89,7 @@ func TestCommand_AddMultipleEnvWithShellVariable(t *testing.T) {
 		os.Unsetenv(TestEnvKeyName)
 	}()
 
-	c := NewCommand("echo $SOME_KEY")
+	c := NewCommand(getCommand())
 	envValue := fmt.Sprintf("Hello ${%s}, I am ${%s}", TestEnvKeyPlanet, TestEnvKeyName)
 	c.AddEnv("SOME_KEY", envValue)
 
@@ -97,6 +97,14 @@ func TestCommand_AddMultipleEnvWithShellVariable(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, "Hello world, I am Simon", c.Stdout())
+}
+
+func getCommand() string {
+	command := "echo $SOME_KEY"
+	if runtime.GOOS == "windows" {
+		command = "echo %SOME_KEY%"
+	}
+	return command
 }
 
 func TestCommand_SetTimeoutMS_DefaultTimeout(t *testing.T) {
