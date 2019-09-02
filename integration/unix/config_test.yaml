@@ -2,6 +2,7 @@ config:
   env:
     KEY: value
     ANOTHER: global
+    COMMANDER_FROM_SHELL: ${COMMANDER_FROM_SHELL}
 tests:
   should print global env value:
     command: echo $KEY
@@ -27,4 +28,9 @@ tests:
     command: echo hello
     config:
       timeout: 100ms
+    exit-code: 0
+
+  should print env var from shell:
+    command: echo read ${COMMANDER_FROM_SHELL} $KEY
+    stdout: read from_shell value
     exit-code: 0

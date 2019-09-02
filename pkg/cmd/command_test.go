@@ -79,6 +79,26 @@ func TestCommand_AddEnvWithShellVariable(t *testing.T) {
 	assert.Equal(t, "test from shell", c.Stdout())
 }
 
+func TestCommand_AddMultipleEnvWithShellVariable(t *testing.T) {
+	const TestEnvKeyPlanet = "COMMANDER_TEST_PLANET"
+	const TestEnvKeyName = "COMMANDER_TEST_NAME"
+	os.Setenv(TestEnvKeyPlanet, "world")
+	os.Setenv(TestEnvKeyName, "Simon")
+	defer func() {
+		os.Unsetenv(TestEnvKeyPlanet)
+		os.Unsetenv(TestEnvKeyName)
+	}()
+
+	c := NewCommand("echo $SOME_KEY")
+	envValue := fmt.Sprintf("Hello ${%s}, I am ${%s}", TestEnvKeyPlanet, TestEnvKeyName)
+	c.AddEnv("SOME_KEY", envValue)
+
+	err := c.Execute()
+
+	assert.Nil(t, err)
+	assert.Equal(t, "Hello world, I am Simon", c.Stdout())
+}
+
 func TestCommand_SetTimeoutMS_DefaultTimeout(t *testing.T) {
 	c := NewCommand("echo test")
 	c.SetTimeoutMS(0)

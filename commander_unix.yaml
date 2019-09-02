@@ -32,10 +32,14 @@ tests:
 
   test global and local configurations:
     command: ./commander test ./integration/unix/config_test.yaml
+    config:
+      env:
+        COMMANDER_FROM_SHELL: from_shell
     stdout:
       contains:
         - ✓ should print global env value
         - ✓ should print local env value
+        - ✓ should print env var from shell
     exit-code: 0
 
   test add command:

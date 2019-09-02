@@ -36,6 +36,9 @@ tests:
 
   test global and local configurations:
     command: commander.exe test ./integration/windows/config_test.yaml
+    config:
+      env:
+        COMMANDER_FROM_SHELL: from_shell
     stdout:
       contains:
         - should print global
