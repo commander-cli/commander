@@ -125,13 +125,7 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 						break
 					}
 
-					if t.Command.GetRetries() > 1 && t.Command.Interval != "" {
-						interval, err := time.ParseDuration(t.Command.Interval)
-						if err != nil {
-							panic(fmt.Sprintf("'%s' interval error: %s", t.Command.Cmd, err))
-						}
-						time.Sleep(interval)
-					}
+					executeRetryInterval(t)
 				}
 
 				out <- result
@@ -145,6 +139,16 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	}(out)
 
 	return out
+}
+
+func executeRetryInterval(t TestCase) {
+	if t.Command.GetRetries() > 1 && t.Command.Interval != "" {
+		interval, err := time.ParseDuration(t.Command.Interval)
+		if err != nil {
+			panic(fmt.Sprintf("'%s' interval error: %s", t.Command.Cmd, err))
+		}
+		time.Sleep(interval)
+	}
 }
 
 // runTest executes the current test case
