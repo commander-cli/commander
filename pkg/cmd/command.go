@@ -3,7 +3,9 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -31,8 +33,23 @@ func NewCommand(cmd string) *Command {
 }
 
 // AddEnv adds an environment variable to the command
+// If a variable gets passed like ${VAR_NAME} the env variable will be read out by the current shell
 func (c *Command) AddEnv(key string, value string) {
+	if isEnvFromShell(value) {
+		value = os.Getenv("COMMANDER_TEST_SOME_KEY")
+	}
 	c.Env = append(c.Env, fmt.Sprintf("%s=%s", key, value))
+}
+
+func isEnvFromShell(val string) bool {
+	r := strings.Index(val, "${")
+	if r != 0 {
+		return false
+	}
+	if strings.Index(val, "}") != (len(val) - 1) {
+		return false
+	}
+	return true
 }
 
 //SetTimeoutMS sets the timeout in milliseconds

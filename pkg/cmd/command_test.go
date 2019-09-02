@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"runtime"
 	"testing"
 	"time"
@@ -62,6 +63,20 @@ func TestCommand_AddEnv(t *testing.T) {
 	c := NewCommand("echo test")
 	c.AddEnv("key", "value")
 	assert.Equal(t, []string{"key=value"}, c.Env)
+}
+
+func TestCommand_AddEnvWithShellVariable(t *testing.T) {
+	const TestEnvKey = "COMMANDER_TEST_SOME_KEY"
+	os.Setenv(TestEnvKey, "test from shell")
+	defer os.Unsetenv(TestEnvKey)
+
+	c := NewCommand("echo $SOME_KEY")
+	c.AddEnv("SOME_KEY", fmt.Sprintf("${%s}", TestEnvKey))
+
+	err := c.Execute()
+
+	assert.Nil(t, err)
+	assert.Equal(t, "test from shell", c.Stdout())
 }
 
 func TestCommand_SetTimeoutMS_DefaultTimeout(t *testing.T) {
