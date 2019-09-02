@@ -52,5 +52,7 @@ tests:
     stdout:
       contains:
         - ✗ echo hello, retries 3
-        - ✓ ./integration/unix/_fixtures/retries.sh, retries 2
+        - ✓ it should retry failed commands, retries 2
+        - ✗ it should retry failed commands with an interval, retries 2
+        - "Duration: 0.1" # Assertion that the interval is working
     exit-code: 1

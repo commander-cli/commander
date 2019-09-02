@@ -1,3 +1,7 @@
+# v1.2.0
+
+ - Add `interval` option for `retries` which allows to execute a retry after a given period of time. I.e. `interval: 50ms`
+
 # v1.1.0
 
  - Add `not-contains` assertion on `stdout` and `stderr`

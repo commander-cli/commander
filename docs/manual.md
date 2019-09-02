@@ -68,5 +68,6 @@ tests:
                 ANOTHER: yeah # Add another env variable
             timeout: 1000 # Overwrite timeout
             retries: 5
+            interval: 30ms
         exit-code: 0
 ```

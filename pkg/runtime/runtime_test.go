@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"runtime"
 	"testing"
+	"time"
 )
 
 const SingleConcurrent = 1
@@ -37,7 +38,29 @@ func TestRuntime_WithRetries(t *testing.T) {
 		assert.False(t, r.ValidationResult.Success)
 		assert.Equal(t, 3, r.Tries)
 	}
+
 	assert.Equal(t, 1, counter)
+}
+
+func TestRuntime_WithRetriesAndInterval(t *testing.T) {
+	s := getExampleTestSuite()
+	s[0].Command.Retries = 3
+	s[0].Command.Cmd = "echo fail"
+	s[0].Command.Interval = "50ms"
+
+	start := time.Now()
+	got := Start(s, 1)
+
+	var counter = 0
+	for r := range got {
+		counter++
+		assert.False(t, r.ValidationResult.Success)
+		assert.Equal(t, 3, r.Tries)
+	}
+	duration := time.Since(start)
+
+	assert.Equal(t, 1, counter)
+	assert.True(t, duration.Seconds() > 0.15, "Retry interval did not work")
 }
 
 func TestRuntime_WithEnvVariables(t *testing.T) {

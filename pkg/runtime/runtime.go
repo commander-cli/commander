@@ -1,11 +1,13 @@
 package runtime
 
 import (
+	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/cmd"
 	"log"
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Constants for defining the various tested properties
@@ -121,6 +123,14 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 					result.Tries = i
 					if result.ValidationResult.Success {
 						break
+					}
+
+					if t.Command.GetRetries() > 1 && t.Command.Interval != "" {
+						interval, err := time.ParseDuration(t.Command.Interval)
+						if err != nil {
+							panic(fmt.Sprintf("'%s' interval error: %s", t.Command.Cmd, err))
+						}
+						time.Sleep(interval)
 					}
 				}
 
