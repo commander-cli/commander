@@ -2,6 +2,7 @@ config:
   env:
     KEY: value
     ANOTHER: global
+    COMMANDER_FROM_SHELL: ${COMMANDER_FROM_SHELL}
 tests:
   should print global env value:
     command: echo %KEY%

@@ -3,7 +3,10 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
+	"regexp"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -31,8 +34,27 @@ func NewCommand(cmd string) *Command {
 }
 
 // AddEnv adds an environment variable to the command
+// If a variable gets passed like ${VAR_NAME} the env variable will be read out by the current shell
 func (c *Command) AddEnv(key string, value string) {
+	vars := parseEnvVariableFromShell(value)
+	for _, v := range vars {
+		value = strings.Replace(value, v, os.Getenv(removeEnvVarSyntax(v)), -1)
+	}
+
 	c.Env = append(c.Env, fmt.Sprintf("%s=%s", key, value))
+}
+
+// Removes the ${...} characters
+func removeEnvVarSyntax(v string) string {
+	return v[2:(len(v) - 1)]
+}
+
+//Read all environment variables from the given value
+//with the syntax ${VAR_NAME}
+func parseEnvVariableFromShell(val string) []string {
+	reg := regexp.MustCompile(`\$\{.*?\}`)
+	matches := reg.FindAllString(val, -1)
+	return matches
 }
 
 //SetTimeoutMS sets the timeout in milliseconds

@@ -36,32 +36,13 @@ func createCliApp() *cli.App {
 	cliapp.Version = version
 
 	cliapp.Commands = []cli.Command{
+		createTestCommand(),
 		createAddCommand(),
-		{
-			Name:      "add",
-			Usage:     "Automatically add a test to your test suite",
-			ArgsUsage: "[command]",
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  "stdout",
-					Usage: "Output test file to stdout",
-				},
-				cli.BoolFlag{
-					Name:  "no-file",
-					Usage: "Don't create a commander.yaml",
-				},
-				cli.StringFlag{
-					Name:  "file",
-					Usage: "Write to another file, default is commander.yaml",
-				},
-			},
-			Action: addCommand,
-		},
 	}
 	return cliapp
 }
 
-func createAddCommand() cli.Command {
+func createTestCommand() cli.Command {
 	return cli.Command{
 		Name:      "test",
 		Usage:     "Execute the test suite",
@@ -89,35 +70,56 @@ func createAddCommand() cli.Command {
 	}
 }
 
-func addCommand(c *cli.Context) error {
-	file := ""
-	var existedContent []byte
+func createAddCommand() cli.Command {
+	return cli.Command{
+		Name:      "add",
+		Usage:     "Automatically add a test to your test suite",
+		ArgsUsage: "[command]",
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "stdout",
+				Usage: "Output test file to stdout",
+			},
+			cli.BoolFlag{
+				Name:  "no-file",
+				Usage: "Don't create a commander.yaml",
+			},
+			cli.StringFlag{
+				Name:  "file",
+				Usage: "Write to another file, default is commander.yaml",
+			},
+		},
+		Action: func(c *cli.Context) error {
+			file := ""
+			var existedContent []byte
 
-	if !c.Bool("no-file") {
-		dir, _ := os.Getwd()
-		file = path.Join(dir, app.CommanderFile)
-		if c.String("file") != "" {
-			file = c.String("file")
-		}
-		existedContent, _ = ioutil.ReadFile(file)
+			if !c.Bool("no-file") {
+				dir, _ := os.Getwd()
+				file = path.Join(dir, app.CommanderFile)
+				if c.String("file") != "" {
+					file = c.String("file")
+				}
+				existedContent, _ = ioutil.ReadFile(file)
+			}
+
+			content, err := app.AddCommand(strings.Join(c.Args(), " "), existedContent)
+
+			if err != nil {
+				return err
+			}
+
+			if c.Bool("stdout") {
+				fmt.Println(string(content))
+			}
+			if !c.Bool("no-file") {
+				fmt.Println("written to", file)
+				err := ioutil.WriteFile(file, content, 0755)
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		},
 	}
-
-	content, err := app.AddCommand(strings.Join(c.Args(), " "), existedContent)
-
-	if err != nil {
-		return err
-	}
-
-	if c.Bool("stdout") {
-		fmt.Println(string(content))
-	}
-	if !c.Bool("no-file") {
-		fmt.Println("written to", file)
-		err := ioutil.WriteFile(file, content, 0755)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

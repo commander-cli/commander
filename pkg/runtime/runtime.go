@@ -18,6 +18,8 @@ const (
 	LineCount = "LineCount"
 )
 
+const WorkerCountMultiplicator = 5
+
 // Result status codes
 const (
 	//Success status
@@ -108,7 +110,7 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 
 	workerCount := maxConcurrent
 	if maxConcurrent == 0 {
-		workerCount = runtime.NumCPU() * 5
+		workerCount = runtime.NumCPU() * WorkerCountMultiplicator
 	}
 
 	var wg sync.WaitGroup

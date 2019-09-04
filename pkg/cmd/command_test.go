@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"runtime"
 	"testing"
 	"time"
@@ -62,6 +63,48 @@ func TestCommand_AddEnv(t *testing.T) {
 	c := NewCommand("echo test")
 	c.AddEnv("key", "value")
 	assert.Equal(t, []string{"key=value"}, c.Env)
+}
+
+func TestCommand_AddEnvWithShellVariable(t *testing.T) {
+	const TestEnvKey = "COMMANDER_TEST_SOME_KEY"
+	os.Setenv(TestEnvKey, "test from shell")
+	defer os.Unsetenv(TestEnvKey)
+
+	c := NewCommand(getCommand())
+	c.AddEnv("SOME_KEY", fmt.Sprintf("${%s}", TestEnvKey))
+
+	err := c.Execute()
+
+	assert.Nil(t, err)
+	assert.Equal(t, "test from shell", c.Stdout())
+}
+
+func TestCommand_AddMultipleEnvWithShellVariable(t *testing.T) {
+	const TestEnvKeyPlanet = "COMMANDER_TEST_PLANET"
+	const TestEnvKeyName = "COMMANDER_TEST_NAME"
+	os.Setenv(TestEnvKeyPlanet, "world")
+	os.Setenv(TestEnvKeyName, "Simon")
+	defer func() {
+		os.Unsetenv(TestEnvKeyPlanet)
+		os.Unsetenv(TestEnvKeyName)
+	}()
+
+	c := NewCommand(getCommand())
+	envValue := fmt.Sprintf("Hello ${%s}, I am ${%s}", TestEnvKeyPlanet, TestEnvKeyName)
+	c.AddEnv("SOME_KEY", envValue)
+
+	err := c.Execute()
+
+	assert.Nil(t, err)
+	assert.Equal(t, "Hello world, I am Simon", c.Stdout())
+}
+
+func getCommand() string {
+	command := "echo $SOME_KEY"
+	if runtime.GOOS == "windows" {
+		command = "echo %SOME_KEY%"
+	}
+	return command
 }
 
 func TestCommand_SetTimeoutMS_DefaultTimeout(t *testing.T) {
