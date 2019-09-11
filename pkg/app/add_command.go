@@ -21,6 +21,7 @@ func AddCommand(command string, existed []byte) ([]byte, error) {
 		return []byte{}, err
 	}
 
+	//If a suite existed before adding the new command it is need to parse it and re-add it
 	if len(existed) > 0 {
 		err := yaml.UnmarshalStrict(existed, &conf)
 		if err != nil {
@@ -28,20 +29,27 @@ func AddCommand(command string, existed []byte) ([]byte, error) {
 		}
 
 		for k, t := range conf.Tests {
-			conf.Tests[k] = suite.YAMLTest{
+			test := suite.YAMLTest{
 				Title:    t.Title,
-				Stdout:   convertExpectedOut(t.Stdout.(runtime.ExpectedOut)),
-				Stderr:   convertExpectedOut(t.Stderr.(runtime.ExpectedOut)),
+				Stdout:   t.Stdout.(runtime.ExpectedOut),
+				Stderr:   t.Stderr.(runtime.ExpectedOut),
 				ExitCode: t.ExitCode,
 				Config:   convertConfig(t.Config),
 			}
+
+			//If title and command are not equal add the command property to the struct
+			if t.Title != t.Command {
+				test.Command = t.Command
+			}
+
+			conf.Tests[k] = test
 		}
 	}
 
 	conf.Tests[command] = suite.YAMLTest{
 		Title:    command,
-		Stdout:   stringOrNil(c.Stdout()),
-		Stderr:   stringOrNil(c.Stderr()),
+		Stdout:   runtime.ExpectedOut{Contains: []string{c.Stdout()}},
+		Stderr:   runtime.ExpectedOut{Contains: []string{c.Stderr()}},
 		ExitCode: c.ExitCode(),
 	}
 
@@ -65,14 +73,4 @@ func convertConfig(config suite.YAMLTestConfig) suite.YAMLTestConfig {
 		return suite.YAMLTestConfig{}
 	}
 	return config
-}
-
-func convertExpectedOut(out runtime.ExpectedOut) interface{} {
-	if len(out.Contains) == 1 && len(out.Lines) == 0 && out.Exactly == "" {
-		return out.Contains[0]
-	}
-	if len(out.Contains) == 0 {
-		return nil
-	}
-	return out
 }
