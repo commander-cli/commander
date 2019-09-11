@@ -61,13 +61,6 @@ func AddCommand(command string, existed []byte) ([]byte, error) {
 	return out, nil
 }
 
-func stringOrNil(str string) interface{} {
-	if str == "" {
-		return nil
-	}
-	return str
-}
-
 func convertConfig(config suite.YAMLTestConfig) suite.YAMLTestConfig {
 	if config.Dir == "" && len(config.Env) == 0 && config.Timeout == "" {
 		return suite.YAMLTestConfig{}
