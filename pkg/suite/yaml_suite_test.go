@@ -248,3 +248,70 @@ tests:
 
 	_ = ParseYAML(yaml)
 }
+
+func Test_YAMLConfig_MarshalYAML(t *testing.T) {
+	conf := YAMLConfig{Tests: map[string]YAMLTest{
+		"return_string": {
+			Stdout: runtime.ExpectedOut{Contains: []string{"stdout string"}},
+			Stderr: runtime.ExpectedOut{Contains: []string{"stderr string"}},
+		},
+		"return_struct": {
+			Stdout: runtime.ExpectedOut{
+				Contains:  []string{"stdout"},
+				LineCount: 10,
+			},
+			Stderr: runtime.ExpectedOut{
+				Contains:  []string{"stderr"},
+				LineCount: 10,
+			},
+		},
+		"return_nil": {
+			Stdout: runtime.ExpectedOut{},
+			Stderr: runtime.ExpectedOut{},
+		},
+	}}
+
+	out, _ := conf.MarshalYAML()
+	r := out.(YAMLConfig)
+
+	assert.Equal(t, "stdout string", r.Tests["return_string"].Stdout)
+	assert.Equal(t, "stderr string", r.Tests["return_string"].Stderr)
+
+	assert.Equal(t, conf.Tests["return_struct"].Stdout, r.Tests["return_struct"].Stdout)
+	assert.Equal(t, conf.Tests["return_struct"].Stderr, r.Tests["return_struct"].Stderr)
+
+	assert.Nil(t, r.Tests["return_nil"].Stdout)
+	assert.Nil(t, r.Tests["return_nil"].Stderr)
+}
+
+func Test_convertExpectOut_ReturnNilIfEmpty(t *testing.T) {
+	out := runtime.ExpectedOut{
+		Contains: []string{""},
+	}
+
+	r := convertExpectedOut(out)
+
+	assert.Nil(t, r)
+}
+
+func Test_convertExpectedOut_ReturnContainsAsString(t *testing.T) {
+	out := runtime.ExpectedOut{
+		Contains: []string{"test"},
+	}
+
+	r := convertExpectedOut(out)
+
+	assert.Equal(t, "test", r)
+}
+
+func Test_convertExpectedOut_ReturnFullStruct(t *testing.T) {
+	out := runtime.ExpectedOut{
+		Contains:  []string{"hello", "hi"},
+		LineCount: 10,
+		Exactly:   "test",
+	}
+
+	r := convertExpectedOut(out)
+
+	assert.Equal(t, out, r)
+}
