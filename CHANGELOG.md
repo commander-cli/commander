@@ -1,7 +1,11 @@
+# v1.2.1
+
+ - Fix `add` command if `stdout` or `stderr` properties were removed if a new test was added
+
 # v1.2.0
 
-- Add reading envrionment variables from shell
-- Add `interval` option for `retries` which allows to execute a retry after a given period of time. I.e. `interval: 50ms`
+ - Add reading environment variables from shell, i.e. `${PATH}`
+ - Add `interval` option for `retries` which allows to execute a retry after a given period of time. I.e. `interval: 50ms`
 
 # v1.1.0
 
