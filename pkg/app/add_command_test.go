@@ -25,7 +25,7 @@ tests:
 	assert.Equal(t, "tests:\n  echo exists:\n    exit-code: 0\n  echo hello:\n    exit-code: 0\n    stdout: hello\n", string(content))
 }
 
-func Test_AddCommand_AddToExistingWithComplexStdoutStructure(t *testing.T) {
+func Test_AddCommand_AddToExistingWithComplexStdStreamAssertions(t *testing.T) {
 	existing := []byte(`
 tests:
   exists:
@@ -35,6 +35,13 @@ tests:
         - exists
       not-contains:
         - byebye
+    stderr:
+      not-contains:
+        - stderr not
+      line-count: 10
+      lines:
+        1: line1
+        2: line2
     exit-code: 0
 `)
 
@@ -52,6 +59,13 @@ tests:
       - exists
       not-contains:
       - byebye
+    stderr:
+      lines:
+        1: line1
+        2: line2
+      line-count: 10
+      not-contains:
+      - stderr not
 `)
 
 	assert.Nil(t, err)
