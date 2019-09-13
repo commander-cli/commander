@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/SimonBaeumer/commander/debugger"
 	"github.com/SimonBaeumer/commander/pkg/app"
 	"github.com/urfave/cli"
 	"io/ioutil"
@@ -38,8 +39,25 @@ func createCliApp() *cli.App {
 	cliapp.Commands = []cli.Command{
 		createTestCommand(),
 		createAddCommand(),
+		createShellCommand(),
 	}
 	return cliapp
+}
+
+func createShellCommand() cli.Command {
+	return cli.Command{
+		Name:      "shell",
+		Usage:     "Get a shell with the current test and monitor the execution",
+		ArgsUsage: "[file] [title]",
+		Action: func(c *cli.Context) error {
+			if c.Args().First() != "" {
+
+			}
+
+			debugger.Start()
+			return nil
+		},
+	}
 }
 
 func createTestCommand() cli.Command {
