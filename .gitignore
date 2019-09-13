@@ -8,3 +8,4 @@ tmp.yml
 coverage
 *.exe
 commander.yaml
+tmp

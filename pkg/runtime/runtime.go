@@ -70,11 +70,11 @@ type Expected struct {
 
 //ExpectedOut represents the assertions on stdout and stderr
 type ExpectedOut struct {
-	Contains    []string
-	Lines       map[int]string
-	Exactly     string
-	LineCount   int
-	NotContains []string
+	Contains    []string       `yaml:"contains,omitempty"`
+	Lines       map[int]string `yaml:"lines,omitempty"`
+	Exactly     string         `yaml:"exactly,omitempty"`
+	LineCount   int            `yaml:"line-count,omitempty"`
+	NotContains []string       `yaml:"not-contains,omitempty"`
 }
 
 // CommandUnderTest represents the command under test

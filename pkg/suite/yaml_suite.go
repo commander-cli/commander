@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"gopkg.in/yaml.v2"
+	"reflect"
 	"strings"
 )
 
@@ -259,4 +260,56 @@ func (y *YAMLConfig) mergeEnvironmentVariables(global YAMLTestConfig, local YAML
 		env[k] = v
 	}
 	return env
+}
+
+//MarshalYAML adds custom logic to the struct to yaml conversion
+func (y YAMLConfig) MarshalYAML() (interface{}, error) {
+	//Detect which values of the stdout/stderr assertions should be filled.
+	//If all values are empty except Contains it will convert it to a single string
+	//to match the easiest test suite definitions
+	for k, t := range y.Tests {
+		t.Stdout = convertExpectedOut(t.Stdout.(runtime.ExpectedOut))
+		if reflect.ValueOf(t.Stdout).Kind() == reflect.Struct {
+			t.Stdout = t.Stdout.(runtime.ExpectedOut)
+		}
+
+		t.Stderr = convertExpectedOut(t.Stderr.(runtime.ExpectedOut))
+		if reflect.ValueOf(t.Stderr).Kind() == reflect.Struct {
+			t.Stderr = t.Stderr.(runtime.ExpectedOut)
+		}
+
+		y.Tests[k] = t
+	}
+
+	return y, nil
+}
+
+func convertExpectedOut(out runtime.ExpectedOut) interface{} {
+	//If the property contains consists of only one element it will be set without the struct structure
+	if isContainsASingleNonEmptyString(out) && propertiesAreEmpty(out) {
+		return out.Contains[0]
+	}
+
+	//If the contains property only has one empty string element it should not be displayed
+	//in the marshaled yaml file
+	if len(out.Contains) == 1 && out.Contains[0] == "" {
+		out.Contains = nil
+	}
+
+	if len(out.Contains) == 0 && propertiesAreEmpty(out) {
+		return nil
+	}
+	return out
+}
+
+func propertiesAreEmpty(out runtime.ExpectedOut) bool {
+	return out.Lines == nil &&
+		out.Exactly == "" &&
+		out.LineCount == 0 &&
+		out.NotContains == nil
+}
+
+func isContainsASingleNonEmptyString(out runtime.ExpectedOut) bool {
+	return len(out.Contains) == 1 &&
+		out.Contains[0] != ""
 }
