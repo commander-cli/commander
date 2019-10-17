@@ -1,3 +1,8 @@
+# v1.3.0
+
+ - Added `xml` assertion to `stdout` and `stderr`
+ - Added `json` assertin to `stdout` and `stderr`
+
 # v1.2.2
 
  - Rename windows binary `commander-windows-386` to `commander-windows-386.exe`

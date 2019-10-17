@@ -44,3 +44,9 @@ tests:
     stdout:
       not-contains:
         - not contains
+
+  it should assert json:
+    command: cat ./integration/unix/_fixtures/book.json
+    stdout:
+      json:
+        books.0.author: J. R. R. Tolkien

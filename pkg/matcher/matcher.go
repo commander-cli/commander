@@ -2,8 +2,9 @@ package matcher
 
 import (
 	"fmt"
-	"github.com/antchfx/jsonquery"
+	"github.com/antchfx/xmlquery"
 	"github.com/pmezard/go-difflib/difflib"
+	"github.com/tidwall/gjson"
 	"log"
 	"strings"
 )
@@ -18,6 +19,7 @@ const (
 	// Not contains matcher type
 	NotContains = "notcontains"
 	JSON        = "json"
+	XML         = "xml"
 )
 
 // NewMatcher creates a new matcher by type
@@ -33,6 +35,8 @@ func NewMatcher(matcher string) Matcher {
 		return NotContainsMatcher{}
 	case JSON:
 		return JSONMatcher{}
+	case XML:
+		return XMLMatcher{}
 	default:
 		panic(fmt.Sprintf("Validator '%s' does not exist!", matcher))
 	}
@@ -56,6 +60,7 @@ type TextMatcher struct {
 // Match matches both texts
 func (m TextMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	result := true
+
 	if got != expected {
 		result = false
 	}
@@ -140,14 +145,14 @@ func (m NotContainsMatcher) Match(got interface{}, expected interface{}) Matcher
 	}
 
 	diff := `
-	Expected
-	
-	%s
-	
-	to not contain
-	
-	%s
-	`
+Expected
+
+%s
+
+to not contain
+
+%s
+`
 	diff = fmt.Sprintf(diff, got, expected)
 
 	return MatcherResult{
@@ -167,13 +172,8 @@ func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 
 	json := expected.(map[string]string)
 	for q, e := range json {
-		doc, err := jsonquery.Parse(strings.NewReader(got.(string)))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		r := jsonquery.FindOne(doc, q)
-		if r.InnerText() != e {
+		r := gjson.Get(got.(string), q)
+		if r.Value() != e {
 			result.Success = false
 			result.Diff = fmt.Sprintf(`Expected json path "%s" with result
 
@@ -181,8 +181,47 @@ func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 
 to be equal to
 
-%s`, q, e, r.InnerText())
+%s`, q, e, r.Value())
 		}
+	}
+
+	return result
+}
+
+type XMLMatcher struct {
+}
+
+func (m XMLMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+	result := MatcherResult{
+		Success: true,
+		Diff:    "",
+	}
+
+	xml := expected.(map[string]string)
+	for q, e := range xml {
+		doc, err := xmlquery.Parse(strings.NewReader(got.(string)))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if r := xmlquery.FindOne(doc, q); r != nil {
+			if r.InnerText() != e {
+				result.Success = false
+				result.Diff = fmt.Sprintf(`Expected xml path "%s" with result
+
+%s
+
+to be equal to
+
+%s`, q, e, r.InnerText())
+			}
+		} else {
+			result = MatcherResult{
+				Success: false,
+				Diff:    fmt.Sprintf(`Query "%s" did not match a path`, q),
+			}
+		}
+
 	}
 
 	return result

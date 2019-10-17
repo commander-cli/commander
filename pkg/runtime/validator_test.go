@@ -85,19 +85,45 @@ func Test_ValidateExpectedOut_ValidateJSON(t *testing.T) {
   }
 }
 `
-	r := validateExpectedOut(json, ExpectedOut{JSON: map[string]string{".object.attr": "test"}})
+	r := validateExpectedOut(json, ExpectedOut{JSON: map[string]string{"object.attr": "test"}})
 	assert.True(t, r.Success)
 
-	diff := `Expected json path ".object.attr" with result
+	diff := `Expected json path "object.attr" with result
 
 no
 
 to be equal to
 
 test`
-	r = validateExpectedOut(json, ExpectedOut{JSON: map[string]string{".object.attr": "no"}})
+	r = validateExpectedOut(json, ExpectedOut{JSON: map[string]string{"object.attr": "no"}})
 	assert.False(t, r.Success)
 	assert.Equal(t, diff, r.Diff)
+}
+
+func Test_ValidateExpectedOut_ValidateXML(t *testing.T) {
+	xml := `<book>
+  <author>J. R. R. Tolkien</author>
+</book>`
+
+	r := validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//author": "J. R. R. Tolkien"}})
+	assert.True(t, r.Success)
+	assert.Equal(t, "", r.Diff)
+
+
+	diff := `Expected xml path "/book//author" with result
+
+Joanne K. Rowling
+
+to be equal to
+
+J. R. R. Tolkien`
+	r = validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//author": "Joanne K. Rowling"}})
+	assert.False(t, r.Success)
+	assert.Equal(t, diff, r.Diff)
+
+	r = validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//title": "J. R. R. Tolkien"}})
+	assert.False(t, r.Success)
+	assert.Equal(t, `Query "/book//title" did not match a path`, r.Diff)
 }
 
 func getExampleTest() TestCase {

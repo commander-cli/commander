@@ -76,6 +76,7 @@ type ExpectedOut struct {
 	LineCount   int               `yaml:"line-count,omitempty"`
 	NotContains []string          `yaml:"not-contains,omitempty"`
 	JSON        map[string]string `yaml:"json,omitempty"`
+	XML         map[string]string `yaml:"xml,omitempty"`
 }
 
 // CommandUnderTest represents the command under test
