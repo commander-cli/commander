@@ -98,7 +98,7 @@ tests:
             lines: # Assert specific lines
                 1: "/bin/sh: 1: invalid: not found"
             json:
-                .object.attr: hello # Make assertions on json objects
+                object.attr: hello # Make assertions on json objects
             xml:
                 "//book//auhtor": Steven King # Make assertions on xml documents
         exit-code: 127

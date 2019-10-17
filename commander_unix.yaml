@@ -12,7 +12,7 @@ tests:
     stdout:
       contains:
         - ✓ it should exit with error code
-      line-count: 26
+      line-count: 15
     exit-code: 0
 
   it should assert that commander will fail:

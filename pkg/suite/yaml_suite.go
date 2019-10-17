@@ -179,6 +179,7 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 				"line-count",
 				"lines",
 				"json",
+				"xml",
 				"not-contains":
 				break
 			default:
