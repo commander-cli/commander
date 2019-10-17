@@ -156,7 +156,9 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 //Converts given value to an ExpectedOut. Especially used for Stdout and Stderr.
 func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut {
-	exp := runtime.ExpectedOut{}
+	exp := runtime.ExpectedOut{
+		JSON: make(map[string]string),
+	}
 
 	switch value.(type) {
 	//If only a string was passed it is assigned to exactly automatically
@@ -176,6 +178,7 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 				"exactly",
 				"line-count",
 				"lines",
+				"json",
 				"not-contains":
 				break
 			default:
@@ -213,6 +216,13 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 			values := notContains.([]interface{})
 			for _, v := range values {
 				exp.NotContains = append(exp.NotContains, toString(v))
+			}
+		}
+
+		if json := v["json"]; json != nil {
+			values := json.(map[interface{}]interface{})
+			for k, v := range values {
+				exp.JSON[k.(string)] = v.(string)
 			}
 		}
 		break

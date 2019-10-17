@@ -1,3 +1,7 @@
+github.com/antchfx/jsonquery v1.0.0 h1:1Yhk496SrCoY6fJkFZqpXEqbwOw5sFtLns9la4NoK3I=
+github.com/antchfx/jsonquery v1.0.0/go.mod h1:h7950pvPrUZzJIflNqsELgDQovTpPNa0rAHf8NwjegY=
+github.com/antchfx/xpath v1.1.0 h1:mJTvYpiHvxNQRD4Lbfin/FodHVCHh2a5KrOFr4ZxMOI=
+github.com/antchfx/xpath v1.1.0/go.mod h1:Yee4kTMuNiPYJ7nSNorELQMr1J33uOpXDMByNYhvtNk=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e h1:9MlwzLdW7QSDrhDjFlsEYmxpFyIoXmYRon3dt0io31k=

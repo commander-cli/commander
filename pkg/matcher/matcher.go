@@ -2,7 +2,9 @@ package matcher
 
 import (
 	"fmt"
+	"github.com/antchfx/jsonquery"
 	"github.com/pmezard/go-difflib/difflib"
+	"log"
 	"strings"
 )
 
@@ -15,6 +17,7 @@ const (
 	Equal = "equal"
 	// Not contains matcher type
 	NotContains = "notcontains"
+	JSON        = "json"
 )
 
 // NewMatcher creates a new matcher by type
@@ -28,6 +31,8 @@ func NewMatcher(matcher string) Matcher {
 		return EqualMatcher{}
 	case NotContains:
 		return NotContainsMatcher{}
+	case JSON:
+		return JSONMatcher{}
 	default:
 		panic(fmt.Sprintf("Validator '%s' does not exist!", matcher))
 	}
@@ -135,18 +140,50 @@ func (m NotContainsMatcher) Match(got interface{}, expected interface{}) Matcher
 	}
 
 	diff := `
-Expected
-
-%s
-
-to not contain
-
-%s
-`
+	Expected
+	
+	%s
+	
+	to not contain
+	
+	%s
+	`
 	diff = fmt.Sprintf(diff, got, expected)
 
 	return MatcherResult{
 		Success: result,
 		Diff:    diff,
 	}
+}
+
+type JSONMatcher struct {
+}
+
+func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+	result := MatcherResult{
+		Success: true,
+		Diff:    "",
+	}
+
+	json := expected.(map[string]string)
+	for q, e := range json {
+		doc, err := jsonquery.Parse(strings.NewReader(got.(string)))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		r := jsonquery.FindOne(doc, q)
+		if r.InnerText() != e {
+			result.Success = false
+			result.Diff = fmt.Sprintf(`Expected json path "%s" with result
+
+%s
+
+to be equal to
+
+%s`, q, e, r.InnerText())
+		}
+	}
+
+	return result
 }

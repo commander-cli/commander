@@ -77,6 +77,29 @@ func Test_ValidateExpectedOut_PanicIfLineDoesNotExist(t *testing.T) {
 	_ = validateExpectedOut(value, ExpectedOut{Lines: map[int]string{0: "my"}})
 }
 
+func Test_ValidateExpectedOut_ValidateJSON(t *testing.T) {
+	json := `
+{
+  "object": {
+    "attr": "test"
+  }
+}
+`
+	r := validateExpectedOut(json, ExpectedOut{JSON: map[string]string{".object.attr": "test"}})
+	assert.True(t, r.Success)
+
+	diff := `Expected json path ".object.attr" with result
+
+no
+
+to be equal to
+
+test`
+	r = validateExpectedOut(json, ExpectedOut{JSON: map[string]string{".object.attr": "no"}})
+	assert.False(t, r.Success)
+	assert.Equal(t, diff, r.Diff)
+}
+
 func getExampleTest() TestCase {
 	test := TestCase{
 		Expected: Expected{

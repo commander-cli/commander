@@ -108,6 +108,15 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 		}
 	}
 
+	if len(expected.JSON) > 0 {
+		m = matcher.NewMatcher(matcher.JSON)
+		for i, v := range expected.JSON {
+			if result = m.Match(got, map[string]string{i: v}); !result.Success {
+				return result
+			}
+		}
+	}
+
 	return result
 }
 

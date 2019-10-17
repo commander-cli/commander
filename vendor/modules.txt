@@ -1,3 +1,7 @@
+# github.com/antchfx/jsonquery v1.0.0
+github.com/antchfx/jsonquery
+# github.com/antchfx/xpath v1.1.0
+github.com/antchfx/xpath
 # github.com/davecgh/go-spew v1.1.0
 github.com/davecgh/go-spew/spew
 # github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e
