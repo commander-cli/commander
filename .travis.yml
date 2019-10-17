@@ -10,15 +10,14 @@ stages:
   - deploy
 
 go:
-  - 1.12.x
+  - 1.13.x
 
 sudo: required
 dist: trusty
 
 before_install:
   - go get -u golang.org/x/lint/golint
-  - make deps
-  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-linux-amd64 -o ~/bin/commander
+  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.1/commander-linux-amd64 -o ~/bin/commander
   - chmod +x ~/bin/commander
 
 jobs:
@@ -51,7 +50,7 @@ jobs:
     before_install:
       - choco install make
       - choco install curl
-      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-windows-amd64 -o C:\Windows\system32\commander.exe
+      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.1/commander-windows-amd64 -o C:\Windows\system32\commander.exe
     script:
       - make integration-windows
 
@@ -83,8 +82,8 @@ jobs:
         - release/commander-linux-386
         - release/commander-darwin-amd64
         - release/commander-darwin-386
-        - release/commander-windows-amd64
-        - release/commander-windows-386
+        - release/commander-windows-amd64.exe
+        - release/commander-windows-386.exe
       skip_cleanup: true
       on:
         repo: SimonBaeumer/commander
