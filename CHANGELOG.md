@@ -1,3 +1,9 @@
+# v1.2.2
+
+ - Rename windows binary `commander-windows-386` to `commander-windows-386.exe`
+ - Rename windows binary `commander-windows-amd64` to `commander-windows-amd64.exe`
+ - Use commander v1.2.1 in travis build
+
 # v1.2.1
 
  - Fix `add` command if `stdout` or `stderr` properties were removed if a new test was added
