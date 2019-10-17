@@ -65,6 +65,10 @@ func createTestCommand() cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
+			if c.Bool("verbose") {
+				log.SetOutput(os.Stdout)
+			}
+
 			return app.TestCommand(c.Args().First(), c.Args().Get(1), app.NewAddContextFromCli(c))
 		},
 	}
