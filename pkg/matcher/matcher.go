@@ -173,7 +173,13 @@ func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 	json := expected.(map[string]string)
 	for q, e := range json {
 		r := gjson.Get(got.(string), q)
-		if r.Value() != e {
+		if r.Value() == nil {
+			result.Success = false
+			result.Diff = fmt.Sprintf(`Query "%s" did not match a path`, q)
+			break
+		}
+
+		if fmt.Sprintf("%v", r.Value()) != e {
 			result.Success = false
 			result.Diff = fmt.Sprintf(`Expected json path "%s" with result
 
@@ -182,6 +188,7 @@ func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 to be equal to
 
 %s`, q, e, r.Value())
+			break
 		}
 	}
 
@@ -204,25 +211,32 @@ func (m XMLMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 			log.Fatal(err)
 		}
 
-		if r := xmlquery.FindOne(doc, q); r != nil {
-			if r.InnerText() != e {
-				result.Success = false
-				result.Diff = fmt.Sprintf(`Expected xml path "%s" with result
+		node, err := xmlquery.Query(doc, q)
+		if err != nil {
+		    return MatcherResult{
+		        Success: false,
+		        Diff: fmt.Sprintf("Error occured: %s", err),
+            }
+		}
+
+		if node == nil {
+            return MatcherResult{
+                Success: false,
+                Diff:    fmt.Sprintf(`Query "%s" did not match a path`, q),
+            }
+        }
+
+        if node.InnerText() != e {
+            result.Success = false
+            result.Diff = fmt.Sprintf(`Expected xml path "%s" with result
 
 %s
 
 to be equal to
 
-%s`, q, e, r.InnerText())
-			}
-		} else {
-			result = MatcherResult{
-				Success: false,
-				Diff:    fmt.Sprintf(`Query "%s" did not match a path`, q),
-			}
-		}
-
-	}
+%s`, q, e, node.InnerText())
+        }
+    }
 
 	return result
 }
