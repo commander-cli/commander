@@ -13,7 +13,7 @@ Define language independent tests for your command line scripts and programs in 
  - It is a self-contained binary - no need to install a heavy lib or language
  - It is easy and fast to write
 
-For more information take a look at the [manual](docs/manual.md), the [examples](examples) or the [integration tests](integration).
+For more information take a look at the [quick start](#quick-start), the [examples](examples) or the [integration tests](integration).
 
 ## Table of contents
 
@@ -29,7 +29,7 @@ For more information take a look at the [manual](docs/manual.md), the [examples]
   + [Usage](#usage)
   + [Tests](#tests)
     - [command](#command)
-    - [config](#config)
+    - [config](#user-content-config-test)
     - [exit-code](#exit-code)
     - [stdout](#stdout)
       * [contains](#contains)
@@ -40,7 +40,7 @@ For more information take a look at the [manual](docs/manual.md), the [examples]
       * [not-contains](#not-contains)
       * [xml](#xml)
     - [stderr](#stderr)
-  + [Config](#config)
+  + [Config](#user-content-config-config)
     - [dir](#dir)
     - [env](#env)
     - [inherit-env](#inherit-env)
@@ -277,7 +277,7 @@ it should print hello world: # use a more descriptive title...
   exit-code: 0
 ```
 
-#### config
+#### <a name="config-test"></a>config
 
 `config` sets configuration for the test. `config` can overwrite global configurations. 
 
@@ -285,7 +285,7 @@ it should print hello world: # use a more descriptive title...
  - type: `map`
  - default: `{}`
  - notes:
-   - for more information look at [config](#Config)
+   - for more information look at [config](#user-content-config-config)
 
 ```yaml
 echo test:
@@ -412,7 +412,7 @@ More examples queries:
 
 ##### lines
 
-`lines` is a `map` which is make exact assertions on a given line by line number.
+`lines` is a `map` which makes exact assertions on a given line by line number.
 
  - name: `lines`
  - type: `map`
@@ -504,7 +504,7 @@ See [stdout](#stdout) for more information.
     line-count: 1
 ```
 
-### Config
+### <a name="config-config"></a>Config
 
 You can add configs which will be applied globally to all tests or just for a specific test case, i.e.:
 
