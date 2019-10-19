@@ -16,11 +16,12 @@ type YAMLConfig struct {
 
 // YAMLTestConfig is a struct to represent the test config
 type YAMLTestConfig struct {
-	Env      map[string]string `yaml:"env,omitempty"`
-	Dir      string            `yaml:"dir,omitempty"`
-	Timeout  string            `yaml:"timeout,omitempty"`
-	Retries  int               `yaml:"retries,omitempty"`
-	Interval string            `yaml:"interval,omitempty"`
+	InheritEnv bool              `yaml:"inherit-env,omitempty"`
+	Env        map[string]string `yaml:"env,omitempty"`
+	Dir        string            `yaml:"dir,omitempty"`
+	Timeout    string            `yaml:"timeout,omitempty"`
+	Retries    int               `yaml:"retries,omitempty"`
+	Interval   string            `yaml:"interval,omitempty"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -71,11 +72,12 @@ func ParseYAML(content []byte) Suite {
 	return YAMLSuite{
 		TestCases: convertYAMLConfToTestCases(yamlConfig),
 		Config: runtime.TestConfig{
-			Env:      yamlConfig.Config.Env,
-			Dir:      yamlConfig.Config.Dir,
-			Timeout:  yamlConfig.Config.Timeout,
-			Retries:  yamlConfig.Config.Retries,
-			Interval: yamlConfig.Config.Interval,
+			InheritEnv: yamlConfig.Config.InheritEnv,
+			Env:        yamlConfig.Config.Env,
+			Dir:        yamlConfig.Config.Dir,
+			Timeout:    yamlConfig.Config.Timeout,
+			Retries:    yamlConfig.Config.Retries,
+			Interval:   yamlConfig.Config.Interval,
 		},
 	}
 }

@@ -58,3 +58,10 @@ tests:
       xml:
         /books/0/author: J. R. R. Tokien
         /books/1/author: Joanne K. Rowling
+
+  it should inhereit from parent env:
+    config:
+      inherit-env: true
+    command: echo $USER
+    stdout: simon
+    exit-code: 0

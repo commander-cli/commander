@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/SimonBaeumer/cmd"
 	"log"
+	"os"
 	"runtime"
 	"strings"
 	"sync"
@@ -40,11 +41,12 @@ type TestCase struct {
 
 //TestConfig represents the configuration for a test
 type TestConfig struct {
-	Env      map[string]string
-	Dir      string
-	Timeout  string
-	Retries  int
-	Interval string
+	Env        map[string]string
+	Dir        string
+	Timeout    string
+	Retries    int
+	Interval   string
+	InheritEnv bool
 }
 
 // ResultStatus represents the status code of a test result
@@ -81,12 +83,13 @@ type ExpectedOut struct {
 
 // CommandUnderTest represents the command under test
 type CommandUnderTest struct {
-	Cmd      string
-	Env      map[string]string
-	Dir      string
-	Timeout  string
-	Retries  int
-	Interval string
+	Cmd        string
+	InheritEnv bool
+	Env        map[string]string
+	Dir        string
+	Timeout    string
+	Retries    int
+	Interval   string
 }
 
 // TestResult represents the TestCase and the ValidationResult
@@ -157,23 +160,22 @@ func executeRetryInterval(t TestCase) {
 
 // runTest executes the current test case
 func runTest(test TestCase) TestResult {
-	timeoutOpt := cmd.WithoutTimeout
-	if test.Command.Timeout != "" {
-		d, err := time.ParseDuration(test.Command.Timeout)
-		if err != nil {
-			test.Result = CommandResult{Error: err}
-			return TestResult{
-				TestCase: test,
-			}
+	timeoutOpt, err := createTimeoutOption(test.Command.Timeout)
+	if err != nil {
+		test.Result = CommandResult{Error: err}
+		return TestResult{
+			TestCase: test,
 		}
-		timeoutOpt = cmd.WithTimeout(d)
 	}
 
+	envOpt := createEnvVarsOption(test)
+
 	// cut = command under test
-	cut := cmd.NewCommand(test.Command.Cmd, timeoutOpt, cmd.WithWorkingDir(test.Command.Dir))
-	for k, v := range test.Command.Env {
-		cut.AddEnv(k, v)
-	}
+	cut := cmd.NewCommand(
+		test.Command.Cmd,
+		cmd.WithWorkingDir(test.Command.Dir),
+		timeoutOpt,
+		envOpt)
 
 	if err := cut.Execute(); err != nil {
 		log.Println(test.Title, " failed ", err.Error())
@@ -202,6 +204,36 @@ func runTest(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
 	return Validate(test)
+}
+
+func createEnvVarsOption(test TestCase) func(c *cmd.Command) {
+	return func(c *cmd.Command) {
+		// Add all env variables from parent process
+		if test.Command.InheritEnv {
+			for _, v := range os.Environ() {
+				split := strings.Split(v, "=")
+				c.AddEnv(split[0], split[1])
+			}
+		}
+
+		// Add custom env variables
+		for k, v := range test.Command.Env {
+			c.AddEnv(k, v)
+		}
+	}
+}
+
+func createTimeoutOption(timeout string) (func(c *cmd.Command), error) {
+	timeoutOpt := cmd.WithoutTimeout
+	if timeout != "" {
+		d, err := time.ParseDuration(timeout)
+		if err != nil {
+			return func(c *cmd.Command) {}, err
+		}
+		timeoutOpt = cmd.WithTimeout(d)
+	}
+
+	return timeoutOpt, nil
 }
 
 // GetRetries returns the retries of the command
