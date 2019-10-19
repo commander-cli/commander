@@ -7,7 +7,6 @@
 
 # Commander
 
-
 Define language independent tests for your command line scripts and programs in simple `yaml` files.
 
  - It runs on `windows`, `osx` and `linux` 
@@ -15,6 +14,42 @@ Define language independent tests for your command line scripts and programs in 
  - It is easy and fast to write
 
 For more information take a look at the [manual](docs/manual.md), the [examples](examples) or the [integration tests](integration).
+
+## Table of contents
+
+* [Installation](#installation)
+  + [Any system with Go installed](#any-system-with-go-installed)
+  + [Linux & osx](#linux---osx)
+  + [Windows](#windows)
+* [Quick start](#quick-start)
+  + [Complete YAML file](#complete-yaml-file)
+  + [Executing](#executing)
+  + [Adding tests](#adding-tests)
+* [Documentation](#documentation)
+  + [Usage](#usage)
+  + [Config](#config)
+    - [dir](#dir)
+    - [env](#env)
+    - [inherit-env](#inherit-env)
+    - [interval](#interval)
+    - [retries](#retries)
+    - [timeout](#timeout)
+  + [Tests](#tests)
+      * [test case](#test-case)
+    - [command](#command)
+    - [config](#config)
+    - [exit-code](#exit-code)
+    - [stdout](#stdout)
+        + [contains](#contains)
+        + [exactly](#exactly)
+        + [json](#json)
+        + [lines](#lines)
+        + [line-count](#line-count)
+        + [not-contains](#not-contains)
+        + [xml](#xml)
+    - [stderr](#stderr)
+  + [Development](#development)
+* [Misc](#misc)
 
 ## Installation
 
@@ -69,7 +104,7 @@ Duration: 0.002s
 Count: 1, Failed: 0
 ```
 
-## Complete YAML file
+### Complete YAML file
 
 Here you can see an example with all features.
 
@@ -111,6 +146,7 @@ tests:
             exactly: hello
             line-count: 1
         config:
+            inherit-env: true # You can inherit the parent shells env variables
             dir: /home/user # Overwrite working dir
             env:
                 KEY: local # Overwrite env variable
@@ -120,7 +156,7 @@ tests:
         exit-code: 0
 ```
 
-## Executing
+### Executing
 
 ```bash
 # Execute file commander.yaml in current directory
@@ -133,7 +169,7 @@ $ ./commander test /tmp/test.yaml
 $ ./commander test /tmp/test.yaml "my test"
 ```
 
-## Adding tests
+### Adding tests
 
 You can use the `add` argument if you want to `commander` to create your tests.
 
@@ -163,7 +199,9 @@ tests:
     stdout: hello
 ```
 
-## Usage
+## Documentation
+
+### Usage
 
 ```
 NAME:
@@ -182,8 +220,394 @@ GLOBAL OPTIONS:
    --version, -v  print the version
 ```
 
+### Config
 
-## Development
+You can add configs to which apply to all tests or just for a specific test case like:
+
+```yaml
+config:
+  dir: /home/root # Set working directory
+tests:
+  echo hello:
+    config: # Define test specific configs which overwrite global configs
+      timeout: 5s
+  exit-code: 0
+```
+
+#### dir
+
+`dir` is a `string` which sets the current working directory for the command under test. 
+The test will fail if the given directory does not exist.
+
+ - name: `dir`
+ - type: `string`
+ - default: `current working dir`
+
+```yaml
+dir: /home/root
+```
+
+#### env
+
+`env` is a `hash-map` which is used to set custom env variables. The `key` represents the variable name and the `value` setting the value of the env variable.
+
+ - name: `env`  
+ - type: `hash-map`
+ - default: `{}`
+ - notes:
+    - read env variables with `${PATH}`
+    - overwrites inherited variables, see [#inherit-env](#inherit-env) 
+    
+```yaml
+env:
+  VAR_NAME: my value # Set custom env var
+  CURRENT_USER: ${USER} # Set env var and read from current env
+```
+
+#### inherit-env
+
+`inherit-env` is a `boolean` type which allows you to inherit all environment variables from your active shell.
+
+ - name: `inherit-env`
+ - type: `bool`
+ - default: `false`
+ - notes: If this config is set to `true` in the global configuration it will be applied for all tests and ignores local test configs.
+
+```yaml
+inherit-env: true
+```
+
+#### interval
+
+`interval` is a `string` type and sets the `interval` between [retries](#retries).
+ 
+ - name: `interval`
+ - type: `string`
+ - default: `0ns`
+ - notes:
+   - valid time units: ns, us, µs, ms, s, m, h
+   - time string will be evaluated by golang's `time` package, further reading [time/#ParseDuration](https://golang.org/pkg/time/#ParseDuration)
+
+```yaml
+interval: 5s # Waits 5 seconds until the next try after a failed test is started
+```
+
+#### retries
+
+`retries` is an `int` type and configures how often a test is allowed to fail until it will be marked as failed for the whole test run.
+
+ - name: `retries`
+ - type: `int`
+ - default: `0`
+ - notes: [interval](#interval) can be defined between retry executions
+
+```yaml
+retries: 3 # Test will be executed 3 times or until it succeeds
+```
+
+#### timeout
+
+`timeout` is a `string` type and sets the time a test is allowed to run. 
+The time is parsed from a duration string like `300ms`.
+If a tests exceeds the given `timeout` the test will fail.
+
+ - name: `timeout`
+ - type: `string`
+ - default: `no limit`
+ - notes:
+   - valid time units: ns, us, µs, ms, s, m, h
+   - time string will be evaluated by golang's `time` package, further reading [time/#ParseDuration](https://golang.org/pkg/time/#ParseDuration)
+
+```yaml
+timeout: 600s
+```
+
+### Tests
+
+Tests define the commands to be executed. After the execution the defined assertions will be checked. 
+If the result fo the command matches with the expected values a test passes.
+
+All `tests` are defined in a `map` as a `root` element of the `yaml` file.
+
+```yaml
+tests:
+  echo test:
+    stdout: test
+    exit-code: 0
+```
+
+A test case is `map` type which configures a test. 
+The `key` of the test can either be the `command` itself or the `title` of the test.
+
+If the same `command` is tested multiple times it is useful to set the `title` of the test manually and use the `command` property. 
+Further the `title` can be useful to describe tests better. See [the commander test suite](commander_unix.yaml) as an example.
+
+ - name: `title or command under test`
+ - type: `map`
+ - default: `{}`
+ 
+Examples:
+
+```yaml
+tests:
+  echo test: # command and title will be the same
+    stdout: test
+    exit-code: 0
+    
+  my title: # custom title
+    command: exit 1 # set command manually
+    exit-code: 1
+```
+
+#### command
+
+`command` is a `string` containing the `command` to be tested. Further the `command` property is automatically parsed from 
+the `key` if no `command` property was given.
+
+ - name: `command`
+ - type: `string`
+ - default: `can't be empty`
+ - notes: Will be parsed as the `key` if no `command` property was provided
+ 
+ 
+```yaml
+echo test: # use command as key and title
+  exit-code: 0
+  
+it should print hello world: # use a more descriptive title...
+  command: echo hello world  # ... and set the command in the property manually
+  stdout: hello world
+  exit-code: 0
+```
+
+#### config
+
+`config` sets configuration for the test. `config` can overwrite global configurations. 
+
+ - name: `config`
+ - type: `map`
+ - default: `{}`
+ - notes:
+   - for more information look at [config](#Config)
+
+```yaml
+echo test:
+  config:
+    timeout: 5s
+```
+
+#### exit-code
+
+`exit-code` is an `int` type and compares the given code to the `exit-code` of the given command.
+
+ - name: `exit-code`
+ - type: `int`
+ - default: `0`
+ 
+```yaml
+exit 1: # will pass
+  exit-code: 1
+exit 0: # will fail
+  exit-code: 1
+```
+
+#### stdout
+
+`stdout` and `stderr` allow to make assertions on the output of the command. 
+The type can either be a `string` or a `map` of different assertions.
+
+If only a `string` is provided it will check if the given string is [contained](#contains) in the output.
+
+ - name: `stdout`
+ - type: `string` or `map`
+ - default: ` `
+ - notes: [stderr](#stderr) works the same way
+ 
+```yaml
+echo test:
+  stdout: test # make a contains assertion
+  
+echo hello world:
+  stdout:
+    line-count: 1 # assert the amount of lines and use stdout as a map
+```
+
+###### contains
+
+`contains` is an `array` or `string`. It checks if a `string` is contained in the output. 
+It is the default if a `string` is directly assigned to `stdout` or `stderr`.
+
+ - name: `contains`
+ - type: `string` or `array`
+ - default: `[]`
+ - notes: default assertion if directly assigned to `stdout` or `stderr`
+
+```yaml
+echo hello world:
+  stdout: hello # Default is a contains assertion
+
+echo more output:
+  stdout:
+    contains:
+      - more
+      - output
+```
+
+###### exactly
+
+`exactly` is a `string` type which matches the exact output.
+
+ - name: `exactly`
+ - type: `string`
+ - default: ` `
+ 
+```yaml
+echo test:
+  stdout:
+    exactly: test
+```
+
+###### json
+
+`json` is a `map` type and allows to parse `json` documents with a given `GJSON syntax` to query for specific data. 
+The `key` represents the query, the `value` the expected value.
+
+ - name: `json`
+ - type: `map`
+ - default: `{}`
+ - notes: Syntax taken from [GJSON](https://github.com/tidwall/gjson#path-syntax)
+ 
+```yaml
+cat some.json: # print json file to stdout
+  name.last: Anderson # assert on name.last, see document below
+``` 
+
+`some.json` file:
+ 
+```json
+{
+  "name": {"first": "Tom", "last": "Anderson"},
+  "age":37,
+  "children": ["Sara","Alex","Jack"],
+  "fav.movie": "Deer Hunter",
+  "friends": [
+    {"first": "Dale", "last": "Murphy", "age": 44, "nets": ["ig", "fb", "tw"]},
+    {"first": "Roger", "last": "Craig", "age": 68, "nets": ["fb", "tw"]},
+    {"first": "Jane", "last": "Murphy", "age": 47, "nets": ["ig", "tw"]}
+  ]
+}
+```
+
+More examples queries:
+
+```
+"name.last"          >> "Anderson"
+"age"                >> 37
+"children"           >> ["Sara","Alex","Jack"]
+"children.#"         >> 3
+"children.1"         >> "Alex"
+"child*.2"           >> "Jack"
+"c?ildren.0"         >> "Sara"
+"fav\.movie"         >> "Deer Hunter"
+"friends.#.first"    >> ["Dale","Roger","Jane"]
+"friends.1.last"     >> "Craig"
+```
+
+###### lines
+
+`lines` is a `map` which is make exact assertions on a given line by line number.
+
+ - name: `lines`
+ - type: `map`
+ - default: `{}`
+ - note: starts counting at `1` ;-)
+ 
+```yaml
+echo test\nline 2:
+  stdout:
+    lines:
+      2: line 2 # asserts only the second line
+```
+
+###### line-count
+
+`line-count` asserts the amount of lines printed to the output. If set to `0` this property is ignored.
+
+ - name: `line-count`
+ - type: `int`
+ - default: `0`
+
+```yaml
+echo test\nline 2:
+  stdout:
+    line-count: 2
+```
+
+###### not-contains
+
+`not-contains` is a `array` of elements which are not allowed to be contained in the output. 
+It is the inversion of [contains](#contains).
+
+ - name: `not-contains`
+ - type: `array`
+ - default: `[]`
+
+```yaml
+echo hello:
+  stdout:
+    not-contains: bonjour # test passes because bonjour does not occur in the output
+ 
+echo bonjour:
+  stdout:
+    not-contains: bonjour # test fails because bonjour occurs in the output
+```
+
+###### xml
+
+`xml` is a `map` which allows to query `xml` documents viá `xpath` queries. 
+Like the [json][#json] assertion this uses the `key` of the map as the query parameter to, the `value` is the expected value.
+
+ - name: `xml`
+ - type: `map`
+ - default: `{}`
+ - notes: Used library [xmlquery](https://github.com/antchfx/xmlquery)
+
+```yaml
+cat some.xml:
+  stdout:
+    xml:
+      //book//author: J. R. R. Tolkien
+```
+
+`some.xml` file:
+
+```xml
+<book>
+    <author>J. R. R. Tolkien</author>
+</book>
+```
+
+##### stderr
+
+See [stdout](#stdout) for more information.
+
+ - name: `stderr`
+ - type: `string` or `map`
+ - default: ` `
+ - notes: is identical to [stdout](#stdout) 
+
+```yaml
+# >&2 echos directly to stderr
+">&2 echo error": 
+  stderr: error
+  exit-code: 0
+
+">&2 echo more errors":
+  stderr:
+    line-count: 1
+```
+
+### Development
 
 ```
 # Initialise dev environment
@@ -205,7 +629,7 @@ $ make integration
 $ make deps
 ```
 
-# Misc
+## Misc
 
 Heavily inspired by [goss](https://github.com/aelsabbahy/goss).
 
