@@ -2,6 +2,7 @@
 
  - Added `xml` assertion to `stdout` and `stderr`
  - Added `json` assertin to `stdout` and `stderr`
+ - Remove `cmd` pkg and use `github.com/SimonBaeumer/cmd@v1.1.0` instead
 
 # v1.2.2
 

@@ -2,7 +2,7 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/cmd"
+	"github.com/SimonBaeumer/cmd"
 	"log"
 	"runtime"
 	"strings"
@@ -157,10 +157,20 @@ func executeRetryInterval(t TestCase) {
 
 // runTest executes the current test case
 func runTest(test TestCase) TestResult {
+	timeoutOpt := cmd.WithoutTimeout
+	if test.Command.Timeout != "" {
+		d, err := time.ParseDuration(test.Command.Timeout)
+		if err != nil {
+			test.Result = CommandResult{Error: err}
+			return TestResult{
+				TestCase: test,
+			}
+		}
+		timeoutOpt = cmd.WithTimeout(d)
+	}
+
 	// cut = command under test
-	cut := cmd.NewCommand(test.Command.Cmd)
-	cut.SetTimeout(test.Command.Timeout)
-	cut.Dir = test.Command.Dir
+	cut := cmd.NewCommand(test.Command.Cmd, timeoutOpt, cmd.WithWorkingDir(test.Command.Dir))
 	for k, v := range test.Command.Env {
 		cut.AddEnv(k, v)
 	}
@@ -176,15 +186,15 @@ func runTest(test TestCase) TestResult {
 		}
 	}
 
-	log.Println("title: '"+test.Title+"'", " Command: ", cut.Cmd)
+	log.Println("title: '"+test.Title+"'", " Command: ", test.Command.Cmd)
 	log.Println("title: '"+test.Title+"'", " Directory: ", cut.Dir)
 	log.Println("title: '"+test.Title+"'", " Env: ", cut.Env)
 
 	// Write test result
 	test.Result = CommandResult{
 		ExitCode: cut.ExitCode(),
-		Stdout:   strings.Replace(cut.Stdout(), "\r\n", "\n", -1),
-		Stderr:   strings.Replace(cut.Stderr(), "\r\n", "\n", -1),
+		Stdout:   strings.TrimSpace(cut.Stdout()),
+		Stderr:   strings.TrimSpace(cut.Stderr()),
 	}
 
 	log.Println("title: '"+test.Title+"'", " ExitCode: ", test.Result.ExitCode)

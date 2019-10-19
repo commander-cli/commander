@@ -105,6 +105,19 @@ func Test_runTestShouldReturnError(t *testing.T) {
 	}
 }
 
+func TestRuntime_WithInvalidDuration(t *testing.T) {
+	test := TestCase{
+		Command: CommandUnderTest{
+			Cmd:     "echo test",
+			Timeout: "600lightyears",
+		},
+	}
+
+	got := runTest(test)
+
+	assert.Equal(t, "time: unknown unit lightyears in duration 600lightyears", got.TestCase.Result.Error.Error())
+}
+
 func getExampleTestSuite() []TestCase {
 	tests := []TestCase{
 		{

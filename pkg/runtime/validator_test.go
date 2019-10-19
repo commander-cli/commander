@@ -109,7 +109,6 @@ func Test_ValidateExpectedOut_ValidateXML(t *testing.T) {
 	assert.True(t, r.Success)
 	assert.Equal(t, "", r.Diff)
 
-
 	diff := `Expected xml path "/book//author" with result
 
 Joanne K. Rowling

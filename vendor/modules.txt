@@ -1,14 +1,16 @@
+# github.com/SimonBaeumer/cmd v1.1.0
+github.com/SimonBaeumer/cmd
 # github.com/antchfx/xmlquery v1.1.0
 github.com/antchfx/xmlquery
 # github.com/antchfx/xpath v1.1.0
 github.com/antchfx/xpath
-# github.com/davecgh/go-spew v1.1.0
+# github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e
 github.com/logrusorgru/aurora
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/stretchr/testify v1.3.0
+# github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
 # github.com/tidwall/gjson v1.3.2
 github.com/tidwall/gjson
@@ -38,5 +40,5 @@ golang.org/x/text/language
 golang.org/x/text/internal/utf8internal
 golang.org/x/text/runes
 golang.org/x/text/internal/tag
-# gopkg.in/yaml.v2 v2.2.2
+# gopkg.in/yaml.v2 v2.2.4
 gopkg.in/yaml.v2

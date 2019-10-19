@@ -168,7 +168,6 @@ func TestJSONMatcher_MatchArray(t *testing.T) {
 	assert.Equal(t, "", r.Diff)
 }
 
-
 func TestJSONMatcher_DoesNotMatch(t *testing.T) {
 	m := NewMatcher(JSON)
 	r := m.Match(`{"book": "another"}`, map[string]string{"book": "test"})
