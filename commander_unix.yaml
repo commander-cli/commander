@@ -8,11 +8,14 @@ tests:
     exit-code: 0
 
   it should execute tests:
+    config:
+      env:
+        USER: from_parent
     command: ./commander test ./integration/unix/commander_test.yaml
     stdout:
       contains:
         - ✓ it should exit with error code
-      line-count: 15
+      line-count: 16
     exit-code: 0
 
   it should assert that commander will fail:
