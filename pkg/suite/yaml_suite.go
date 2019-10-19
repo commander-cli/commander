@@ -89,12 +89,13 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 		tests = append(tests, runtime.TestCase{
 			Title: t.Title,
 			Command: runtime.CommandUnderTest{
-				Cmd:      t.Command,
-				Env:      t.Config.Env,
-				Dir:      t.Config.Dir,
-				Timeout:  t.Config.Timeout,
-				Retries:  t.Config.Retries,
-				Interval: t.Config.Interval,
+				Cmd:        t.Command,
+				InheritEnv: t.Config.InheritEnv,
+				Env:        t.Config.Env,
+				Dir:        t.Config.Dir,
+				Timeout:    t.Config.Timeout,
+				Retries:    t.Config.Retries,
+				Interval:   t.Config.Interval,
 			},
 			Expected: runtime.Expected{
 				ExitCode: t.ExitCode,
@@ -146,11 +147,12 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	//Parse global configuration
 	y.Config = YAMLTestConfig{
-		Env:      params.Config.Env,
-		Dir:      params.Config.Dir,
-		Timeout:  params.Config.Timeout,
-		Retries:  params.Config.Retries,
-		Interval: params.Config.Interval,
+		InheritEnv: params.Config.InheritEnv,
+		Env:        params.Config.Env,
+		Dir:        params.Config.Dir,
+		Timeout:    params.Config.Timeout,
+		Retries:    params.Config.Retries,
+		Interval:   params.Config.Interval,
 	}
 
 	return nil
@@ -259,6 +261,10 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 
 	if local.Interval != "" {
 		conf.Interval = local.Interval
+	}
+
+	if local.InheritEnv {
+		conf.InheritEnv = local.InheritEnv
 	}
 
 	return conf
