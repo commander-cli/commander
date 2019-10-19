@@ -85,12 +85,15 @@ tests:
             not-contains:
                 - bonjour
             exactly: exactly hello
+            json:
+                $.object.attr: jsontest
 `)
 	tests := ParseYAML(yaml).GetTests()
 
 	assert.Equal(t, "hello", tests[0].Expected.Stdout.Contains[0])
 	assert.Equal(t, "exactly hello", tests[0].Expected.Stdout.Exactly)
 	assert.Equal(t, "bonjour", tests[0].Expected.Stdout.NotContains[0])
+	assert.Equal(t, "jsontest", tests[0].Expected.Stdout.JSON["$.object.attr"])
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldConvertWithoutContains(t *testing.T) {

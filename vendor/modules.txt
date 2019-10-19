@@ -1,3 +1,7 @@
+# github.com/antchfx/xmlquery v1.1.0
+github.com/antchfx/xmlquery
+# github.com/antchfx/xpath v1.1.0
+github.com/antchfx/xpath
 # github.com/davecgh/go-spew v1.1.0
 github.com/davecgh/go-spew/spew
 # github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e
@@ -6,7 +10,33 @@ github.com/logrusorgru/aurora
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.3.0
 github.com/stretchr/testify/assert
+# github.com/tidwall/gjson v1.3.2
+github.com/tidwall/gjson
+# github.com/tidwall/match v1.0.1
+github.com/tidwall/match
+# github.com/tidwall/pretty v1.0.0
+github.com/tidwall/pretty
 # github.com/urfave/cli v1.20.0
 github.com/urfave/cli
+# golang.org/x/net v0.0.0-20191014212845-da9a3fd4c582
+golang.org/x/net/html/charset
+golang.org/x/net/html
+golang.org/x/net/html/atom
+# golang.org/x/text v0.3.0
+golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/htmlindex
+golang.org/x/text/transform
+golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/unicode
+golang.org/x/text/language
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/runes
+golang.org/x/text/internal/tag
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2

@@ -92,3 +92,95 @@ func TestNotContainsMatcher_Fails(t *testing.T) {
 	diffText := "\nExpected\n\nlore ipsum donor\n\nto not contain\n\ndonor\n"
 	assert.Equal(t, diffText, r.Diff)
 }
+
+func TestXMLMatcher_Match(t *testing.T) {
+	m := XMLMatcher{}
+	r := m.Match("<book>test</book>", map[string]string{"/book": "test"})
+
+	assert.True(t, r.Success)
+	assert.Equal(t, "", r.Diff)
+}
+
+func TestXMLMatcher_DoesNotMatch(t *testing.T) {
+	m := XMLMatcher{}
+	r := m.Match("<book>another</book>", map[string]string{"/book": "test"})
+
+	diff := `Expected xml path "/book" with result
+
+test
+
+to be equal to
+
+another`
+	assert.False(t, r.Success)
+	assert.Equal(t, diff, r.Diff)
+}
+
+func TestXMLMatcher_DoesNotFindPath(t *testing.T) {
+	m := XMLMatcher{}
+	r := m.Match("<comic>test</comic>", map[string]string{"/book": "test"})
+
+	assert.False(t, r.Success)
+	assert.Equal(t, `Query "/book" did not match a path`, r.Diff)
+}
+
+func TestXMLMatcher_MatchArray(t *testing.T) {
+	m := NewMatcher(XML)
+	html := "<books><book>test1</book><book>test2</book></books>"
+
+	r := m.Match(html, map[string]string{"/books": "test1test2"})
+
+	assert.True(t, r.Success)
+	assert.Equal(t, "", r.Diff)
+}
+
+func TestXMLMatcher_WithXPATHError(t *testing.T) {
+	m := XMLMatcher{}
+	r := m.Match("<book>test</book>", map[string]string{"<!/book": "test"})
+
+	assert.False(t, r.Success)
+	assert.Equal(t, `Error occured: expression must evaluate to a node-set`, r.Diff)
+}
+
+func TestJSONMatcher_Match(t *testing.T) {
+	m := JSONMatcher{}
+	r := m.Match(`{"book": "test"}`, map[string]string{"book": "test"})
+
+	assert.True(t, r.Success)
+	assert.Equal(t, "", r.Diff)
+}
+
+func TestJSONMatcher_DoesNotFindPath(t *testing.T) {
+	m := JSONMatcher{}
+	r := m.Match(`{"comic": "test"}`, map[string]string{"book": "test"})
+
+	assert.False(t, r.Success)
+	assert.Equal(t, `Query "book" did not match a path`, r.Diff)
+}
+
+func TestJSONMatcher_MatchArray(t *testing.T) {
+	m := JSONMatcher{}
+	json := `{"books": [ "test1", "test2" ]}`
+
+	r := m.Match(json, map[string]string{"books": "[test1 test2]"})
+
+	assert.True(t, r.Success)
+	assert.Equal(t, "", r.Diff)
+}
+
+
+func TestJSONMatcher_DoesNotMatch(t *testing.T) {
+	m := NewMatcher(JSON)
+	r := m.Match(`{"book": "another"}`, map[string]string{"book": "test"})
+
+	diff := `Expected json path "book" with result
+
+test
+
+to be equal to
+
+another`
+
+	assert.False(t, r.Success)
+	assert.Equal(t, diff, r.Diff)
+}

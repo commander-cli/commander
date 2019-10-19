@@ -9,7 +9,10 @@ tests:
 
   it should execute tests:
     command: ./commander test ./integration/unix/commander_test.yaml
-    stdout: ✓ it should exit with error code
+    stdout:
+      contains:
+        - ✓ it should exit with error code
+      line-count: 15
     exit-code: 0
 
   it should assert that commander will fail:

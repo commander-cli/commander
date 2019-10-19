@@ -2,7 +2,10 @@ package matcher
 
 import (
 	"fmt"
+	"github.com/antchfx/xmlquery"
 	"github.com/pmezard/go-difflib/difflib"
+	"github.com/tidwall/gjson"
+	"log"
 	"strings"
 )
 
@@ -15,6 +18,8 @@ const (
 	Equal = "equal"
 	// Not contains matcher type
 	NotContains = "notcontains"
+	JSON        = "json"
+	XML         = "xml"
 )
 
 // NewMatcher creates a new matcher by type
@@ -28,6 +33,10 @@ func NewMatcher(matcher string) Matcher {
 		return EqualMatcher{}
 	case NotContains:
 		return NotContainsMatcher{}
+	case JSON:
+		return JSONMatcher{}
+	case XML:
+		return XMLMatcher{}
 	default:
 		panic(fmt.Sprintf("Validator '%s' does not exist!", matcher))
 	}
@@ -51,6 +60,7 @@ type TextMatcher struct {
 // Match matches both texts
 func (m TextMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	result := true
+
 	if got != expected {
 		result = false
 	}
@@ -149,4 +159,84 @@ to not contain
 		Success: result,
 		Diff:    diff,
 	}
+}
+
+type JSONMatcher struct {
+}
+
+func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+	result := MatcherResult{
+		Success: true,
+		Diff:    "",
+	}
+
+	json := expected.(map[string]string)
+	for q, e := range json {
+		r := gjson.Get(got.(string), q)
+		if r.Value() == nil {
+			result.Success = false
+			result.Diff = fmt.Sprintf(`Query "%s" did not match a path`, q)
+			break
+		}
+
+		if fmt.Sprintf("%v", r.Value()) != e {
+			result.Success = false
+			result.Diff = fmt.Sprintf(`Expected json path "%s" with result
+
+%s
+
+to be equal to
+
+%s`, q, e, r.Value())
+			break
+		}
+	}
+
+	return result
+}
+
+type XMLMatcher struct {
+}
+
+func (m XMLMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+	result := MatcherResult{
+		Success: true,
+		Diff:    "",
+	}
+
+	xml := expected.(map[string]string)
+	for q, e := range xml {
+		doc, err := xmlquery.Parse(strings.NewReader(got.(string)))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		node, err := xmlquery.Query(doc, q)
+		if err != nil {
+		    return MatcherResult{
+		        Success: false,
+		        Diff: fmt.Sprintf("Error occured: %s", err),
+            }
+		}
+
+		if node == nil {
+            return MatcherResult{
+                Success: false,
+                Diff:    fmt.Sprintf(`Query "%s" did not match a path`, q),
+            }
+        }
+
+        if node.InnerText() != e {
+            result.Success = false
+            result.Diff = fmt.Sprintf(`Expected xml path "%s" with result
+
+%s
+
+to be equal to
+
+%s`, q, e, node.InnerText())
+        }
+    }
+
+	return result
 }

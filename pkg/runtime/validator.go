@@ -76,12 +76,10 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 		}
 	}
 
-	if len(expected.Contains) > 0 {
-		m = matcher.NewMatcher(matcher.Contains)
-		for _, c := range expected.Contains {
-			if result = m.Match(got, c); !result.Success {
-				return result
-			}
+	m = matcher.NewMatcher(matcher.Contains)
+	for _, c := range expected.Contains {
+		if result = m.Match(got, c); !result.Success {
+			return result
 		}
 	}
 
@@ -99,12 +97,24 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 		}
 	}
 
-	if len(expected.NotContains) > 0 {
-		m = matcher.NewMatcher(matcher.NotContains)
-		for _, c := range expected.NotContains {
-			if result = m.Match(got, c); !result.Success {
-				return result
-			}
+	m = matcher.NewMatcher(matcher.NotContains)
+	for _, c := range expected.NotContains {
+		if result = m.Match(got, c); !result.Success {
+			return result
+		}
+	}
+
+	m = matcher.NewMatcher(matcher.JSON)
+	for i, v := range expected.JSON {
+		if result = m.Match(got, map[string]string{i: v}); !result.Success {
+			return result
+		}
+	}
+
+	m = matcher.NewMatcher(matcher.XML)
+	for i, v := range expected.XML {
+		if result = m.Match(got, map[string]string{i: v}); !result.Success {
+			return result
 		}
 	}
 
