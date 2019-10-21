@@ -49,7 +49,7 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 	s[0].Command.Interval = "50ms"
 
 	start := time.Now()
-	got := Start(s, 1)
+	got := Start(s, 0)
 
 	var counter = 0
 	for r := range got {

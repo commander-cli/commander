@@ -13,7 +13,6 @@ const (
 type AddCommandContext struct {
 	Verbose    bool
 	NoColor    bool
-	Debug      bool
 	Concurrent int
 }
 

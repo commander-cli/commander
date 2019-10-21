@@ -199,20 +199,11 @@ func runTest(test TestCase) TestResult {
 		Stderr:   strings.TrimSpace(strings.Replace(cut.Stderr(), "\r\n", "\n", -1)),
 	}
 
-	log.Println("title: '" + test.Title + "'", " ExitCode: ", test.Result.ExitCode)
-	log.Println("title: '" + test.Title + "'", " Stdout: ", test.Result.Stdout)
-	log.Println("title: '" + test.Title + "'", " Stderr: ", test.Result.Stderr)
+	log.Println("title: '"+test.Title+"'", " ExitCode: ", test.Result.ExitCode)
+	log.Println("title: '"+test.Title+"'", " Stdout: ", test.Result.Stdout)
+	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
 	return Validate(test)
-}
-
-// trimSpace implementation to trim CLRF off
-func trimSpace(s string) string {
-	result := strings.TrimSpace(s)
-	if runtime.GOOS == "windows" {
-		return strings.Trim(s, "\r\n")
-	}
-	return result
 }
 
 func createEnvVarsOption(test TestCase) func(c *cmd.Command) {
