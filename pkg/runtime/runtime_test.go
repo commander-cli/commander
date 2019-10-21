@@ -99,7 +99,7 @@ func Test_runTestShouldReturnError(t *testing.T) {
 	got := runTest(test)
 
 	if runtime.GOOS == "windows" {
-		assert.Contains(t, got.TestCase.Result.Error.Error(), "chdir /home/invalid: The system cannot find the path specified.")
+		assert.Contains(t, got.TestCase.Result.Error.Error(), "chdir /home/invalid")
 	} else {
 		assert.Equal(t, "chdir /home/invalid: no such file or directory", got.TestCase.Result.Error.Error())
 	}
