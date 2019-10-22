@@ -41,7 +41,10 @@ tests:
         COMMANDER_FROM_SHELL: from_shell
     stdout:
       contains:
-        - should print global
+        - ✓ should print global
+        - ✓ should print local
+        - ✓ should execute in given dir
+        - ✓ should work with timeout
     exit-code: 0
 
   test add command:
