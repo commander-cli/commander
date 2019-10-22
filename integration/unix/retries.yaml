@@ -15,5 +15,4 @@ tests:
     stdout: fail
     exit-code: 0
     config:
-      interval: 50ms
       retries: 2
