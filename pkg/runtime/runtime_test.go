@@ -123,7 +123,7 @@ func getExampleTestSuite() []TestCase {
 		{
 			Command: CommandUnderTest{
 				Cmd:     "echo hello",
-				Timeout: "50ms",
+				Timeout: "5s",
 			},
 			Expected: Expected{
 				Stdout: ExpectedOut{
