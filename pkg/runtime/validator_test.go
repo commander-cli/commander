@@ -94,17 +94,31 @@ output`
 	assert.Empty(t, got.Diff)
 }
 
-func Test_ValidateExpectedOut_MatchLines_Fails(t *testing.T) {
-	value := ``
+func Test_ValidateExpectedOut_MatchLines_ExpectedLineDoesNotExists(t *testing.T) {
+	value := `test`
 
-	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{1: "my", 3: "line"}})
+	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "my", 3: "line"}})
+
+	assert.False(t, got.Success)
+	diff := `Line number 1 does not exists in result: 
+
+test`
+	assert.Equal(t, diff, got.Diff)
+}
+
+func Test_ValidateExpectedOut_MatchLines_Fails(t *testing.T) {
+	value := `test
+line 2
+line 3`
+
+	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "line 3"}})
 
 	assert.False(t, got.Success)
 	diff := `--- Got
 +++ Expected
 @@ -1 +1 @@
--
-+my
+-line 2
++line 3
 `
 	assert.Equal(t, diff, got.Diff)
 }
@@ -140,23 +154,6 @@ contains
 `
 	assert.False(t, got.Success)
 	assert.Equal(t, diff, got.Diff)
-}
-
-func Test_ValidateExpectedOut_PanicIfLineDoesNotExist_TooHigh(t *testing.T) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			assert.Equal(t, "Invalid line number given 99", r)
-		}
-		assert.NotNil(t, r)
-	}()
-
-	value := `my
-multi
-line
-output`
-
-	_ = validateExpectedOut(value, ExpectedOut{Lines: map[int]string{99: "my"}})
 }
 
 func Test_ValidateExpectedOut_PanicIfLineDoesNotExist(t *testing.T) {
