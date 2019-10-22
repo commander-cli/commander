@@ -2,6 +2,8 @@
 
  - Added `xml` assertion to `stdout` and `stderr`
  - Added `json` assertin to `stdout` and `stderr`
+ - Remove `cmd` pkg and use `github.com/SimonBaeumer/cmd@v1.1.0` instead
+ - Add `inherit-env` to `config`, it enables inheriting the parent's env variables.
 
 # v1.2.2
 

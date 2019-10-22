@@ -8,11 +8,14 @@ tests:
     exit-code: 0
 
   it should execute tests:
+    config:
+      env:
+        USER: from_parent
     command: ./commander test ./integration/unix/commander_test.yaml
     stdout:
       contains:
         - ✓ it should exit with error code
-      line-count: 15
+      line-count: 16
     exit-code: 0
 
   it should assert that commander will fail:
@@ -61,5 +64,4 @@ tests:
         - ✗ echo hello, retries 3
         - ✓ it should retry failed commands, retries 2
         - ✗ it should retry failed commands with an interval, retries 2
-        - "Duration: 0.1" # Assertion that the interval is working
     exit-code: 1

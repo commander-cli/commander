@@ -45,7 +45,7 @@ func createCliApp() *cli.App {
 func createTestCommand() cli.Command {
 	return cli.Command{
 		Name:      "test",
-		Usage:     "Execute the test suite",
+		Usage:     "Execute the test suite, by default it will use the commander.yaml from your current directory",
 		ArgsUsage: "[file] [title]",
 		Flags: []cli.Flag{
 			cli.IntFlag{

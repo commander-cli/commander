@@ -31,5 +31,5 @@ tests:
   should work with timeout:
     command: echo hello
     config:
-      timeout: 100ms
+      timeout: 5m
     exit-code: 0

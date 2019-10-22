@@ -35,6 +35,53 @@ func Test_ValidateStdoutShouldFail(t *testing.T) {
 	assert.Equal(t, "Stdout", got.FailedProperty)
 }
 
+func Test_ValidateStderrShouldFail(t *testing.T) {
+	test := getExampleTest()
+	test.Expected.Stdout = ExpectedOut{}
+	test.Result = CommandResult{
+		Stderr:   "is not in message",
+		ExitCode: 0,
+	}
+
+	got := Validate(test)
+
+	assert.False(t, got.ValidationResult.Success)
+	assert.Equal(t, "Stderr", got.FailedProperty)
+}
+
+func Test_ValidateExitCodeShouldFail(t *testing.T) {
+	test := getExampleTest()
+	test.Expected.Stdout = ExpectedOut{}
+	test.Expected.Stderr = ExpectedOut{}
+	test.Result = CommandResult{
+		ExitCode: 1,
+	}
+
+	got := Validate(test)
+
+	assert.False(t, got.ValidationResult.Success)
+	assert.Equal(t, "ExitCode", got.FailedProperty)
+}
+
+func Test_ValidateExpectedOut_Contains_Fails(t *testing.T) {
+	value := `test`
+
+	got := validateExpectedOut(value, ExpectedOut{Contains: []string{"not-exists"}})
+
+	diff := `
+Expected
+
+test
+
+to contain
+
+not-exists
+`
+
+	assert.False(t, got.Success)
+	assert.Equal(t, diff, got.Diff)
+}
+
 func Test_ValidateExpectedOut_MatchLines(t *testing.T) {
 	value := `my
 multi
@@ -47,21 +94,66 @@ output`
 	assert.Empty(t, got.Diff)
 }
 
-func Test_ValidateExpectedOut_PanicIfLineDoesNotExist_TooHigh(t *testing.T) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			assert.Equal(t, "Invalid line number given 99", r)
-		}
-		assert.NotNil(t, r)
-	}()
+func Test_ValidateExpectedOut_MatchLines_ExpectedLineDoesNotExists(t *testing.T) {
+	value := `test`
 
-	value := `my
-multi
-line
-output`
+	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "my"}})
 
-	_ = validateExpectedOut(value, ExpectedOut{Lines: map[int]string{99: "my"}})
+	assert.False(t, got.Success)
+	diff := `Line number 2 does not exists in result: 
+
+test`
+	assert.Equal(t, diff, got.Diff)
+}
+
+func Test_ValidateExpectedOut_MatchLines_Fails(t *testing.T) {
+	value := `test
+line 2
+line 3`
+
+	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "line 3"}})
+
+	assert.False(t, got.Success)
+	diff := `--- Got
++++ Expected
+@@ -1 +1 @@
+-line 2
++line 3
+`
+	assert.Equal(t, diff, got.Diff)
+}
+
+func Test_ValidateExpectedOut_LineCount_Fails(t *testing.T) {
+	value := ``
+
+	got := validateExpectedOut(value, ExpectedOut{LineCount: 2})
+
+	assert.False(t, got.Success)
+	diff := `--- Got
++++ Expected
+@@ -1 +1 @@
+-0
++2
+`
+	assert.Equal(t, diff, got.Diff)
+}
+
+func Test_ValidateExpectedOut_NotContains_Fails(t *testing.T) {
+	value := `my string contains`
+
+	got := validateExpectedOut(value, ExpectedOut{NotContains: []string{"contains"}})
+
+	diff := `
+Expected
+
+my string contains
+
+to not contain
+
+contains
+`
+	assert.False(t, got.Success)
+	assert.Equal(t, diff, got.Diff)
 }
 
 func Test_ValidateExpectedOut_PanicIfLineDoesNotExist(t *testing.T) {
@@ -108,7 +200,6 @@ func Test_ValidateExpectedOut_ValidateXML(t *testing.T) {
 	r := validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//author": "J. R. R. Tolkien"}})
 	assert.True(t, r.Success)
 	assert.Equal(t, "", r.Diff)
-
 
 	diff := `Expected xml path "/book//author" with result
 

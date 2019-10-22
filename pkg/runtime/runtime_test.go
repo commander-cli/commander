@@ -49,7 +49,7 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 	s[0].Command.Interval = "50ms"
 
 	start := time.Now()
-	got := Start(s, 1)
+	got := Start(s, 0)
 
 	var counter = 0
 	for r := range got {
@@ -72,7 +72,7 @@ func TestRuntime_WithEnvVariables(t *testing.T) {
 	s := TestCase{
 		Command: CommandUnderTest{
 			Cmd:     fmt.Sprintf("echo %s", envVar),
-			Timeout: "50ms",
+			Timeout: "2s",
 			Env:     map[string]string{"KEY": "value"},
 		},
 		Expected: Expected{
@@ -99,10 +99,23 @@ func Test_runTestShouldReturnError(t *testing.T) {
 	got := runTest(test)
 
 	if runtime.GOOS == "windows" {
-		assert.Contains(t, got.TestCase.Result.Error.Error(), "chdir /home/invalid: The system cannot find the path specified.")
+		assert.Contains(t, got.TestCase.Result.Error.Error(), "chdir /home/invalid")
 	} else {
 		assert.Equal(t, "chdir /home/invalid: no such file or directory", got.TestCase.Result.Error.Error())
 	}
+}
+
+func TestRuntime_WithInvalidDuration(t *testing.T) {
+	test := TestCase{
+		Command: CommandUnderTest{
+			Cmd:     "echo test",
+			Timeout: "600lightyears",
+		},
+	}
+
+	got := runTest(test)
+
+	assert.Equal(t, "time: unknown unit lightyears in duration 600lightyears", got.TestCase.Result.Error.Error())
 }
 
 func getExampleTestSuite() []TestCase {
@@ -110,7 +123,7 @@ func getExampleTestSuite() []TestCase {
 		{
 			Command: CommandUnderTest{
 				Cmd:     "echo hello",
-				Timeout: "50ms",
+				Timeout: "5s",
 			},
 			Expected: Expected{
 				Stdout: ExpectedOut{

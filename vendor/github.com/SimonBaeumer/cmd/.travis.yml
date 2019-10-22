@@ -1,0 +1,45 @@
+language: go
+
+env:
+  global:
+    - GO111MODULE=on
+    - CC_TEST_REPORTER_ID=1fee6b47ad638c3cb28b932d28413d643a06c90b277bc5839e306f40e932422e
+
+stages:
+  - test
+
+go:
+  - 1.13.x
+
+sudo: required
+dist: trusty
+
+before_install:
+  - go get -u golang.org/x/lint/golint
+  - make deps
+  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-linux-amd64 -o ~/bin/commander
+  - chmod +x ~/bin/commander
+
+jobs:
+  include:
+    - name: macOS Unit
+      os: osx
+      script:
+        - make test
+
+    - name: windows Unit
+      os: windows
+      before_install:
+        - choco install make
+      script:
+        - make test-windows
+
+    - name: Unit tests
+      before_script:
+        - curl https://s3.amazonaws.com/codeclimate/test-reporter/test-reporter-0.6.3-linux-amd64 --output test-reporter
+        - chmod +x test-reporter
+        - ./test-reporter before-build
+      script:
+        - make test-coverage
+      after_script:
+        - ./test-reporter after-build -t gocov --exit-code $TRAVIS_TEST_RESULT

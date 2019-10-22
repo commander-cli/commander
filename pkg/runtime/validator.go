@@ -137,12 +137,25 @@ func validateExpectedLines(got string, expected ExpectedOut) matcher.MatcherResu
 	actualLines := strings.Split(got, getLineBreak())
 	result := matcher.MatcherResult{Success: true}
 
-	for k, expL := range expected.Lines {
-		if (k-1 > len(actualLines)) || (k-1 < 0) {
-			panic(fmt.Sprintf("Invalid line number given %d", k))
+	for key, expectedLine := range expected.Lines {
+		// line number 0 or below 0
+		if key <= 0 {
+			panic(fmt.Sprintf("Invalid line number given %d", key))
 		}
 
-		if result = m.Match(actualLines[k-1], expL); !result.Success {
+		// line number exceeds result set
+		if key > len(actualLines) {
+			return matcher.MatcherResult{
+				Success: false,
+				Diff: fmt.Sprintf(
+					"Line number %d does not exists in result: \n\n%s",
+					key,
+					strings.Join(actualLines, "\n"),
+				),
+			}
+		}
+
+		if result = m.Match(actualLines[key-1], expectedLine); !result.Success {
 			return result
 		}
 	}

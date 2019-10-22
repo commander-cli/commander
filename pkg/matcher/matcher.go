@@ -213,30 +213,30 @@ func (m XMLMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 
 		node, err := xmlquery.Query(doc, q)
 		if err != nil {
-		    return MatcherResult{
-		        Success: false,
-		        Diff: fmt.Sprintf("Error occured: %s", err),
-            }
+			return MatcherResult{
+				Success: false,
+				Diff:    fmt.Sprintf("Error occured: %s", err),
+			}
 		}
 
 		if node == nil {
-            return MatcherResult{
-                Success: false,
-                Diff:    fmt.Sprintf(`Query "%s" did not match a path`, q),
-            }
-        }
+			return MatcherResult{
+				Success: false,
+				Diff:    fmt.Sprintf(`Query "%s" did not match a path`, q),
+			}
+		}
 
-        if node.InnerText() != e {
-            result.Success = false
-            result.Diff = fmt.Sprintf(`Expected xml path "%s" with result
+		if node.InnerText() != e {
+			result.Success = false
+			result.Diff = fmt.Sprintf(`Expected xml path "%s" with result
 
 %s
 
 to be equal to
 
 %s`, q, e, node.InnerText())
-        }
-    }
+		}
+	}
 
 	return result
 }

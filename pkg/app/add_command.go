@@ -1,10 +1,11 @@
 package app
 
 import (
-	"github.com/SimonBaeumer/commander/pkg/cmd"
+	"github.com/SimonBaeumer/cmd"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/SimonBaeumer/commander/pkg/suite"
 	"gopkg.in/yaml.v2"
+	"strings"
 )
 
 // AddCommand executes the add command
@@ -46,10 +47,12 @@ func AddCommand(command string, existed []byte) ([]byte, error) {
 		}
 	}
 
+	stdout := strings.TrimSpace(c.Stdout())
+	stderr := strings.TrimSpace(c.Stderr())
 	conf.Tests[command] = suite.YAMLTest{
 		Title:    command,
-		Stdout:   runtime.ExpectedOut{Contains: []string{c.Stdout()}},
-		Stderr:   runtime.ExpectedOut{Contains: []string{c.Stderr()}},
+		Stdout:   runtime.ExpectedOut{Contains: []string{stdout}},
+		Stderr:   runtime.ExpectedOut{Contains: []string{stderr}},
 		ExitCode: c.ExitCode(),
 	}
 
