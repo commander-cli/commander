@@ -149,7 +149,7 @@ func validateExpectedLines(got string, expected ExpectedOut) matcher.MatcherResu
 				Success: false,
 				Diff: fmt.Sprintf(
 					"Line number %d does not exists in result: \n\n%s",
-					key-1,
+					key,
 					strings.Join(actualLines, "\n"),
 				),
 			}

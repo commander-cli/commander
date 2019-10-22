@@ -100,7 +100,7 @@ func Test_ValidateExpectedOut_MatchLines_ExpectedLineDoesNotExists(t *testing.T)
 	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "my", 3: "line"}})
 
 	assert.False(t, got.Success)
-	diff := `Line number 1 does not exists in result: 
+	diff := `Line number 2 does not exists in result: 
 
 test`
 	assert.Equal(t, diff, got.Diff)
