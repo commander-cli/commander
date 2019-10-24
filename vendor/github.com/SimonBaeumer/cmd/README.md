@@ -33,9 +33,13 @@ To configure the command a option function will be passed which receives the com
 Default option functions:
 
  - `cmd.WithStandardStreams`
+ - `cmd.WithCustomStdout(...io.Writers)`
+ - `cmd.WithCustomStderr(...io.Writers)`
  - `cmd.WithTimeout(time.Duration)`
  - `cmd.WithoutTimeout`
  - `cmd.WithWorkingDir(string)`
+ - `cmd.WithEnvironmentVariables(cmd.EnvVars)`
+ - `cmd.WithInheritedEnvironment(cmd.EnvVars)`
 
 #### Example
 
@@ -53,6 +57,23 @@ setWorkingDir := func (c *Command) {
 
 c := cmd.NewCommand("pwd", setWorkingDir)
 c.Execute()
+```
+
+### Testing
+
+You can catch output streams to `stdout` and `stderr` with `cmd.CaptureStandardOut`. 
+
+```golang
+// caputred is the captured output from all executed source code
+// fnResult contains the result of the executed function
+captured, fnResult := cmd.CaptureStandardOut(func() interface{} {
+    c := NewCommand("echo hello", cmd.WithStandardStream)
+    err := c.Execute()
+    return err
+})
+
+// prints "hello"
+fmt.Println(captured)
 ```
 
 ## Development

@@ -57,6 +57,7 @@ type CommandResult struct {
 	Status            ResultStatus
 	Stdout            string
 	Stderr            string
+	Combined          string
 	ExitCode          int
 	FailureProperties []string
 	Error             error
@@ -197,6 +198,7 @@ func runTest(test TestCase) TestResult {
 		ExitCode: cut.ExitCode(),
 		Stdout:   strings.TrimSpace(strings.Replace(cut.Stdout(), "\r\n", "\n", -1)),
 		Stderr:   strings.TrimSpace(strings.Replace(cut.Stderr(), "\r\n", "\n", -1)),
+		Combined: strings.TrimSpace(strings.Replace(cut.Combined(), "\r\n", "\n", -1)),
 	}
 
 	log.Println("title: '"+test.Title+"'", " ExitCode: ", test.Result.ExitCode)

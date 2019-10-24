@@ -1,7 +1,7 @@
 module github.com/SimonBaeumer/commander
 
 require (
-	github.com/SimonBaeumer/cmd v1.1.0
+	github.com/SimonBaeumer/cmd v1.2.1
 	github.com/antchfx/xmlquery v1.1.0
 	github.com/antchfx/xpath v1.1.0 // indirect
 	github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e

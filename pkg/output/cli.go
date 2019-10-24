@@ -50,6 +50,7 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 			failed++
 			s := w.addTries("✗ "+r.TestCase.Title, r)
 			w.fprintf(au.Red(s))
+			w.fprintf(r.TestCase.Result.Combined)
 		}
 	}
 
