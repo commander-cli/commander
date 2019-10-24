@@ -2,6 +2,7 @@
 commander
 !cmd/commander
 release
+dev.sh
 
 tmp.yml
 *.out

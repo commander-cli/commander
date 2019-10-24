@@ -1,5 +1,7 @@
 github.com/SimonBaeumer/cmd v1.1.0 h1:tr5dUMlly/8bLiC5B0J1AcE4ISru8POEfzAirWnUJnY=
 github.com/SimonBaeumer/cmd v1.1.0/go.mod h1:4mc/LDXDWNbkeooqHP83yx3JXtInPHjJkF8zhzqqmZE=
+github.com/SimonBaeumer/cmd v1.2.1 h1:NAhJp2ME68xZZJE4CVxOrNXStHdL77z1WF38OZFAQhM=
+github.com/SimonBaeumer/cmd v1.2.1/go.mod h1:4mc/LDXDWNbkeooqHP83yx3JXtInPHjJkF8zhzqqmZE=
 github.com/antchfx/jsonquery v1.0.0 h1:1Yhk496SrCoY6fJkFZqpXEqbwOw5sFtLns9la4NoK3I=
 github.com/antchfx/jsonquery v1.0.0/go.mod h1:h7950pvPrUZzJIflNqsELgDQovTpPNa0rAHf8NwjegY=
 github.com/antchfx/xmlquery v1.1.0 h1:vj0kZ1y3Q6my4AV+a9xbWrMYzubw+84zuiKgvfV8vb8=
