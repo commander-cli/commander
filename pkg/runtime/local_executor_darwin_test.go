@@ -17,7 +17,8 @@ func TestRuntime_WithInheritFromShell(t *testing.T) {
 		},
 	}
 
-	got := runTest(test)
+	e := LocalExecutor{}
+	got := e.Execute(test)
 
 	assert.Equal(t, "test", got.TestCase.Result.Stdout)
 }
@@ -38,7 +39,8 @@ func TestRuntime_WithInheritFromShell_Overwrite(t *testing.T) {
 		},
 	}
 
-	got := runTest(test)
+	e := LocalExecutor{}
+	got := e.Execute(test)
 
 	assert.Equal(t, "overwrite from-parent", got.TestCase.Result.Stdout)
 }
