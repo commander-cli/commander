@@ -321,3 +321,32 @@ func Test_convertExpectedOut_ReturnFullStruct(t *testing.T) {
 
 	assert.Equal(t, out, r)
 }
+
+func TestYAMLSuite_should_parse_ssh(t *testing.T) {
+	yaml := []byte(`
+config:
+    ssh:
+        host: localhost
+        user: commander
+        password: 12345!
+
+tests:
+    echo hello:
+       exit-code: 0
+       config:
+           ssh:
+             host: 192.168.0.1
+             user: root
+             password: admin
+`)
+
+	got := ParseYAML(yaml)
+	assert.Equal(t, "192.168.0.1", got.GetTests()[0].Command.SSH.Host)
+	assert.Equal(t, "root", got.GetTests()[0].Command.SSH.User)
+	assert.Equal(t, "admin", got.GetTests()[0].Command.SSH.Password)
+
+	assert.Equal(t, "localhost", got.GetGlobalConfig().SSH.Host)
+	assert.Equal(t, "commander", got.GetGlobalConfig().SSH.User)
+	assert.Equal(t, "12345!", got.GetGlobalConfig().SSH.Password)
+
+}

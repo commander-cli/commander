@@ -153,6 +153,17 @@ tests:
             timeout: 1s # Overwrite timeout
             retries: 5
         exit-code: 0
+        
+    it targets another host:
+        ssh:
+          publickey: /home/user/.ssh/id_rsa.pub
+          user: commander
+          password: commander
+        docker:
+          image: alpine:latest
+          name: alpine_instance_1
+        kubernetes:
+          
 ```
 
 ### Executing

@@ -46,6 +46,7 @@ type TestConfig struct {
 	Retries    int
 	Interval   string
 	InheritEnv bool
+	SSH        SSHExecutor
 }
 
 // ResultStatus represents the status code of a test result
@@ -89,6 +90,7 @@ type CommandUnderTest struct {
 	Timeout    string
 	Retries    int
 	Interval   string
+	SSH        SSHExecutor
 }
 
 // TestResult represents the TestCase and the ValidationResult

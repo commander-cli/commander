@@ -22,6 +22,14 @@ type YAMLTestConfig struct {
 	Timeout    string            `yaml:"timeout,omitempty"`
 	Retries    int               `yaml:"retries,omitempty"`
 	Interval   string            `yaml:"interval,omitempty"`
+	SSH        SSHConf           `yaml:"ssh,omitempty"`
+}
+
+// SSHConf represents the target host of the system
+type SSHConf struct {
+	Host     string `yaml:"host"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password,omitempty"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -78,6 +86,11 @@ func ParseYAML(content []byte) Suite {
 			Timeout:    yamlConfig.Config.Timeout,
 			Retries:    yamlConfig.Config.Retries,
 			Interval:   yamlConfig.Config.Interval,
+			SSH: runtime.SSHExecutor{
+				User:     yamlConfig.Config.SSH.User,
+				Password: yamlConfig.Config.SSH.Password,
+				Host:     yamlConfig.Config.SSH.Host,
+			},
 		},
 	}
 }
@@ -96,6 +109,11 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 				Timeout:    t.Config.Timeout,
 				Retries:    t.Config.Retries,
 				Interval:   t.Config.Interval,
+				SSH: runtime.SSHExecutor{
+					User:     t.Config.SSH.User,
+					Password: t.Config.SSH.Password,
+					Host:     t.Config.SSH.Host,
+				},
 			},
 			Expected: runtime.Expected{
 				ExitCode: t.ExitCode,
@@ -153,6 +171,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Timeout:    params.Config.Timeout,
 		Retries:    params.Config.Retries,
 		Interval:   params.Config.Interval,
+		SSH:        params.Config.SSH,
 	}
 
 	return nil
@@ -265,6 +284,10 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 
 	if local.InheritEnv {
 		conf.InheritEnv = local.InheritEnv
+	}
+
+	if local.SSH.Host != "" {
+		conf.SSH = local.SSH
 	}
 
 	return conf
