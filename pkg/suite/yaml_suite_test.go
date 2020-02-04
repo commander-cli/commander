@@ -323,24 +323,23 @@ func Test_convertExpectedOut_ReturnFullStruct(t *testing.T) {
 }
 
 func TestYAMLSuite_should_parse_ssh(t *testing.T) {
-	//	yaml := []byte(`
-	//nodes:
-	//    ssh-host1:
-	//        addr: localhost
-	//        user: commander
-	//        pass: 12345!
-	//tests:
-	//    echo hello:
-	//       exit-code: 0
-	//`)
+	yaml := []byte(`
+nodes:
+   ssh-host1:
+       type: ssh
+       addr: localhost
+       user: root
+       pass: 12345!
+tests:
+   echo hello:
+      exit-code: 0
+`)
 
-	//got := ParseYAML(yaml)
-	//assert.Equal(t, "192.168.0.1", got.GetTests()[0].Command.SSH.Host)
-	//assert.Equal(t, "root", got.GetTests()[0].Command.SSH.User)
-	//assert.Equal(t, "admin", got.GetTests()[0].Command.SSH.Password)
-	//
-	//assert.Equal(t, "localhost", got.GetGlobalConfig().SSH.Host)
-	//assert.Equal(t, "commander", got.GetGlobalConfig().SSH.User)
-	//assert.Equal(t, "12345!", got.GetGlobalConfig().SSH.Password)
-
+	got := ParseYAML(yaml)
+	assert.Len(t, got.GetNodes(), 1)
+	assert.Equal(t, "ssh-host1", got.GetNodes()[0].Name)
+	assert.Equal(t, "localhost", got.GetNodes()[0].Addr)
+	assert.Equal(t, "root", got.GetNodes()[0].User)
+	assert.Equal(t, "12345!", got.GetNodes()[0].Pass)
+	assert.Equal(t, "ssh", got.GetNodes()[0].Type)
 }

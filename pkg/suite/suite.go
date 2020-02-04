@@ -5,10 +5,19 @@ import (
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 )
 
+type Node struct {
+	Name string
+	Type string
+	User string
+	Pass string
+	Addr string
+}
+
 // Suite represents the current tests and configs
 type Suite struct {
 	TestCases []runtime.TestCase
 	Config    runtime.TestConfig
+	Nodes     []Node
 }
 
 func NewSuite(config runtime.TestConfig, tests ...runtime.TestCase) *Suite {
@@ -16,6 +25,10 @@ func NewSuite(config runtime.TestConfig, tests ...runtime.TestCase) *Suite {
 		TestCases: tests,
 		Config:    config,
 	}
+}
+
+func (s Suite) GetNodes() []Node {
+	return s.Nodes
 }
 
 func (s Suite) AddTest(t runtime.TestCase) {

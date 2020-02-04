@@ -31,8 +31,6 @@ type NodeConf struct {
 	User string `yaml:"user"`
 	Pass string `yaml:"pass"`
 	Addr string `yaml:"addr,omitempty"`
-	//SSH    []SSHConf    `yaml:"ssh,omitempty"`
-	//Docker []DockerConf `yaml:"docker,omitempty"`
 }
 
 type DockerConf struct {
@@ -77,7 +75,22 @@ func ParseYAML(content []byte) Suite {
 			Retries:    yamlConfig.Config.Retries,
 			Interval:   yamlConfig.Config.Interval,
 		},
+		Nodes: convertNodes(yamlConfig.Nodes),
 	}
+}
+
+func convertNodes(nodes map[string]NodeConf) []Node {
+	var n []Node
+	for _, v := range nodes {
+		n = append(n, Node{
+			Pass: v.Pass,
+			Type: v.Type,
+			User: v.User,
+			Addr: v.Addr,
+			Name: v.Name,
+		})
+	}
+	return n
 }
 
 //Convert YAMlConfig to runtime TestCases
@@ -142,6 +155,19 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		}
 
 		y.Tests[k] = test
+	}
+
+	y.Nodes = make(map[string]NodeConf)
+	for k, v := range params.Nodes {
+		node := NodeConf{
+			Name: k,
+			Addr: v.Addr,
+			User: v.User,
+			Type: v.Type,
+			Pass: v.Pass,
+		}
+
+		y.Nodes[k] = node
 	}
 
 	//Parse global configuration
