@@ -48,13 +48,13 @@ type SSHConf struct {
 
 // YAMLTest represents a test in the yaml test suite
 type YAMLTest struct {
-	Title    string              `yaml:"-"`
-	Command  string              `yaml:"command,omitempty"`
-	ExitCode int                 `yaml:"exit-code"`
-	Stdout   interface{}         `yaml:"stdout,omitempty"`
-	Stderr   interface{}         `yaml:"stderr,omitempty"`
-	Config   YAMLTestConfig      `yaml:"config,omitempty"`
-	Nodes    map[string]NodeConf `yaml:"nodes,omitempty"`
+	Title    string         `yaml:"-"`
+	Command  string         `yaml:"command,omitempty"`
+	ExitCode int            `yaml:"exit-code"`
+	Stdout   interface{}    `yaml:"stdout,omitempty"`
+	Stderr   interface{}    `yaml:"stderr,omitempty"`
+	Config   YAMLTestConfig `yaml:"config,omitempty"`
+	Nodes    []string       `yaml:"nodes,omitempty"`
 }
 
 // ParseYAML parses the Suite from a yaml byte slice
@@ -84,11 +84,11 @@ func convertNodes(nodes map[string]NodeConf) []runtime.Node {
 	var n []runtime.Node
 	for _, v := range nodes {
 		n = append(n, runtime.Node{
-			Pass: v.Pass,
-			Type: v.Type,
-			User: v.User,
-			Addr: v.Addr,
-			Name: v.Name,
+			Pass:  v.Pass,
+			Type:  v.Type,
+			User:  v.User,
+			Addr:  v.Addr,
+			Name:  v.Name,
 			Image: v.Image,
 		})
 	}
@@ -115,7 +115,7 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 				Stdout:   t.Stdout.(runtime.ExpectedOut),
 				Stderr:   t.Stderr.(runtime.ExpectedOut),
 			},
-			Nodes: convertNodes(t.Nodes),
+			Nodes: t.Nodes,
 		})
 	}
 
@@ -150,7 +150,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Stdout:   y.convertToExpectedOut(v.Stdout),
 			Stderr:   y.convertToExpectedOut(v.Stderr),
 			Config:   y.mergeConfigs(v.Config, params.Config),
-			Nodes:    y.mergeNodes(v.Nodes, params.Nodes),
+			Nodes:    v.Nodes,
 		}
 
 		// Set key as command, if command property was empty
@@ -333,7 +333,7 @@ func (y YAMLConfig) MarshalYAML() (interface{}, error) {
 }
 
 func (y *YAMLConfig) mergeNodes(nodes map[string]NodeConf, globalNodes map[string]NodeConf) map[string]NodeConf {
-    return nodes
+	return nodes
 }
 
 func convertExpectedOut(out runtime.ExpectedOut) interface{} {

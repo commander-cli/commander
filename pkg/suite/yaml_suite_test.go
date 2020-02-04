@@ -330,23 +330,25 @@ nodes:
        addr: localhost
        user: root
        pass: 12345!
+   docker-host:
+       type: docker
+       image: ubuntu:18.04
 tests:
    echo hello:
       nodes:
-        docker-host:
-          type: docker
-          image: "ubuntu:18.04"
+        - docker-host
+        - ssh-host1
       exit-code: 0
 `)
 
 	got := ParseYAML(yaml)
-	assert.Len(t, got.GetNodes(), 1)
+	assert.Len(t, got.GetNodes(), 2)
 	assert.Equal(t, "ssh-host1", got.GetNodes()[0].Name)
 	assert.Equal(t, "localhost", got.GetNodes()[0].Addr)
 	assert.Equal(t, "root", got.GetNodes()[0].User)
 	assert.Equal(t, "12345!", got.GetNodes()[0].Pass)
 	assert.Equal(t, "ssh", got.GetNodes()[0].Type)
 
-	assert.Equal(t, "docker", got.GetTests()[0].Nodes[0].Type)
-	assert.Equal(t, "ubuntu:18.04", got.GetTests()[0].Nodes[0].Image)
+	assert.Contains(t, got.GetTests()[0].Nodes, "docker-host")
+	assert.Contains(t, got.GetTests()[0].Nodes, "ssh-host1")
 }

@@ -36,15 +36,15 @@ type TestCase struct {
 	Command  CommandUnderTest
 	Expected Expected
 	Result   CommandResult
-	Nodes    []Node
+	Nodes    []string
 }
 
 type Node struct {
-	Name string
-	Type string
-	User string
-	Pass string
-	Addr string
+	Name  string
+	Type  string
+	User  string
+	Pass  string
+	Addr  string
 	Image string
 }
 
