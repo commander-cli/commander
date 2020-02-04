@@ -21,8 +21,8 @@ tests:
     command: commander.exe test ./integration/windows/failing_suite.yaml
     stdout:
       contains:
-        - ✗ 'it will fail', on property 'ExitCode'
-        - ✗ 'test timeout' could not be executed with error message
+        - ✗ [local] 'it will fail', on property 'ExitCode'
+        - ✗ [local] 'test timeout' could not be executed with error message
         - "Count: 2, Failed: 2"
     exit-code: 1
 
@@ -30,7 +30,7 @@ tests:
     command: commander.exe test ./integration/windows/test_big_output.yaml
     stdout:
       contains:
-        - ✓ type integration\windows\_fixtures\big_out.txt
+        - ✓ [local] type integration\windows\_fixtures\big_out.txt
         - "Count: 1, Failed: 0"
     exit-code: 0
 
@@ -41,10 +41,10 @@ tests:
         COMMANDER_FROM_SHELL: from_shell
     stdout:
       contains:
-        - ✓ should print global
-        - ✓ should print local
-        - ✓ should execute in given dir
-        - ✓ should work with timeout
+        - ✓ [local] should print global
+        - ✓ [local] should print local
+        - ✓ [local] should execute in given dir
+        - ✓ [local] should work with timeout
     exit-code: 0
 
   test add command:
@@ -60,5 +60,5 @@ tests:
     command: commander.exe test integration/windows/retries.yaml
     stdout:
       contains:
-        - ✗ echo hello, retries 3
+        - ✗ [local] echo hello, retries 3
     exit-code: 1
