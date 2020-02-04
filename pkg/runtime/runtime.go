@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/SimonBaeumer/cmd"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -109,6 +108,7 @@ type TestResult struct {
 	ValidationResult ValidationResult
 	FailedProperty   string
 	Tries            int
+	Node             string
 }
 
 // Start starts the given test suite and executes all tests
@@ -124,33 +124,38 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 		}
 	}(tests)
 
-	workerCount := maxConcurrent
-	if maxConcurrent == 0 {
-		workerCount = runtime.NumCPU() * WorkerCountMultiplicator
-	}
-
 	var wg sync.WaitGroup
-	for i := 0; i < workerCount; i++ {
-		wg.Add(1)
-		go func(tests chan TestCase) {
-			defer wg.Done()
-			for t := range tests {
+	wg.Add(1)
+
+	go func(tests chan TestCase) {
+		defer wg.Done()
+
+		for t := range tests {
+			// If no node was set use local mode
+			if len(t.Nodes) == 0 {
+				t.Nodes = []string{"local"}
+			}
+
+			for _, n := range t.Nodes {
 				result := TestResult{}
 				for i := 1; i <= t.Command.GetRetries(); i++ {
+
 					e := LocalExecutor{}
 					result = e.Execute(t)
+					result.Node = n
 					result.Tries = i
+
 					if result.ValidationResult.Success {
 						break
 					}
 
 					executeRetryInterval(t)
 				}
-
 				out <- result
 			}
-		}(in)
-	}
+
+		}
+	}(in)
 
 	go func(results chan TestResult) {
 		wg.Wait()
@@ -158,6 +163,23 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	}(out)
 
 	return out
+}
+
+func execTest(t TestCase) TestResult {
+	result := TestResult{}
+	for i := 1; i <= t.Command.GetRetries(); i++ {
+
+		e := LocalExecutor{}
+		result = e.Execute(t)
+
+		result.Tries = i
+		if result.ValidationResult.Success {
+			break
+		}
+
+		executeRetryInterval(t)
+	}
+	return result
 }
 
 func executeRetryInterval(t TestCase) {

@@ -82,8 +82,8 @@ func Test_Start(t *testing.T) {
 	output := buf.String()
 	assert.True(t, strings.Contains(output, "✓ Successful test"))
 	assert.True(t, strings.Contains(output, "✗ Failed test"))
-	assert.True(t, strings.Contains(output, "✗ 'Invalid command' could not be executed"))
-	assert.True(t, strings.Contains(output, "✗ 'Failed test on stderr', on property 'Stderr'"))
+	assert.Contains(t, output, "✗ 'Invalid command' could not be executed")
+	assert.Contains(t, output, "✗ 'Failed test on stderr', on property 'Stderr")
 	assert.True(t, strings.Contains(output, "Some error message"))
 }
 

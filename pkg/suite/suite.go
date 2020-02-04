@@ -23,6 +23,15 @@ func (s Suite) GetNodes() []runtime.Node {
 	return s.Nodes
 }
 
+func (s Suite) GetNodeByName(name string) (runtime.Node, error) {
+	for _, n := range s.Nodes {
+		if n.Name == name {
+			return n, nil
+		}
+	}
+	return runtime.Node{}, fmt.Errorf("could not find node with name %s", name)
+}
+
 func (s Suite) AddTest(t runtime.TestCase) {
 	if _, err := s.GetTestByTitle(t.Title); err != nil {
 		panic(fmt.Sprintf("Tests %s was already added to the suite", t.Title))
@@ -41,7 +50,7 @@ func (s Suite) GetTestByTitle(title string) (runtime.TestCase, error) {
 			return t, nil
 		}
 	}
-	return runtime.TestCase{}, fmt.Errorf("Could not find test " + title)
+	return runtime.TestCase{}, fmt.Errorf("could not find test %s", title)
 }
 
 func (s Suite) GetGlobalConfig() runtime.TestConfig {

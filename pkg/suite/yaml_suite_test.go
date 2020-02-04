@@ -157,7 +157,7 @@ tests:
 `)
 	_, err := ParseYAML(yaml).GetTestByTitle("does not exist")
 
-	assert.Equal(t, "Could not find test does not exist", err.Error())
+	assert.Equal(t, "could not find test does not exist", err.Error())
 }
 
 func TestYAMLSuite_ShouldParseGlobalConfig(t *testing.T) {
@@ -342,12 +342,16 @@ tests:
 `)
 
 	got := ParseYAML(yaml)
+
 	assert.Len(t, got.GetNodes(), 2)
-	assert.Equal(t, "ssh-host1", got.GetNodes()[0].Name)
-	assert.Equal(t, "localhost", got.GetNodes()[0].Addr)
-	assert.Equal(t, "root", got.GetNodes()[0].User)
-	assert.Equal(t, "12345!", got.GetNodes()[0].Pass)
-	assert.Equal(t, "ssh", got.GetNodes()[0].Type)
+
+	node, err := got.GetNodeByName("ssh-host1")
+	assert.Nil(t, err)
+	assert.Equal(t, "ssh-host1", node.Name)
+	assert.Equal(t, "localhost", node.Addr)
+	assert.Equal(t, "root", node.User)
+	assert.Equal(t, "12345!", node.Pass)
+	assert.Equal(t, "ssh", node.Type)
 
 	assert.Contains(t, got.GetTests()[0].Nodes, "docker-host")
 	assert.Contains(t, got.GetTests()[0].Nodes, "ssh-host1")
