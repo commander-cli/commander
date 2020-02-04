@@ -332,6 +332,10 @@ nodes:
        pass: 12345!
 tests:
    echo hello:
+      nodes:
+        docker-host:
+          type: docker
+          image: "ubuntu:18.04"
       exit-code: 0
 `)
 
@@ -342,4 +346,7 @@ tests:
 	assert.Equal(t, "root", got.GetNodes()[0].User)
 	assert.Equal(t, "12345!", got.GetNodes()[0].Pass)
 	assert.Equal(t, "ssh", got.GetNodes()[0].Type)
+
+	assert.Equal(t, "docker", got.GetTests()[0].Nodes[0].Type)
+	assert.Equal(t, "ubuntu:18.04", got.GetTests()[0].Nodes[0].Image)
 }

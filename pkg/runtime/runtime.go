@@ -36,6 +36,16 @@ type TestCase struct {
 	Command  CommandUnderTest
 	Expected Expected
 	Result   CommandResult
+	Nodes    []Node
+}
+
+type Node struct {
+	Name string
+	Type string
+	User string
+	Pass string
+	Addr string
+	Image string
 }
 
 //TestConfig represents the configuration for a test

@@ -26,11 +26,12 @@ type YAMLTestConfig struct {
 }
 
 type NodeConf struct {
-	Name string `yaml:"-"`
-	Type string `yaml:"type"`
-	User string `yaml:"user"`
-	Pass string `yaml:"pass"`
-	Addr string `yaml:"addr,omitempty"`
+	Name  string `yaml:"-"`
+	Type  string `yaml:"type"`
+	User  string `yaml:"user"`
+	Pass  string `yaml:"pass"`
+	Addr  string `yaml:"addr,omitempty"`
+	Image string `yaml:"image,omitempty"`
 }
 
 type DockerConf struct {
@@ -79,15 +80,16 @@ func ParseYAML(content []byte) Suite {
 	}
 }
 
-func convertNodes(nodes map[string]NodeConf) []Node {
-	var n []Node
+func convertNodes(nodes map[string]NodeConf) []runtime.Node {
+	var n []runtime.Node
 	for _, v := range nodes {
-		n = append(n, Node{
+		n = append(n, runtime.Node{
 			Pass: v.Pass,
 			Type: v.Type,
 			User: v.User,
 			Addr: v.Addr,
 			Name: v.Name,
+			Image: v.Image,
 		})
 	}
 	return n
@@ -113,6 +115,7 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 				Stdout:   t.Stdout.(runtime.ExpectedOut),
 				Stderr:   t.Stderr.(runtime.ExpectedOut),
 			},
+			Nodes: convertNodes(t.Nodes),
 		})
 	}
 
@@ -147,6 +150,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Stdout:   y.convertToExpectedOut(v.Stdout),
 			Stderr:   y.convertToExpectedOut(v.Stderr),
 			Config:   y.mergeConfigs(v.Config, params.Config),
+			Nodes:    y.mergeNodes(v.Nodes, params.Nodes),
 		}
 
 		// Set key as command, if command property was empty
@@ -326,6 +330,10 @@ func (y YAMLConfig) MarshalYAML() (interface{}, error) {
 	}
 
 	return y, nil
+}
+
+func (y *YAMLConfig) mergeNodes(nodes map[string]NodeConf, globalNodes map[string]NodeConf) map[string]NodeConf {
+    return nodes
 }
 
 func convertExpectedOut(out runtime.ExpectedOut) interface{} {
