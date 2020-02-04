@@ -90,7 +90,7 @@ type CommandUnderTest struct {
 	Timeout    string
 	Retries    int
 	Interval   string
-	SSH        SSHExecutor
+	Executors  []Executor
 }
 
 // TestResult represents the TestCase and the ValidationResult

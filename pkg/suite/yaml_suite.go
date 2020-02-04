@@ -12,6 +12,7 @@ import (
 type YAMLConfig struct {
 	Tests  map[string]YAMLTest `yaml:"tests"`
 	Config YAMLTestConfig      `yaml:"config,omitempty"`
+	Nodes  map[string]NodeConf `yaml:"nodes,omitempty"`
 }
 
 // YAMLTestConfig is a struct to represent the test config
@@ -22,7 +23,21 @@ type YAMLTestConfig struct {
 	Timeout    string            `yaml:"timeout,omitempty"`
 	Retries    int               `yaml:"retries,omitempty"`
 	Interval   string            `yaml:"interval,omitempty"`
-	SSH        SSHConf           `yaml:"ssh,omitempty"`
+}
+
+type NodeConf struct {
+	Name string `yaml:"-"`
+	Type string `yaml:"type"`
+	User string `yaml:"user"`
+	Pass string `yaml:"pass"`
+	Addr string `yaml:"addr,omitempty"`
+	//SSH    []SSHConf    `yaml:"ssh,omitempty"`
+	//Docker []DockerConf `yaml:"docker,omitempty"`
+}
+
+type DockerConf struct {
+	Image string `yaml:"image"`
+	Name  string `yaml:"name"`
 }
 
 // SSHConf represents the target host of the system
@@ -34,38 +49,13 @@ type SSHConf struct {
 
 // YAMLTest represents a test in the yaml test suite
 type YAMLTest struct {
-	Title    string         `yaml:"-"`
-	Command  string         `yaml:"command,omitempty"`
-	ExitCode int            `yaml:"exit-code"`
-	Stdout   interface{}    `yaml:"stdout,omitempty"`
-	Stderr   interface{}    `yaml:"stderr,omitempty"`
-	Config   YAMLTestConfig `yaml:"config,omitempty"`
-}
-
-//YAMLSuite represents a test suite which was configured in yaml
-type YAMLSuite struct {
-	TestCases []runtime.TestCase
-	Config    runtime.TestConfig
-}
-
-// GetTests returns all tests of the test suite
-func (s YAMLSuite) GetTests() []runtime.TestCase {
-	return s.TestCases
-}
-
-//GetTestByTitle returns the first test it finds for the given title
-func (s YAMLSuite) GetTestByTitle(title string) (runtime.TestCase, error) {
-	for _, t := range s.GetTests() {
-		if t.Title == title {
-			return t, nil
-		}
-	}
-	return runtime.TestCase{}, fmt.Errorf("Could not find test " + title)
-}
-
-//GetGlobalConfig returns the global suite configuration
-func (s YAMLSuite) GetGlobalConfig() runtime.TestConfig {
-	return s.Config
+	Title    string              `yaml:"-"`
+	Command  string              `yaml:"command,omitempty"`
+	ExitCode int                 `yaml:"exit-code"`
+	Stdout   interface{}         `yaml:"stdout,omitempty"`
+	Stderr   interface{}         `yaml:"stderr,omitempty"`
+	Config   YAMLTestConfig      `yaml:"config,omitempty"`
+	Nodes    map[string]NodeConf `yaml:"nodes,omitempty"`
 }
 
 // ParseYAML parses the Suite from a yaml byte slice
@@ -77,7 +67,7 @@ func ParseYAML(content []byte) Suite {
 		panic(err.Error())
 	}
 
-	return YAMLSuite{
+	return Suite{
 		TestCases: convertYAMLConfToTestCases(yamlConfig),
 		Config: runtime.TestConfig{
 			InheritEnv: yamlConfig.Config.InheritEnv,
@@ -86,11 +76,6 @@ func ParseYAML(content []byte) Suite {
 			Timeout:    yamlConfig.Config.Timeout,
 			Retries:    yamlConfig.Config.Retries,
 			Interval:   yamlConfig.Config.Interval,
-			SSH: runtime.SSHExecutor{
-				User:     yamlConfig.Config.SSH.User,
-				Password: yamlConfig.Config.SSH.Password,
-				Host:     yamlConfig.Config.SSH.Host,
-			},
 		},
 	}
 }
@@ -109,11 +94,6 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 				Timeout:    t.Config.Timeout,
 				Retries:    t.Config.Retries,
 				Interval:   t.Config.Interval,
-				SSH: runtime.SSHExecutor{
-					User:     t.Config.SSH.User,
-					Password: t.Config.SSH.Password,
-					Host:     t.Config.SSH.Host,
-				},
 			},
 			Expected: runtime.Expected{
 				ExitCode: t.ExitCode,
@@ -136,6 +116,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var params struct {
 		Tests  map[string]YAMLTest `yaml:"tests"`
 		Config YAMLTestConfig      `yaml:"config"`
+		Nodes  map[string]NodeConf `yaml:"nodes"`
 	}
 
 	err := unmarshal(&params)
@@ -171,7 +152,6 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Timeout:    params.Config.Timeout,
 		Retries:    params.Config.Retries,
 		Interval:   params.Config.Interval,
-		SSH:        params.Config.SSH,
 	}
 
 	return nil
@@ -284,10 +264,6 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 
 	if local.InheritEnv {
 		conf.InheritEnv = local.InheritEnv
-	}
-
-	if local.SSH.Host != "" {
-		conf.SSH = local.SSH
 	}
 
 	return conf

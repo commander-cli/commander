@@ -108,6 +108,24 @@ Count: 1, Failed: 0
 Here you can see an example with all features for a quick reference
 
 ```yaml
+nodes:
+  ssh-host1:
+    type: ssh
+    addr: 192.168.0.1:22
+    user: root
+    pass: pass
+  ssh-host2:
+    type: ssh
+    addr: 192.168.0.1:22
+    user: root
+    public-key: /home/user/id_rsa.pub
+  docker-host1:
+    type: docker
+    image: alpine:2.4
+  docker-host2:
+    type: docker
+    instance: alpine_instance_1
+
 config: # Config for all executed tests
     dir: /tmp #Set working directory
     env: # Environment variables
@@ -153,17 +171,6 @@ tests:
             timeout: 1s # Overwrite timeout
             retries: 5
         exit-code: 0
-        
-    it targets another host:
-        ssh:
-          publickey: /home/user/.ssh/id_rsa.pub
-          user: commander
-          password: commander
-        docker:
-          image: alpine:latest
-          name: alpine_instance_1
-        kubernetes:
-          
 ```
 
 ### Executing
