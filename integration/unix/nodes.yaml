@@ -9,6 +9,7 @@ tests:
   it should test ssh host:
     nodes:
       - ssh-host
+      - local
     command: cat /root/int-test && whoami && pwd
     stdout:
       contains:

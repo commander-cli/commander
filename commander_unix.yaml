@@ -68,4 +68,8 @@ tests:
 
   test nodes:
     command: ./commander test integration/unix/nodes.yaml
-    exit-code: 0
+    stdout:
+      contains:
+        - ✓ [ssh-host] it should test ssh host
+        - ✗ [local] it should test ssh host
+    exit-code: 1
