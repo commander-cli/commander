@@ -3,6 +3,7 @@ package runtime
 import (
 	"fmt"
 	"github.com/SimonBaeumer/cmd"
+	"log"
 	"os"
 	"strings"
 	"sync"
@@ -29,6 +30,23 @@ const (
 	Skipped
 )
 
+func NewRuntime(nodes ...Node) Runtime {
+	local := Node{
+		Name: "local",
+		Type: "local",
+		Addr: "localhost",
+	}
+
+	nodes = append(nodes, local)
+	return Runtime{
+		Nodes: nodes,
+	}
+}
+
+type Runtime struct {
+	Nodes []Node
+}
+
 // TestCase represents a test case which will be executed by the runtime
 type TestCase struct {
 	Title    string
@@ -39,12 +57,13 @@ type TestCase struct {
 }
 
 type Node struct {
-	Name  string
-	Type  string
-	User  string
-	Pass  string
-	Addr  string
-	Image string
+	Name         string
+	Type         string
+	User         string
+	Pass         string
+	Addr         string
+	Image        string
+	IdentityFile string
 }
 
 //TestConfig represents the configuration for a test
@@ -113,7 +132,7 @@ type TestResult struct {
 
 // Start starts the given test suite and executes all tests
 // maxConcurrent configures the amount of go routines which will be started
-func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
+func (r *Runtime) Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	in := make(chan TestCase)
 	out := make(chan TestResult)
 
@@ -140,7 +159,7 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 				result := TestResult{}
 				for i := 1; i <= t.Command.GetRetries(); i++ {
 
-					e := LocalExecutor{}
+					e := r.getExecutor(n)
 					result = e.Execute(t)
 					result.Node = n
 					result.Tries = i
@@ -163,6 +182,35 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	}(out)
 
 	return out
+}
+
+func (r *Runtime) getExecutor(node string) Executor {
+	if len(r.Nodes) == 0 {
+		return LocalExecutor{}
+	}
+
+	for _, n := range r.Nodes {
+		if n.Name == node {
+			switch n.Type {
+			case "ssh":
+				return SSHExecutor{
+					Password:     n.Pass,
+					IdentityFile: n.IdentityFile,
+					User:         n.User,
+					Host:         n.Addr,
+				}
+			case "local":
+				return LocalExecutor{}
+			case "":
+				return LocalExecutor{}
+			default:
+				log.Fatal(fmt.Sprintf("Node type %s not found for node %s", n.Type, n.Name))
+			}
+		}
+	}
+
+	log.Fatal(fmt.Sprintf("Node %s not found", node))
+	return LocalExecutor{}
 }
 
 func execTest(t TestCase) TestResult {

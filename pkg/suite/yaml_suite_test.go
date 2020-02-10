@@ -330,6 +330,7 @@ nodes:
        addr: localhost
        user: root
        pass: 12345!
+       identity-file: ".ssh/id_rsa"
    docker-host:
        type: docker
        image: ubuntu:18.04
@@ -352,6 +353,7 @@ tests:
 	assert.Equal(t, "root", node.User)
 	assert.Equal(t, "12345!", node.Pass)
 	assert.Equal(t, "ssh", node.Type)
+	assert.Equal(t, ".ssh/id_rsa", node.IdentityFile)
 
 	assert.Contains(t, got.GetTests()[0].Nodes, "docker-host")
 	assert.Contains(t, got.GetTests()[0].Nodes, "ssh-host1")

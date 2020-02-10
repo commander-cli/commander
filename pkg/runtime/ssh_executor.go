@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"golang.org/x/crypto/ssh"
+	"io/ioutil"
 	"log"
 	"net"
 	"strings"
@@ -11,32 +12,45 @@ import (
 
 // SSHExecutor
 type SSHExecutor struct {
-	Host     string
-	User     string
-	Password string
+	Host         string
+	User         string
+	Password     string
+	IdentityFile string
 }
 
 // Execute executes a command on a remote host viá SSH
 func (e SSHExecutor) Execute(test TestCase) TestResult {
 	if test.Command.InheritEnv {
-		log.Fatal("Inhereit env is not supported viá SSH")
+		log.Fatal("Inherit env is not supported viá SSH")
 	}
 
+	// initialize auth methods with pass auth method as the default
+	authMethods := []ssh.AuthMethod{
+		ssh.Password(e.Password),
+	}
+
+	// add public key auth if identity file is given
+	if e.IdentityFile != "" {
+		signer := e.createSigner()
+		authMethods = append(authMethods, ssh.PublicKeys(signer))
+	}
+
+	// create ssh config
 	sshConf := &ssh.ClientConfig{
 		User: e.User,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(e.Password),
-		},
+		Auth: authMethods,
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			return nil
 		},
 	}
 
+	// create ssh connection
 	conn, err := ssh.Dial("tcp", e.Host, sshConf)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// start session
 	session, err := conn.NewSession()
 	defer session.Close()
 	if err != nil {
@@ -90,4 +104,13 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
 	return Validate(test)
+}
+
+func (e SSHExecutor) createSigner() ssh.Signer {
+	buffer, err := ioutil.ReadFile(e.IdentityFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	signer, err := ssh.ParsePrivateKey(buffer)
+	return signer
 }

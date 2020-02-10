@@ -65,3 +65,7 @@ tests:
         - ✓ [local] it should retry failed commands, retries 2
         - ✗ [local] it should retry failed commands with an interval, retries 2
     exit-code: 1
+
+  test nodes:
+    command: ./commander test integration/unix/nodes.yaml
+    exit-code: 0

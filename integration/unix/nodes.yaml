@@ -1,0 +1,18 @@
+nodes:
+  ssh-host:
+    type: ssh
+    user: root
+    identity-file: integration/containers/ssh/id_rsa
+    addr: localhost:2222
+
+tests:
+  it should test ssh host:
+    nodes:
+      - ssh-host
+    command: cat /root/int-test && whoami && pwd
+    stdout:
+      contains:
+        - test file ssh
+        - root
+        - /root
+    exit-code: 0

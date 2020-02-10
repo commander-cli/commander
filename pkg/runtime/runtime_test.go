@@ -10,7 +10,8 @@ const SingleConcurrent = 1
 
 func TestRuntime_Start(t *testing.T) {
 	s := getExampleTestSuite()
-	got := Start(s, SingleConcurrent)
+	r := Runtime{}
+	got := r.Start(s, SingleConcurrent)
 
 	assert.IsType(t, make(<-chan TestResult), got)
 
@@ -28,7 +29,8 @@ func TestRuntime_WithRetries(t *testing.T) {
 	s[0].Command.Retries = 3
 	s[0].Command.Cmd = "echo fail"
 
-	got := Start(s, 1)
+	r := Runtime{}
+	got := r.Start(s, 1)
 
 	var counter = 0
 	for r := range got {
@@ -47,7 +49,8 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 	s[0].Command.Interval = "50ms"
 
 	start := time.Now()
-	got := Start(s, 0)
+	r := Runtime{}
+	got := r.Start(s, 0)
 
 	var counter = 0
 	for r := range got {

@@ -118,7 +118,7 @@ nodes:
     type: ssh
     addr: 192.168.0.1:22
     user: root
-    public-key: /home/user/id_rsa.pub
+    identity-file: /home/user/id_rsa.pub
   docker-host1:
     type: docker
     image: alpine:2.4

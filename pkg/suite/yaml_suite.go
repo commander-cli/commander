@@ -26,12 +26,13 @@ type YAMLTestConfig struct {
 }
 
 type NodeConf struct {
-	Name  string `yaml:"-"`
-	Type  string `yaml:"type"`
-	User  string `yaml:"user"`
-	Pass  string `yaml:"pass"`
-	Addr  string `yaml:"addr,omitempty"`
-	Image string `yaml:"image,omitempty"`
+	Name         string `yaml:"-"`
+	Type         string `yaml:"type"`
+	User         string `yaml:"user"`
+	Pass         string `yaml:"pass,omitempty"`
+	Addr         string `yaml:"addr,omitempty"`
+	Image        string `yaml:"image,omitempty"`
+	IdentityFile string `yaml:"identity-file,omitempty"`
 }
 
 type DockerConf struct {
@@ -84,12 +85,13 @@ func convertNodes(nodes map[string]NodeConf) []runtime.Node {
 	var n []runtime.Node
 	for _, v := range nodes {
 		n = append(n, runtime.Node{
-			Pass:  v.Pass,
-			Type:  v.Type,
-			User:  v.User,
-			Addr:  v.Addr,
-			Name:  v.Name,
-			Image: v.Image,
+			Pass:         v.Pass,
+			Type:         v.Type,
+			User:         v.User,
+			Addr:         v.Addr,
+			Name:         v.Name,
+			Image:        v.Image,
+			IdentityFile: v.IdentityFile,
 		})
 	}
 	return n
@@ -164,11 +166,12 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	y.Nodes = make(map[string]NodeConf)
 	for k, v := range params.Nodes {
 		node := NodeConf{
-			Name: k,
-			Addr: v.Addr,
-			User: v.User,
-			Type: v.Type,
-			Pass: v.Pass,
+			Name:         k,
+			Addr:         v.Addr,
+			User:         v.User,
+			Type:         v.Type,
+			Pass:         v.Pass,
+			IdentityFile: v.IdentityFile,
 		}
 
 		y.Nodes[k] = node

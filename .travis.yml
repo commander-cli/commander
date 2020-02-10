@@ -15,6 +15,9 @@ go:
 sudo: required
 dist: trusty
 
+services:
+  - docker
+
 before_install:
   - go get -u golang.org/x/lint/golint
   - curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.1/commander-linux-amd64 -o ~/bin/commander

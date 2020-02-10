@@ -32,7 +32,9 @@ test-coverage:
 
 integration: build
 	$(info INFO: Starting build $@)
+	./integration/setup_unix.sh
 	commander test commander_unix.yaml
+	./integration/teardown_unix.sh
 
 integration-windows: build
 	$(info INFO: Starting build $@)

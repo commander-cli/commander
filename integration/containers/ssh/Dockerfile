@@ -21,4 +21,7 @@ RUN chmod 644 ~/.ssh/id_rsa.pub
 
 EXPOSE 22
 
+RUN echo "test file ssh" >> /root/int-test
+RUN chmod 777 /root/int-test
+
 CMD ["/usr/sbin/sshd", "-D"]
