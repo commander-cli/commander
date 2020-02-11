@@ -21,7 +21,7 @@ type SSHExecutor struct {
 // Execute executes a command on a remote host viá SSH
 func (e SSHExecutor) Execute(test TestCase) TestResult {
 	if test.Command.InheritEnv {
-		log.Fatal("Inherit env is not supported viá SSH")
+		panic("Inherit env is not supported viá SSH")
 	}
 
 	// initialize auth methods with pass auth method as the default
@@ -65,7 +65,12 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 	for k, v := range test.Command.Env {
 		err := session.Setenv(k, v)
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Failed, maybe ssh server is configured to only accept LC_ prefixed env variables. Error: %s", err))
+			test.Result = CommandResult{
+				Error: fmt.Errorf("Failed setting env variables, maybe ssh server is configured to only accept LC_ prefixed env variables. Error: %s", err),
+			}
+			return TestResult{
+				TestCase: test,
+			}
 		}
 	}
 

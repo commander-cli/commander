@@ -45,6 +45,7 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 			str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
 			s := w.addTries(str, r)
 			w.fprintf(s)
+			continue
 		}
 
 		if !r.ValidationResult.Success {
@@ -52,6 +53,7 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 			str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
 			s := w.addTries(str, r)
 			w.fprintf(au.Red(s))
+			continue
 		}
 	}
 

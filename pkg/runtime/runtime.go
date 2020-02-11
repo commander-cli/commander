@@ -125,6 +125,7 @@ type TestResult struct {
 	FailedProperty   string
 	Tries            int
 	Node             string
+	Error            error
 }
 
 // Start starts the given test suite and executes all tests

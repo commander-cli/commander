@@ -17,3 +17,21 @@ tests:
         - root
         - /root
     exit-code: 0
+
+  it should set env variable:
+    nodes:
+      - ssh-host
+    config:
+      env:
+        LC_TEST_ENV: env var
+    command: echo $LC_TEST_ENV
+    stdout: env var
+
+  it should fail if env could not be set:
+    nodes:
+      - ssh-host
+    config:
+      env:
+        TEST_ENV: env var
+    command: echo $TEST_ENV
+    stdout: env var

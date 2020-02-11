@@ -71,5 +71,8 @@ tests:
     stdout:
       contains:
         - ✓ [ssh-host] it should test ssh host
+        - ✓ [ssh-host] it should set env variable
         - ✗ [local] it should test ssh host
+        - ✗ [ssh-host] it should fail if env could not be set
+        - "Failed setting env variables, maybe ssh server is configured to only accept LC_ prefixed env variables. Error: ssh: setenv failed"
     exit-code: 1
