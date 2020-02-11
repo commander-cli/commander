@@ -18,8 +18,6 @@ const (
 	LineCount = "LineCount"
 )
 
-const WorkerCountMultiplicator = 5
-
 // Result status codes
 const (
 	//Success status
@@ -131,8 +129,7 @@ type TestResult struct {
 }
 
 // Start starts the given test suite and executes all tests
-// maxConcurrent configures the amount of go routines which will be started
-func (r *Runtime) Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
+func (r *Runtime) Start(tests []TestCase) <-chan TestResult {
 	in := make(chan TestCase)
 	out := make(chan TestResult)
 
@@ -211,23 +208,6 @@ func (r *Runtime) getExecutor(node string) Executor {
 
 	log.Fatal(fmt.Sprintf("Node %s not found", node))
 	return LocalExecutor{}
-}
-
-func execTest(t TestCase) TestResult {
-	result := TestResult{}
-	for i := 1; i <= t.Command.GetRetries(); i++ {
-
-		e := LocalExecutor{}
-		result = e.Execute(t)
-
-		result.Tries = i
-		if result.ValidationResult.Success {
-			break
-		}
-
-		executeRetryInterval(t)
-	}
-	return result
 }
 
 func executeRetryInterval(t TestCase) {

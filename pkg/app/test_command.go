@@ -44,7 +44,7 @@ func TestCommand(file string, title string, ctx AddCommandContext) error {
 
 	r := runtime.NewRuntime(s.Nodes...)
 
-	results := r.Start(tests, ctx.Concurrent)
+	results := r.Start(tests)
 	out := output.NewCliOutput(!ctx.NoColor)
 	if !out.Start(results) {
 		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")

@@ -16,13 +16,7 @@ type SSHExecutorTestEnv struct {
 
 var SSHTestEnv SSHExecutorTestEnv
 
-func TestMain(m *testing.M) {
-	v := os.Getenv("COMMANDER_SSH_TEST")
-	if v != "1" {
-		log.Println("Skip ssh_executor_test, set env COMMANDER_SSH_TEST to 1")
-		return
-	}
-
+func createExecutor() SSHExecutor {
 	SSHTestEnv = SSHExecutorTestEnv{
 		Host:         os.Getenv("COMMANDER_TEST_SSH_HOST"),
 		Pass:         os.Getenv("COMMANDER_TEST_SSH_PASS"),
@@ -30,10 +24,6 @@ func TestMain(m *testing.M) {
 		IdentityFile: os.Getenv("COMMANDER_TEST_SSH_IDENTITY_FILE"),
 	}
 
-	m.Run()
-}
-
-func createExecutor() SSHExecutor {
 	s := SSHExecutor{
 		Host:         SSHTestEnv.Host,
 		User:         SSHTestEnv.User,
@@ -44,6 +34,10 @@ func createExecutor() SSHExecutor {
 }
 
 func Test_SSHExecutor(t *testing.T) {
+	if !isSSHTestsEnabled() {
+		return
+	}
+
 	s := createExecutor()
 
 	test := TestCase{
@@ -62,6 +56,10 @@ func Test_SSHExecutor(t *testing.T) {
 }
 
 func Test_SSHExecutor_WithDir(t *testing.T) {
+	if !isSSHTestsEnabled() {
+		return
+	}
+
 	s := createExecutor()
 
 	test := TestCase{
@@ -81,6 +79,10 @@ func Test_SSHExecutor_WithDir(t *testing.T) {
 }
 
 func Test_SSHExecutor_ExitCode(t *testing.T) {
+	if !isSSHTestsEnabled() {
+		return
+	}
+
 	s := createExecutor()
 
 	test := TestCase{
@@ -93,4 +95,13 @@ func Test_SSHExecutor_ExitCode(t *testing.T) {
 
 	assert.False(t, got.ValidationResult.Success)
 	assert.Equal(t, 2, got.TestCase.Result.ExitCode)
+}
+
+func isSSHTestsEnabled() bool {
+	v := os.Getenv("COMMANDER_SSH_TEST")
+	if v != "1" {
+		log.Println("Skip ssh_executor_test, set env COMMANDER_SSH_TEST to 1")
+		return false
+	}
+	return true
 }

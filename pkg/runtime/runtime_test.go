@@ -6,12 +6,16 @@ import (
 	"time"
 )
 
-const SingleConcurrent = 1
+func Test_NewRuntime(t *testing.T) {
+	runtime := NewRuntime(Node{Name: "test"}, Node{Name: "test2"})
+
+	assert.Len(t, runtime.Nodes, 3)
+}
 
 func TestRuntime_Start(t *testing.T) {
 	s := getExampleTestSuite()
 	r := Runtime{}
-	got := r.Start(s, SingleConcurrent)
+	got := r.Start(s)
 
 	assert.IsType(t, make(<-chan TestResult), got)
 
@@ -30,7 +34,7 @@ func TestRuntime_WithRetries(t *testing.T) {
 	s[0].Command.Cmd = "echo fail"
 
 	r := Runtime{}
-	got := r.Start(s, 1)
+	got := r.Start(s)
 
 	var counter = 0
 	for r := range got {
@@ -50,7 +54,7 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 
 	start := time.Now()
 	r := Runtime{}
-	got := r.Start(s, 0)
+	got := r.Start(s)
 
 	var counter = 0
 	for r := range got {
@@ -62,6 +66,26 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 
 	assert.Equal(t, 1, counter)
 	assert.True(t, duration.Seconds() > 0.15, "Retry interval did not work")
+}
+
+func Test_Runtime_getExecutor(t *testing.T) {
+	r := NewRuntime(
+		Node{Name: "ssh-host", Type: "ssh"},
+		Node{Name: "localhost", Type: "local"},
+		Node{Name: "default", Type: ""},
+	)
+
+	// If empty string set as type use local executor
+	n := r.getExecutor("default")
+	assert.IsType(t, LocalExecutor{}, n)
+
+	n = nil
+	n = r.getExecutor("localhost")
+	assert.IsType(t, LocalExecutor{}, n)
+
+	n = nil
+	n = r.getExecutor("ssh-host")
+	assert.IsType(t, SSHExecutor{}, n)
 }
 
 func getExampleTestSuite() []TestCase {

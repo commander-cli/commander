@@ -653,11 +653,11 @@ Enables ssh tests in unit test suite and sets the credentials for the target hos
 `COMMANDER_SSH_TEST` must be set to `1` to enable ssh tests.
 
 ```
-COMMANDER_TEST_SSH=1
-COMMANDER_TEST_SSH_HOST=localhost:2222
-COMMANDER_TEST_SSH_PASS=password
-COMMANDER_TEST_SSH_USER=root
-COMMANDER_TEST_SSH_IDENTITY_FILE=~/.ssh/id_rsa
+export COMMANDER_TEST_SSH=1
+export COMMANDER_TEST_SSH_HOST=localhost:2222
+export COMMANDER_TEST_SSH_PASS=pass
+export COMMANDER_TEST_SSH_USER=root
+export COMMANDER_TEST_SSH_IDENTITY_FILE=integration/containers/ssh/.ssh/id_rsa
 ```
 
 ## Misc
