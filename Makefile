@@ -43,10 +43,17 @@ test-coverage-all:
 	go test -coverprofile c.out ./...
 	./integration/teardown_unix.sh
 
-integration: build
+integration-unix: build
 	$(info INFO: Starting build $@)
 	./integration/setup_unix.sh
 	commander test commander_unix.yaml
+	./integration/teardown_unix.sh
+
+integration-linux: build
+	$(info INFO: Starting build $@)
+	./integration/setup_unix.sh
+	commander test commander_unix.yaml
+	commander test commander_linux.yaml
 	./integration/teardown_unix.sh
 
 integration-windows: build

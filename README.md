@@ -729,8 +729,14 @@ $ make test-coverage
 # Coverage with more complex tests like ssh execution
 $ make test-coverage-all
 
-# Integration tests
-$ make integration
+# Integration tests for linux and macos
+$ make integration-unix
+
+# Integration on linux
+$ make integration-linux
+
+# Integration windows
+$ make integration-windows
 
 # Add depdencies to vendor
 $ make deps
