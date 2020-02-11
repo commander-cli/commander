@@ -45,9 +45,7 @@ test-coverage-all:
 
 integration-unix: build
 	$(info INFO: Starting build $@)
-	./integration/setup_unix.sh
 	commander test commander_unix.yaml
-	./integration/teardown_unix.sh
 
 integration-linux: build
 	$(info INFO: Starting build $@)
