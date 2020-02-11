@@ -18,6 +18,34 @@ type SSHExecutor struct {
 	IdentityFile string
 }
 
+// WithIdentityFile sets the identity file option for the ssh executor
+func WithIdentityFile(identityFile string) func(e *SSHExecutor) {
+	return func(e *SSHExecutor) {
+		e.IdentityFile = identityFile
+	}
+}
+
+// WithPassword sets the identity file option for the ssh executor
+func WithPassword(pass string) func(e *SSHExecutor) {
+	return func(e *SSHExecutor) {
+		e.Password = pass
+	}
+}
+
+// NewSSHExecutor creates a new executor
+func NewSSHExecutor(host string, user string, opts ...func(e *SSHExecutor)) Executor {
+	e := SSHExecutor{
+		Host: host,
+		User: user,
+	}
+
+	for _, o := range opts {
+		o(&e)
+	}
+
+	return e
+}
+
 // Execute executes a command on a remote host viá SSH
 func (e SSHExecutor) Execute(test TestCase) TestResult {
 	if test.Command.InheritEnv {

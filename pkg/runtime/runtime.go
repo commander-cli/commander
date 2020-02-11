@@ -28,6 +28,7 @@ const (
 	Skipped
 )
 
+// NewRuntime creates a new runtime and inits default nodes
 func NewRuntime(nodes ...Node) Runtime {
 	local := Node{
 		Name: "local",
@@ -41,6 +42,7 @@ func NewRuntime(nodes ...Node) Runtime {
 	}
 }
 
+// Runtime represents the current runtime, please use NewRuntime() instead of createing an instance directly
 type Runtime struct {
 	Nodes []Node
 }
@@ -54,6 +56,9 @@ type TestCase struct {
 	Nodes    []string
 }
 
+// Node represents a configured node with everything needed  to connect to the given host
+// which is defined in the type property
+// If the type is not available the test will fail and stop its execution
 type Node struct {
 	Name         string
 	Type         string
@@ -147,7 +152,7 @@ func (r *Runtime) Start(tests []TestCase) <-chan TestResult {
 		defer wg.Done()
 
 		for t := range tests {
-			// If no node was set use local mode
+			// If no node was set use local mode as default
 			if len(t.Nodes) == 0 {
 				t.Nodes = []string{"local"}
 			}
@@ -183,23 +188,18 @@ func (r *Runtime) Start(tests []TestCase) <-chan TestResult {
 
 func (r *Runtime) getExecutor(node string) Executor {
 	if len(r.Nodes) == 0 {
-		return LocalExecutor{}
+		return NewLocalExecutor()
 	}
 
 	for _, n := range r.Nodes {
 		if n.Name == node {
 			switch n.Type {
 			case "ssh":
-				return SSHExecutor{
-					Password:     n.Pass,
-					IdentityFile: n.IdentityFile,
-					User:         n.User,
-					Host:         n.Addr,
-				}
+				return NewSSHExecutor(n.Addr, n.User, WithIdentityFile(n.IdentityFile), WithPassword(n.Pass))
 			case "local":
-				return LocalExecutor{}
+				return NewLocalExecutor()
 			case "":
-				return LocalExecutor{}
+				return NewLocalExecutor()
 			default:
 				log.Fatal(fmt.Sprintf("Node type %s not found for node %s", n.Type, n.Name))
 			}

@@ -6,9 +6,16 @@ import (
 	"strings"
 )
 
+// LocalExecutor will be used to execute tests on the local host
 type LocalExecutor struct {
 }
 
+// NewLocalExecutor creates a new local executor
+func NewLocalExecutor() Executor {
+	return LocalExecutor{}
+}
+
+// Execute will execute the given test on the current node
 func (e LocalExecutor) Execute(test TestCase) TestResult {
 	timeoutOpt, err := createTimeoutOption(test.Command.Timeout)
 	if err != nil {
