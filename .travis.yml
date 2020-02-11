@@ -63,7 +63,7 @@ jobs:
       - chmod +x test-reporter
       - ./test-reporter before-build
     script:
-      - make test-coverage
+      - make test-coverage-all
     after_script:
       - ./test-reporter after-build -t gocov --exit-code $TRAVIS_TEST_RESULT
 

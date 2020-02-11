@@ -7,6 +7,15 @@ import (
 	"testing"
 )
 
+type SSHExecutorTestEnv struct {
+	User         string
+	Pass         string
+	Host         string
+	IdentityFile string
+}
+
+var SSHTestEnv SSHExecutorTestEnv
+
 func TestMain(m *testing.M) {
 	v := os.Getenv("COMMANDER_SSH_TEST")
 	if v != "1" {
@@ -14,14 +23,22 @@ func TestMain(m *testing.M) {
 		return
 	}
 
+	SSHTestEnv = SSHExecutorTestEnv{
+		Host:         os.Getenv("COMMANDER_TEST_SSH_HOST"),
+		Pass:         os.Getenv("COMMANDER_TEST_SSH_PASS"),
+		User:         os.Getenv("COMMANDER_TEST_SSH_USER"),
+		IdentityFile: os.Getenv("COMMANDER_TEST_SSH_IDENTITY_FILE"),
+	}
+
 	m.Run()
 }
 
 func createExecutor() SSHExecutor {
 	s := SSHExecutor{
-		Host:     "localhost:2222",
-		User:     "vagrant",
-		Password: "vagrant",
+		Host:         SSHTestEnv.Host,
+		User:         SSHTestEnv.User,
+		Password:     SSHTestEnv.Pass,
+		IdentityFile: SSHTestEnv.IdentityFile,
 	}
 	return s
 }
