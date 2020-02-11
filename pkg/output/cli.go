@@ -42,14 +42,18 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 	for r := range results {
 		testResults = append(testResults, r)
 		if r.ValidationResult.Success {
-			s := w.addTries("✓ "+r.TestCase.Title, r)
+			str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
+			s := w.addTries(str, r)
 			w.fprintf(s)
+			continue
 		}
 
 		if !r.ValidationResult.Success {
 			failed++
-			s := w.addTries("✗ "+r.TestCase.Title, r)
+			str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
+			s := w.addTries(str, r)
 			w.fprintf(au.Red(s))
+			continue
 		}
 	}
 
@@ -85,13 +89,15 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 
 	for _, r := range results {
 		if r.TestCase.Result.Error != nil {
-			w.fprintf(au.Bold(au.Red("✗ '" + r.TestCase.Title + "' could not be executed with error message:")))
+			str := fmt.Sprintf("✗ [%s] '%s' could not be executed with error message:", r.Node, r.TestCase.Title)
+			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.TestCase.Result.Error.Error())
 			continue
 		}
 
 		if !r.ValidationResult.Success {
-			w.fprintf(au.Bold(au.Red("✗ '" + r.TestCase.Title + "', on property '" + r.FailedProperty + "'")))
+			str := fmt.Sprintf("✗ [%s] '%s', on property '%s'", r.Node, r.TestCase.Title, r.FailedProperty)
+			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.ValidationResult.Diff)
 		}
 	}

@@ -1,18 +1,21 @@
 package runtime
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
-	"runtime"
 	"testing"
 	"time"
 )
 
-const SingleConcurrent = 1
+func Test_NewRuntime(t *testing.T) {
+	runtime := NewRuntime(Node{Name: "test"}, Node{Name: "test2"})
+
+	assert.Len(t, runtime.Nodes, 3)
+}
 
 func TestRuntime_Start(t *testing.T) {
 	s := getExampleTestSuite()
-	got := Start(s, SingleConcurrent)
+	r := Runtime{}
+	got := r.Start(s)
 
 	assert.IsType(t, make(<-chan TestResult), got)
 
@@ -30,7 +33,8 @@ func TestRuntime_WithRetries(t *testing.T) {
 	s[0].Command.Retries = 3
 	s[0].Command.Cmd = "echo fail"
 
-	got := Start(s, 1)
+	r := Runtime{}
+	got := r.Start(s)
 
 	var counter = 0
 	for r := range got {
@@ -49,7 +53,8 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 	s[0].Command.Interval = "50ms"
 
 	start := time.Now()
-	got := Start(s, 0)
+	r := Runtime{}
+	got := r.Start(s)
 
 	var counter = 0
 	for r := range got {
@@ -63,59 +68,24 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 	assert.True(t, duration.Seconds() > 0.15, "Retry interval did not work")
 }
 
-func TestRuntime_WithEnvVariables(t *testing.T) {
-	envVar := "$KEY"
-	if runtime.GOOS == "windows" {
-		envVar = "%KEY%"
-	}
+func Test_Runtime_getExecutor(t *testing.T) {
+	r := NewRuntime(
+		Node{Name: "ssh-host", Type: "ssh"},
+		Node{Name: "localhost", Type: "local"},
+		Node{Name: "default", Type: ""},
+	)
 
-	s := TestCase{
-		Command: CommandUnderTest{
-			Cmd:     fmt.Sprintf("echo %s", envVar),
-			Timeout: "2s",
-			Env:     map[string]string{"KEY": "value"},
-		},
-		Expected: Expected{
-			Stdout: ExpectedOut{
-				Contains: []string{"value"},
-			},
-			ExitCode: 0,
-		},
-		Title: "Output env variable",
-	}
+	// If empty string set as type use local executor
+	n := r.getExecutor("default")
+	assert.IsType(t, LocalExecutor{}, n)
 
-	got := runTest(s)
-	assert.True(t, got.ValidationResult.Success)
-}
+	n = nil
+	n = r.getExecutor("localhost")
+	assert.IsType(t, LocalExecutor{}, n)
 
-func Test_runTestShouldReturnError(t *testing.T) {
-	test := TestCase{
-		Command: CommandUnderTest{
-			Cmd: "pwd",
-			Dir: "/home/invalid",
-		},
-	}
-
-	got := runTest(test)
-
-	if runtime.GOOS == "windows" {
-		assert.Contains(t, got.TestCase.Result.Error.Error(), "chdir /home/invalid")
-	} else {
-		assert.Equal(t, "chdir /home/invalid: no such file or directory", got.TestCase.Result.Error.Error())
-	}
-}
-
-func TestRuntime_WithInvalidDuration(t *testing.T) {
-	test := TestCase{
-		Command: CommandUnderTest{
-			Cmd:     "echo test",
-			Timeout: "600lightyears",
-		},
-	}
-
-	got := runTest(test)
-
-	assert.Equal(t, "time: unknown unit lightyears in duration 600lightyears", got.TestCase.Result.Error.Error())
+	n = nil
+	n = r.getExecutor("ssh-host")
+	assert.IsType(t, SSHExecutor{}, n)
 }
 
 func getExampleTestSuite() []TestCase {

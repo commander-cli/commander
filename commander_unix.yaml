@@ -14,7 +14,7 @@ tests:
     command: ./commander test ./integration/unix/commander_test.yaml
     stdout:
       contains:
-        - ✓ it should exit with error code
+        - ✓ [local] it should exit with error code
       line-count: 16
     exit-code: 0
 
@@ -22,8 +22,8 @@ tests:
     command: ./commander test ./integration/unix/failing_suite.yaml
     stdout:
       contains:
-        - ✗ 'it will fail', on property 'ExitCode'
-        - ✗ 'test timeout' could not be executed with error message
+        - ✗ [local] 'it will fail', on property 'ExitCode'
+        - ✗ [local] 'test timeout' could not be executed with error message
         - Command timed out after 10ms
         - "Count: 2, Failed: 2"
     exit-code: 1
@@ -32,7 +32,7 @@ tests:
     command: ./commander test ./integration/unix/test_big_output.yaml
     stdout:
       contains:
-        - ✓ cat ./integration/unix/_fixtures/big_out.txt
+        - ✓ [local] cat ./integration/unix/_fixtures/big_out.txt
         - "Count: 1, Failed: 0"
     exit-code: 0
 
@@ -43,9 +43,9 @@ tests:
         COMMANDER_FROM_SHELL: from_shell
     stdout:
       contains:
-        - ✓ should print global env value
-        - ✓ should print local env value
-        - ✓ should print env var from shell
+        - ✓ [local] should print global env value
+        - ✓ [local] should print local env value
+        - ✓ [local] should print env var from shell
     exit-code: 0
 
   test add command:
@@ -61,7 +61,7 @@ tests:
     command: ./commander test integration/unix/retries.yaml
     stdout:
       contains:
-        - ✗ echo hello, retries 3
-        - ✓ it should retry failed commands, retries 2
-        - ✗ it should retry failed commands with an interval, retries 2
+        - ✗ [local] echo hello, retries 3
+        - ✓ [local] it should retry failed commands, retries 2
+        - ✗ [local] it should retry failed commands with an interval, retries 2
     exit-code: 1

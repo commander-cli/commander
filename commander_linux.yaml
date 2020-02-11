@@ -1,0 +1,12 @@
+tests:
+  test nodes:
+    command: ./commander test integration/linux/nodes.yaml
+    stdout:
+      contains:
+        - ✓ [ssh-host] it should test ssh host
+        - ✓ [ssh-host] it should set env variable
+        - ✓ [ssh-host-default] it should be executed on ssh-host-default
+        - ✓ [ssh-host] it should test multiple hosts
+        - ✓ [ssh-host-default] it should test multiple hosts
+        - ✓ [local] it should test multiple hosts
+    exit-code: 0

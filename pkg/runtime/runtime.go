@@ -5,7 +5,6 @@ import (
 	"github.com/SimonBaeumer/cmd"
 	"log"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -19,8 +18,6 @@ const (
 	LineCount = "LineCount"
 )
 
-const WorkerCountMultiplicator = 5
-
 // Result status codes
 const (
 	//Success status
@@ -31,12 +28,45 @@ const (
 	Skipped
 )
 
+// NewRuntime creates a new runtime and inits default nodes
+func NewRuntime(nodes ...Node) Runtime {
+	local := Node{
+		Name: "local",
+		Type: "local",
+		Addr: "localhost",
+	}
+
+	nodes = append(nodes, local)
+	return Runtime{
+		Nodes: nodes,
+	}
+}
+
+// Runtime represents the current runtime, please use NewRuntime() instead of createing an instance directly
+type Runtime struct {
+	Nodes []Node
+}
+
 // TestCase represents a test case which will be executed by the runtime
 type TestCase struct {
 	Title    string
 	Command  CommandUnderTest
 	Expected Expected
 	Result   CommandResult
+	Nodes    []string
+}
+
+// Node represents a configured node with everything needed  to connect to the given host
+// which is defined in the type property
+// If the type is not available the test will fail and stop its execution
+type Node struct {
+	Name         string
+	Type         string
+	User         string
+	Pass         string
+	Addr         string
+	Image        string
+	IdentityFile string
 }
 
 //TestConfig represents the configuration for a test
@@ -47,6 +77,7 @@ type TestConfig struct {
 	Retries    int
 	Interval   string
 	InheritEnv bool
+	Nodes      []string
 }
 
 // ResultStatus represents the status code of a test result
@@ -98,11 +129,12 @@ type TestResult struct {
 	ValidationResult ValidationResult
 	FailedProperty   string
 	Tries            int
+	Node             string
+	Error            error
 }
 
 // Start starts the given test suite and executes all tests
-// maxConcurrent configures the amount of go routines which will be started
-func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
+func (r *Runtime) Start(tests []TestCase) <-chan TestResult {
 	in := make(chan TestCase)
 	out := make(chan TestResult)
 
@@ -113,32 +145,38 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 		}
 	}(tests)
 
-	workerCount := maxConcurrent
-	if maxConcurrent == 0 {
-		workerCount = runtime.NumCPU() * WorkerCountMultiplicator
-	}
-
 	var wg sync.WaitGroup
-	for i := 0; i < workerCount; i++ {
-		wg.Add(1)
-		go func(tests chan TestCase) {
-			defer wg.Done()
-			for t := range tests {
+	wg.Add(1)
+
+	go func(tests chan TestCase) {
+		defer wg.Done()
+
+		for t := range tests {
+			// If no node was set use local mode as default
+			if len(t.Nodes) == 0 {
+				t.Nodes = []string{"local"}
+			}
+
+			for _, n := range t.Nodes {
 				result := TestResult{}
 				for i := 1; i <= t.Command.GetRetries(); i++ {
-					result = runTest(t)
+
+					e := r.getExecutor(n)
+					result = e.Execute(t)
+					result.Node = n
 					result.Tries = i
+
 					if result.ValidationResult.Success {
 						break
 					}
 
 					executeRetryInterval(t)
 				}
-
 				out <- result
 			}
-		}(in)
-	}
+
+		}
+	}(in)
 
 	go func(results chan TestResult) {
 		wg.Wait()
@@ -146,6 +184,30 @@ func Start(tests []TestCase, maxConcurrent int) <-chan TestResult {
 	}(out)
 
 	return out
+}
+
+func (r *Runtime) getExecutor(node string) Executor {
+	if len(r.Nodes) == 0 {
+		return NewLocalExecutor()
+	}
+
+	for _, n := range r.Nodes {
+		if n.Name == node {
+			switch n.Type {
+			case "ssh":
+				return NewSSHExecutor(n.Addr, n.User, WithIdentityFile(n.IdentityFile), WithPassword(n.Pass))
+			case "local":
+				return NewLocalExecutor()
+			case "":
+				return NewLocalExecutor()
+			default:
+				log.Fatal(fmt.Sprintf("Node type %s not found for node %s", n.Type, n.Name))
+			}
+		}
+	}
+
+	log.Fatal(fmt.Sprintf("Node %s not found", node))
+	return LocalExecutor{}
 }
 
 func executeRetryInterval(t TestCase) {
@@ -156,54 +218,6 @@ func executeRetryInterval(t TestCase) {
 		}
 		time.Sleep(interval)
 	}
-}
-
-// runTest executes the current test case
-func runTest(test TestCase) TestResult {
-	timeoutOpt, err := createTimeoutOption(test.Command.Timeout)
-	if err != nil {
-		test.Result = CommandResult{Error: err}
-		return TestResult{
-			TestCase: test,
-		}
-	}
-
-	envOpt := createEnvVarsOption(test)
-
-	// cut = command under test
-	cut := cmd.NewCommand(
-		test.Command.Cmd,
-		cmd.WithWorkingDir(test.Command.Dir),
-		timeoutOpt,
-		envOpt)
-
-	if err := cut.Execute(); err != nil {
-		log.Println(test.Title, " failed ", err.Error())
-		test.Result = CommandResult{
-			Error: err,
-		}
-
-		return TestResult{
-			TestCase: test,
-		}
-	}
-
-	log.Println("title: '"+test.Title+"'", " Command: ", test.Command.Cmd)
-	log.Println("title: '"+test.Title+"'", " Directory: ", cut.Dir)
-	log.Println("title: '"+test.Title+"'", " Env: ", cut.Env)
-
-	// Write test result
-	test.Result = CommandResult{
-		ExitCode: cut.ExitCode(),
-		Stdout:   strings.TrimSpace(strings.Replace(cut.Stdout(), "\r\n", "\n", -1)),
-		Stderr:   strings.TrimSpace(strings.Replace(cut.Stderr(), "\r\n", "\n", -1)),
-	}
-
-	log.Println("title: '"+test.Title+"'", " ExitCode: ", test.Result.ExitCode)
-	log.Println("title: '"+test.Title+"'", " Stdout: ", test.Result.Stdout)
-	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
-
-	return Validate(test)
 }
 
 func createEnvVarsOption(test TestCase) func(c *cmd.Command) {

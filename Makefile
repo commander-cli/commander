@@ -1,6 +1,7 @@
 exe = cmd/commander/*
 cmd = commander
 TRAVIS_TAG ?= "0.0.0"
+CWD = $(shell pwd)
 
 .PHONY: deps lint test integration integration-windows git-hooks init
 
@@ -30,9 +31,27 @@ test-coverage:
 	$(info INFO: Starting build $@)
 	go test -coverprofile c.out ./...
 
-integration: build
+
+test-coverage-all: export COMMANDER_SSH_TEST = 1
+test-coverage-all: export COMMANDER_TEST_SSH_HOST = localhost:2222
+test-coverage-all: export COMMANDER_TEST_SSH_USER = root
+test-coverage-all: export COMMANDER_TEST_SSH_IDENTITY_FILE = $(CWD)/integration/containers/ssh/id_rsa
+test-coverage-all:
+	$(info INFO: Starting build $@)
+	./integration/setup_unix.sh
+	go test -coverprofile c.out ./...
+	./integration/teardown_unix.sh
+
+integration-unix: build
 	$(info INFO: Starting build $@)
 	commander test commander_unix.yaml
+
+integration-linux: build
+	$(info INFO: Starting build $@)
+	./integration/setup_unix.sh
+	commander test commander_unix.yaml
+	commander test commander_linux.yaml
+	./integration/teardown_unix.sh
 
 integration-windows: build
 	$(info INFO: Starting build $@)

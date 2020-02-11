@@ -15,6 +15,9 @@ go:
 sudo: required
 dist: trusty
 
+services:
+  - docker
+
 before_install:
   - go get -u golang.org/x/lint/golint
   - curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.1/commander-linux-amd64 -o ~/bin/commander
@@ -36,7 +39,7 @@ jobs:
     script:
       - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-darwin-amd64 -o ~/bin/commander
       - chmod +x ~/bin/commander
-      - make integration
+      - make integration-unix
 
   - name: windows Unit
     os: windows
@@ -60,12 +63,12 @@ jobs:
       - chmod +x test-reporter
       - ./test-reporter before-build
     script:
-      - make test-coverage
+      - make test-coverage-all
     after_script:
       - ./test-reporter after-build -t gocov --exit-code $TRAVIS_TEST_RESULT
 
   - name: Integration test
-    script: make integration
+    script: make integration-linux
 
   - stage: deploy
     name: "Deployment"

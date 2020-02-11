@@ -39,6 +39,7 @@ func Test_Start(t *testing.T) {
 			Success: true,
 		},
 		FailedProperty: "",
+		Node:           "docker-host",
 	}
 
 	results <- runtime.TestResult{
@@ -50,6 +51,7 @@ func Test_Start(t *testing.T) {
 			Success: false,
 		},
 		FailedProperty: "Stdout",
+		Node:           "192.168.0.1",
 	}
 
 	results <- runtime.TestResult{
@@ -61,6 +63,7 @@ func Test_Start(t *testing.T) {
 			Success: false,
 		},
 		FailedProperty: "Stderr",
+		Node:           "ssh-host1",
 	}
 
 	results <- runtime.TestResult{
@@ -73,6 +76,7 @@ func Test_Start(t *testing.T) {
 				Error: fmt.Errorf("Some error message"),
 			},
 		},
+		Node: "local",
 	}
 
 	close(results)
@@ -80,11 +84,11 @@ func Test_Start(t *testing.T) {
 
 	assert.True(t, true)
 	output := buf.String()
-	assert.True(t, strings.Contains(output, "✓ Successful test"))
-	assert.True(t, strings.Contains(output, "✗ Failed test"))
-	assert.True(t, strings.Contains(output, "✗ 'Invalid command' could not be executed"))
-	assert.True(t, strings.Contains(output, "✗ 'Failed test on stderr', on property 'Stderr'"))
-	assert.True(t, strings.Contains(output, "Some error message"))
+	assert.Contains(t, output, "✓ [docker-host] Successful test")
+	assert.Contains(t, output, "✗ [192.168.0.1] Failed test")
+	assert.Contains(t, output, "✗ [local] 'Invalid command' could not be executed with error message")
+	assert.Contains(t, output, "✗ [ssh-host1] 'Failed test on stderr', on property 'Stderr'")
+	assert.Contains(t, output, "Some error message")
 }
 
 func Test_SuccessSuite(t *testing.T) {
@@ -111,13 +115,14 @@ func Test_SuccessSuite(t *testing.T) {
 			Success: true,
 		},
 		FailedProperty: "",
+		Node:           "local",
 	}
 
 	close(results)
 	wg.Wait()
 
 	assert.True(t, true)
-	assert.True(t, strings.Contains(buf.String(), "✓ Successful test"))
+	assert.True(t, strings.Contains(buf.String(), "✓ [local] Successful test"))
 	assert.True(t, strings.Contains(buf.String(), "Duration"))
 	assert.True(t, strings.Contains(buf.String(), "Count: 1, Failed: 0"))
 }

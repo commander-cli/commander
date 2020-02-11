@@ -10,6 +10,7 @@
 Define language independent tests for your command line scripts and programs in simple `yaml` files.
 
  - It runs on `windows`, `osx` and `linux` 
+ - It can validate local machines, ssh hosts and docker containers
  - It is a self-contained binary - no need to install a heavy lib or language
  - It is easy and fast to write
 
@@ -47,6 +48,10 @@ For more information take a look at the [quick start](#quick-start), the [exampl
     - [interval](#interval)
     - [retries](#retries)
     - [timeout](#timeout)
+    - [nodes](#nodes)
+  + [Nodes](#nodes)
+    - [local](#local)
+    - [ssh](#ssh)
   + [Development](#development)
 * [Misc](#misc)
 
@@ -108,12 +113,32 @@ Count: 1, Failed: 0
 Here you can see an example with all features for a quick reference
 
 ```yaml
+nodes:
+  ssh-host1:
+    type: ssh
+    addr: 192.168.0.1:22
+    user: root
+    pass: pass
+  ssh-host2:
+    type: ssh
+    addr: 192.168.0.1:22
+    user: root
+    identity-file: /home/user/id_rsa.pub
+  docker-host1:
+    type: docker
+    image: alpine:2.4
+  docker-host2:
+    type: docker
+    instance: alpine_instance_1
+
 config: # Config for all executed tests
     dir: /tmp #Set working directory
     env: # Environment variables
         KEY: global
     timeout: 50s # Define a timeout for a command under test
     retries: 2 # Define retries for each test
+    nodes:
+    - ssh-host1 # define default hosts
     
 tests:
     echo hello: # Define command as title
@@ -141,7 +166,7 @@ tests:
         command: echo hello
         stdout:
             contains: 
-                - hello #See test "it should fail"
+              - hello #See test "it should fail"
             exactly: hello
             line-count: 1
         config:
@@ -152,6 +177,9 @@ tests:
                 ANOTHER: yeah # Add another env variable
             timeout: 1s # Overwrite timeout
             retries: 5
+            nodes: # overwrite default nodes
+              - docker-host1
+              - docker-host2
         exit-code: 0
 ```
 
@@ -607,6 +635,82 @@ If a tests exceeds the given `timeout` the test will fail.
 timeout: 600s
 ```
 
+### Nodes
+
+`Commander` has the option to execute tests against other hosts, i.e. via ssh.
+
+Available node types are currently:
+
+ - `local`, execute tests locally
+ - `ssh`, execute tests viá ssh
+
+```yaml
+nodes: # define nodes in the node section
+  ssh-host:
+    type: ssh # define the type of the connection 
+    user: root # set the user which is used by the connection
+    pass: password # set password for authentication
+    addr: 192.168.0.100:2222 # target host address
+    identity-file: ~/.ssh/id_rsa # auth with private key
+tests:
+  echo hello:
+    config:
+      nodes: # define on which host the test should be executed
+        - ssh-host
+    stdout: hello
+    exit-code: 0
+```
+
+You can identify on which node a test failed by inspecting the test output.
+The `[local]` and `[ssh-host]` represent the node name on which the test were executed.
+
+```
+✗ [local] it should test ssh host
+✗ [ssh-host] it should fail if env could not be set
+```
+
+#### local
+
+The `local` node is the default execution and will be applied if nothing else was configured.
+It is always pre-configured and available, i.e. if you want to execute tests on a node and locally.
+
+```yaml
+nodes:
+  ssh-host:
+    addr: 192.168.1.100
+    user: ...
+tests:
+  echo hello:
+    config:
+      nodes: # will be executed on local and ssh-host
+        - ssh-host
+        - local
+    exit-code: 0
+```
+
+#### ssh
+
+The `ssh` will execute tests against a configured node using ssh.
+
+**Limitations:** The `inhereit-env` config is disabled for ssh hosts, nevertheless it is possible to set env variables
+
+```yaml
+nodes: # define nodes in the node section
+  ssh-host:
+    type: ssh # define the type of the connection 
+    user: root # set the user which is used by the connection
+    pass: password # set password for authentication
+    addr: 192.168.0.100:2222 # target host address
+    identity-file: ~/.ssh/id_rsa # auth with private key
+tests:
+  echo hello:
+    config:
+      nodes: # define on which host the test should be executed
+        - ssh-host
+    stdout: hello
+    exit-code: 0
+```
+
 ### Development
 
 ```
@@ -622,11 +726,33 @@ $ make test
 # Coverage
 $ make test-coverage
 
-# Integration tests
-$ make integration
+# Coverage with more complex tests like ssh execution
+$ make test-coverage-all
+
+# Integration tests for linux and macos
+$ make integration-unix
+
+# Integration on linux
+$ make integration-linux
+
+# Integration windows
+$ make integration-windows
 
 # Add depdencies to vendor
 $ make deps
+```
+
+### Unit tests
+
+Enables ssh tests in unit test suite and sets the credentials for the target host.
+`COMMANDER_SSH_TEST` must be set to `1` to enable ssh tests.
+
+```
+export COMMANDER_TEST_SSH=1
+export COMMANDER_TEST_SSH_HOST=localhost:2222
+export COMMANDER_TEST_SSH_PASS=pass
+export COMMANDER_TEST_SSH_USER=root
+export COMMANDER_TEST_SSH_IDENTITY_FILE=integration/containers/ssh/.ssh/id_rsa
 ```
 
 ## Misc

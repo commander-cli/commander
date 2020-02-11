@@ -1,3 +1,9 @@
+# v2.0.0
+ 
+  - Added `nodes` which allow remote execution of tests
+  - Added `SSHExecutor` and `LocalExecutor`
+  - Removed `concurrent` argument from `test` command
+
 # v1.3.0
 
  - Added `xml` assertion to `stdout` and `stderr`

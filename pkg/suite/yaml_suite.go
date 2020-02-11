@@ -12,6 +12,7 @@ import (
 type YAMLConfig struct {
 	Tests  map[string]YAMLTest `yaml:"tests"`
 	Config YAMLTestConfig      `yaml:"config,omitempty"`
+	Nodes  map[string]NodeConf `yaml:"nodes,omitempty"`
 }
 
 // YAMLTestConfig is a struct to represent the test config
@@ -22,6 +23,29 @@ type YAMLTestConfig struct {
 	Timeout    string            `yaml:"timeout,omitempty"`
 	Retries    int               `yaml:"retries,omitempty"`
 	Interval   string            `yaml:"interval,omitempty"`
+	Nodes      []string          `yaml:"nodes,omitempty"`
+}
+
+type NodeConf struct {
+	Name         string `yaml:"-"`
+	Type         string `yaml:"type"`
+	User         string `yaml:"user"`
+	Pass         string `yaml:"pass,omitempty"`
+	Addr         string `yaml:"addr,omitempty"`
+	Image        string `yaml:"image,omitempty"`
+	IdentityFile string `yaml:"identity-file,omitempty"`
+}
+
+type DockerConf struct {
+	Image string `yaml:"image"`
+	Name  string `yaml:"name"`
+}
+
+// SSHConf represents the target host of the system
+type SSHConf struct {
+	Host     string `yaml:"host"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password,omitempty"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -34,32 +58,6 @@ type YAMLTest struct {
 	Config   YAMLTestConfig `yaml:"config,omitempty"`
 }
 
-//YAMLSuite represents a test suite which was configured in yaml
-type YAMLSuite struct {
-	TestCases []runtime.TestCase
-	Config    runtime.TestConfig
-}
-
-// GetTests returns all tests of the test suite
-func (s YAMLSuite) GetTests() []runtime.TestCase {
-	return s.TestCases
-}
-
-//GetTestByTitle returns the first test it finds for the given title
-func (s YAMLSuite) GetTestByTitle(title string) (runtime.TestCase, error) {
-	for _, t := range s.GetTests() {
-		if t.Title == title {
-			return t, nil
-		}
-	}
-	return runtime.TestCase{}, fmt.Errorf("Could not find test " + title)
-}
-
-//GetGlobalConfig returns the global suite configuration
-func (s YAMLSuite) GetGlobalConfig() runtime.TestConfig {
-	return s.Config
-}
-
 // ParseYAML parses the Suite from a yaml byte slice
 func ParseYAML(content []byte) Suite {
 	yamlConfig := YAMLConfig{}
@@ -69,7 +67,7 @@ func ParseYAML(content []byte) Suite {
 		panic(err.Error())
 	}
 
-	return YAMLSuite{
+	return Suite{
 		TestCases: convertYAMLConfToTestCases(yamlConfig),
 		Config: runtime.TestConfig{
 			InheritEnv: yamlConfig.Config.InheritEnv,
@@ -78,8 +76,26 @@ func ParseYAML(content []byte) Suite {
 			Timeout:    yamlConfig.Config.Timeout,
 			Retries:    yamlConfig.Config.Retries,
 			Interval:   yamlConfig.Config.Interval,
+			Nodes:      yamlConfig.Config.Nodes,
 		},
+		Nodes: convertNodes(yamlConfig.Nodes),
 	}
+}
+
+func convertNodes(nodes map[string]NodeConf) []runtime.Node {
+	var n []runtime.Node
+	for _, v := range nodes {
+		n = append(n, runtime.Node{
+			Pass:         v.Pass,
+			Type:         v.Type,
+			User:         v.User,
+			Addr:         v.Addr,
+			Name:         v.Name,
+			Image:        v.Image,
+			IdentityFile: v.IdentityFile,
+		})
+	}
+	return n
 }
 
 //Convert YAMlConfig to runtime TestCases
@@ -102,6 +118,7 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 				Stdout:   t.Stdout.(runtime.ExpectedOut),
 				Stderr:   t.Stderr.(runtime.ExpectedOut),
 			},
+			Nodes: t.Config.Nodes,
 		})
 	}
 
@@ -118,6 +135,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var params struct {
 		Tests  map[string]YAMLTest `yaml:"tests"`
 		Config YAMLTestConfig      `yaml:"config"`
+		Nodes  map[string]NodeConf `yaml:"nodes"`
 	}
 
 	err := unmarshal(&params)
@@ -145,6 +163,20 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		y.Tests[k] = test
 	}
 
+	y.Nodes = make(map[string]NodeConf)
+	for k, v := range params.Nodes {
+		node := NodeConf{
+			Name:         k,
+			Addr:         v.Addr,
+			User:         v.User,
+			Type:         v.Type,
+			Pass:         v.Pass,
+			IdentityFile: v.IdentityFile,
+		}
+
+		y.Nodes[k] = node
+	}
+
 	//Parse global configuration
 	y.Config = YAMLTestConfig{
 		InheritEnv: params.Config.InheritEnv,
@@ -153,6 +185,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Timeout:    params.Config.Timeout,
 		Retries:    params.Config.Retries,
 		Interval:   params.Config.Interval,
+		Nodes:      params.Config.Nodes,
 	}
 
 	return nil
@@ -267,6 +300,10 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 		conf.InheritEnv = local.InheritEnv
 	}
 
+	if len(local.Nodes) != 0 {
+		conf.Nodes = local.Nodes
+	}
+
 	return conf
 }
 
@@ -301,6 +338,10 @@ func (y YAMLConfig) MarshalYAML() (interface{}, error) {
 	}
 
 	return y, nil
+}
+
+func (y *YAMLConfig) mergeNodes(nodes map[string]NodeConf, globalNodes map[string]NodeConf) map[string]NodeConf {
+	return nodes
 }
 
 func convertExpectedOut(out runtime.ExpectedOut) interface{} {
