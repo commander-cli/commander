@@ -12,13 +12,6 @@ type Suite struct {
 	Nodes     []runtime.Node
 }
 
-func NewSuite(config runtime.TestConfig, tests ...runtime.TestCase) *Suite {
-	return &Suite{
-		TestCases: tests,
-		Config:    config,
-	}
-}
-
 func (s Suite) GetNodes() []runtime.Node {
 	return s.Nodes
 }
@@ -33,7 +26,7 @@ func (s Suite) GetNodeByName(name string) (runtime.Node, error) {
 }
 
 func (s Suite) AddTest(t runtime.TestCase) {
-	if _, err := s.GetTestByTitle(t.Title); err != nil {
+	if _, err := s.GetTestByTitle(t.Title); err == nil {
 		panic(fmt.Sprintf("Tests %s was already added to the suite", t.Title))
 	}
 	s.TestCases = append(s.TestCases, t)

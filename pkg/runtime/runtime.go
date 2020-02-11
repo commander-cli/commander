@@ -72,7 +72,6 @@ type TestConfig struct {
 	Retries    int
 	Interval   string
 	InheritEnv bool
-	SSH        SSHExecutor
 }
 
 // ResultStatus represents the status code of a test result
