@@ -34,7 +34,6 @@ test-coverage:
 
 test-coverage-all: export COMMANDER_SSH_TEST = 1
 test-coverage-all: export COMMANDER_TEST_SSH_HOST = localhost:2222
-#test-coverage-all: export COMMANDER_TEST_SSH_PASS = password
 test-coverage-all: export COMMANDER_TEST_SSH_USER = root
 test-coverage-all: export COMMANDER_TEST_SSH_IDENTITY_FILE = $(CWD)/integration/containers/ssh/id_rsa
 test-coverage-all:

@@ -1,6 +1,6 @@
 tests:
   test nodes:
-    command: ./commander test integration/lunix/nodes.yaml
+    command: ./commander test integration/linux/nodes.yaml
     stdout:
       contains:
         - ✓ [ssh-host] it should test ssh host
