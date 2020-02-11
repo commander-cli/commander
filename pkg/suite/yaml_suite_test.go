@@ -336,9 +336,10 @@ nodes:
        image: ubuntu:18.04
 tests:
    echo hello:
-      nodes:
-        - docker-host
-        - ssh-host1
+      config:
+        nodes:
+          - docker-host
+          - ssh-host1
       exit-code: 0
 `)
 

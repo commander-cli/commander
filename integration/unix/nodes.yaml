@@ -5,12 +5,22 @@ nodes:
     identity-file: integration/containers/ssh/id_rsa
     addr: localhost:2222
 
+  ssh-host-default:
+    type: ssh
+    user: root
+    identity-file: integration/containers/ssh/id_rsa
+    addr: localhost:2222
+
+config:
+  nodes:
+    - ssh-host-default
+
 tests:
   it should test ssh host:
-    nodes:
-      - ssh-host
-      - local
     command: cat /root/int-test && whoami && pwd
+    config:
+      nodes:
+        - ssh-host
     stdout:
       contains:
         - test file ssh
@@ -19,19 +29,23 @@ tests:
     exit-code: 0
 
   it should set env variable:
-    nodes:
-      - ssh-host
     config:
+      nodes:
+        - ssh-host
       env:
         LC_TEST_ENV: env var
     command: echo $LC_TEST_ENV
     stdout: env var
 
-  it should fail if env could not be set:
-    nodes:
-      - ssh-host
+  it should be executed on ssh-host-default:
+    command: whoami
+    stdout: root
+
+  it should test multiple hosts:
+    command: echo hello
+    stdout: hello
     config:
-      env:
-        TEST_ENV: env var
-    command: echo $TEST_ENV
-    stdout: env var
+      nodes:
+      - ssh-host-default
+      - ssh-host
+      - local

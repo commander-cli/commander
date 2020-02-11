@@ -23,6 +23,7 @@ type YAMLTestConfig struct {
 	Timeout    string            `yaml:"timeout,omitempty"`
 	Retries    int               `yaml:"retries,omitempty"`
 	Interval   string            `yaml:"interval,omitempty"`
+	Nodes      []string          `yaml:"nodes,omitempty"`
 }
 
 type NodeConf struct {
@@ -55,7 +56,6 @@ type YAMLTest struct {
 	Stdout   interface{}    `yaml:"stdout,omitempty"`
 	Stderr   interface{}    `yaml:"stderr,omitempty"`
 	Config   YAMLTestConfig `yaml:"config,omitempty"`
-	Nodes    []string       `yaml:"nodes,omitempty"`
 }
 
 // ParseYAML parses the Suite from a yaml byte slice
@@ -76,6 +76,7 @@ func ParseYAML(content []byte) Suite {
 			Timeout:    yamlConfig.Config.Timeout,
 			Retries:    yamlConfig.Config.Retries,
 			Interval:   yamlConfig.Config.Interval,
+			Nodes:      yamlConfig.Config.Nodes,
 		},
 		Nodes: convertNodes(yamlConfig.Nodes),
 	}
@@ -117,7 +118,7 @@ func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
 				Stdout:   t.Stdout.(runtime.ExpectedOut),
 				Stderr:   t.Stderr.(runtime.ExpectedOut),
 			},
-			Nodes: t.Nodes,
+			Nodes: t.Config.Nodes,
 		})
 	}
 
@@ -152,7 +153,6 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Stdout:   y.convertToExpectedOut(v.Stdout),
 			Stderr:   y.convertToExpectedOut(v.Stderr),
 			Config:   y.mergeConfigs(v.Config, params.Config),
-			Nodes:    v.Nodes,
 		}
 
 		// Set key as command, if command property was empty
@@ -185,6 +185,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Timeout:    params.Config.Timeout,
 		Retries:    params.Config.Retries,
 		Interval:   params.Config.Interval,
+		Nodes:      params.Config.Nodes,
 	}
 
 	return nil
@@ -297,6 +298,10 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 
 	if local.InheritEnv {
 		conf.InheritEnv = local.InheritEnv
+	}
+
+	if len(local.Nodes) != 0 {
+		conf.Nodes = local.Nodes
 	}
 
 	return conf

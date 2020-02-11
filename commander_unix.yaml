@@ -72,7 +72,8 @@ tests:
       contains:
         - ✓ [ssh-host] it should test ssh host
         - ✓ [ssh-host] it should set env variable
-        - ✗ [local] it should test ssh host
-        - ✗ [ssh-host] it should fail if env could not be set
-        - "Failed setting env variables, maybe ssh server is configured to only accept LC_ prefixed env variables. Error: ssh: setenv failed"
-    exit-code: 1
+        - ✓ [ssh-host-default] it should be executed on ssh-host-default
+        - ✓ [ssh-host] it should test multiple hosts
+        - ✓ [ssh-host-default] it should test multiple hosts
+        - ✓ [local] it should test multiple hosts
+    exit-code: 0

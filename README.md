@@ -137,6 +137,8 @@ config: # Config for all executed tests
         KEY: global
     timeout: 50s # Define a timeout for a command under test
     retries: 2 # Define retries for each test
+    nodes:
+    - ssh-host1 # define default hosts
     
 tests:
     echo hello: # Define command as title
@@ -164,7 +166,7 @@ tests:
         command: echo hello
         stdout:
             contains: 
-                - hello #See test "it should fail"
+              - hello #See test "it should fail"
             exactly: hello
             line-count: 1
         config:
@@ -175,6 +177,9 @@ tests:
                 ANOTHER: yeah # Add another env variable
             timeout: 1s # Overwrite timeout
             retries: 5
+            nodes: # overwrite default nodes
+              - docker-host1
+              - docker-host2
         exit-code: 0
 ```
 

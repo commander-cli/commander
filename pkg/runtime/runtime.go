@@ -72,6 +72,7 @@ type TestConfig struct {
 	Retries    int
 	Interval   string
 	InheritEnv bool
+	Nodes      []string
 }
 
 // ResultStatus represents the status code of a test result
@@ -115,7 +116,6 @@ type CommandUnderTest struct {
 	Timeout    string
 	Retries    int
 	Interval   string
-	Executors  []Executor
 }
 
 // TestResult represents the TestCase and the ValidationResult
