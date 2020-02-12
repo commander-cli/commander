@@ -198,6 +198,8 @@ func (r *Runtime) getExecutor(node string) Executor {
 				return NewSSHExecutor(n.Addr, n.User, WithIdentityFile(n.IdentityFile), WithPassword(n.Pass))
 			case "local":
 				return NewLocalExecutor()
+			case "docker":
+				return DockerExecutor{}
 			case "":
 				return NewLocalExecutor()
 			default:

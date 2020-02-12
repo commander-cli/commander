@@ -1,6 +1,7 @@
 module github.com/SimonBaeumer/commander
 
 require (
+	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/SimonBaeumer/cmd v1.1.0
 	github.com/antchfx/xmlquery v1.1.0
 	github.com/antchfx/xpath v1.1.0 // indirect
@@ -9,6 +10,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e
+	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0
