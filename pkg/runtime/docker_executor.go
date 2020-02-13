@@ -8,9 +8,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"io"
 	"log"
-	"os"
 	"strings"
 	"time"
 )
@@ -39,14 +37,14 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 			TestCase: test,
 		}
 	}
-	io.Copy(os.Stdout, reader)
+	log.Printf("Pull log image'%s':\n %s\n", e.Image, reader)
 
 	var env []string
 	for k, v := range test.Command.Env {
 		env = append(env, fmt.Sprintf("%s=%s", k, v))
 	}
 
-	log.Printf("Started container")
+	log.Printf("Create container %s\n", e.Image)
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image:      e.Image,
 		WorkingDir: test.Command.Dir,
@@ -61,7 +59,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		}
 	}
 
-	log.Printf("Started container %s\n", resp.ID)
+	log.Printf("Started container %s %s\n", e.Image, resp.ID)
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
@@ -72,7 +70,6 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	defer cli.ContainerStop(ctx, resp.ID, &duration)
 
 	status, err := cli.ContainerWait(ctx, resp.ID)
-	fmt.Printf("status %d \n", status)
 	if err != nil {
 		panic(err)
 	}
@@ -85,15 +82,14 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	written, err := stdcopy.StdCopy(stdout, stderr, out)
+	_, err = stdcopy.StdCopy(stdout, stderr, out)
 	if err != nil {
-		fmt.Printf("Written %d\n", written)
 		panic(err)
 	}
 
 	log.Println("title: '"+test.Title+"'", " Command: ", test.Command.Cmd)
-	//log.Println("title: '"+test.Title+"'", " Directory: ", cut.Dir)
-	//log.Println("title: '"+test.Title+"'", " Env: ", cut.Env)
+	log.Println("title: '"+test.Title+"'", " Directory: ", test.Command.Dir)
+	log.Println("title: '"+test.Title+"'", " Env: ", test.Command.Env)
 
 	// Write test result
 	test.Result = CommandResult{
