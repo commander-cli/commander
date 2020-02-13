@@ -32,6 +32,7 @@ test-coverage:
 	go test -coverprofile c.out ./...
 
 
+test-coverage-all: export COMMANDER_TEST_ALL = 1
 test-coverage-all: export COMMANDER_SSH_TEST = 1
 test-coverage-all: export COMMANDER_TEST_SSH_HOST = localhost:2222
 test-coverage-all: export COMMANDER_TEST_SSH_USER = root

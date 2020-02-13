@@ -744,10 +744,12 @@ $ make deps
 
 ### Unit tests
 
+`COMMANDER_TEST_ALL` will enable all tests which are depending on external systems like docker or databases.
 Enables ssh tests in unit test suite and sets the credentials for the target host.
 `COMMANDER_SSH_TEST` must be set to `1` to enable ssh tests.
 
 ```
+export COMMANDER_TEST_ALL = 1
 export COMMANDER_TEST_SSH=1
 export COMMANDER_TEST_SSH_HOST=localhost:2222
 export COMMANDER_TEST_SSH_PASS=pass

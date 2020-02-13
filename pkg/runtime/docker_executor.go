@@ -40,11 +40,18 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	}
 	io.Copy(os.Stdout, reader)
 
+	var env []string
+	for k, v := range test.Command.Env {
+		env = append(env, fmt.Sprintf("%s=%s", k, v))
+	}
+
 	log.Printf("Started container")
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: e.Image,
-		Cmd:   []string{"/bin/sh", "-c", test.Command.Cmd},
-		Tty:   false,
+		Image:      e.Image,
+		WorkingDir: test.Command.Dir,
+		Env:        env,
+		Cmd:        []string{"/bin/sh", "-c", test.Command.Cmd},
+		Tty:        false,
 	}, nil, nil, "")
 	if err != nil {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
