@@ -67,6 +67,7 @@ type Node struct {
 	Addr         string
 	Image        string
 	IdentityFile string
+	Privileged   bool
 }
 
 //TestConfig represents the configuration for a test
@@ -201,7 +202,9 @@ func (r *Runtime) getExecutor(node string) Executor {
 			case "docker":
 				log.Println("Use docker executor")
 				return DockerExecutor{
-					Image: n.Image,
+					Image:      n.Image,
+					Privileged: n.Privileged,
+					User:       n.User,
 				}
 			case "":
 				return NewLocalExecutor()

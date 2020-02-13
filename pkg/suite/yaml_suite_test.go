@@ -334,6 +334,7 @@ nodes:
    docker-host:
        type: docker
        image: ubuntu:18.04
+       privileged: true
 tests:
    echo hello:
       config:
@@ -359,6 +360,7 @@ tests:
 	dockerNode, err := got.GetNodeByName("docker-host")
 	assert.Equal(t, "ubuntu:18.04", dockerNode.Image)
 	assert.Equal(t, "docker", dockerNode.Type)
+	assert.True(t, dockerNode.Privileged)
 
 	assert.Contains(t, got.GetTests()[0].Nodes, "docker-host")
 	assert.Contains(t, got.GetTests()[0].Nodes, "ssh-host1")

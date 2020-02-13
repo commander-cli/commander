@@ -29,16 +29,12 @@ type YAMLTestConfig struct {
 type NodeConf struct {
 	Name         string `yaml:"-"`
 	Type         string `yaml:"type"`
-	User         string `yaml:"user"`
+	User         string `yaml:"user,omitempty"`
 	Pass         string `yaml:"pass,omitempty"`
 	Addr         string `yaml:"addr,omitempty"`
 	Image        string `yaml:"image,omitempty"`
 	IdentityFile string `yaml:"identity-file,omitempty"`
-}
-
-type DockerConf struct {
-	Image string `yaml:"image"`
-	Name  string `yaml:"name"`
+	Privileged   bool   `yaml:"privileged,omitempty"`
 }
 
 // SSHConf represents the target host of the system
@@ -93,6 +89,7 @@ func convertNodes(nodes map[string]NodeConf) []runtime.Node {
 			Name:         v.Name,
 			Image:        v.Image,
 			IdentityFile: v.IdentityFile,
+			Privileged:   v.Privileged,
 		})
 	}
 	return n
@@ -173,6 +170,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Pass:         v.Pass,
 			IdentityFile: v.IdentityFile,
 			Image:        v.Image,
+			Privileged:   v.Privileged,
 		}
 
 		y.Nodes[k] = node

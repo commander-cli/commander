@@ -15,7 +15,9 @@ import (
 
 // DockerExecutor executes the test inside a docker container
 type DockerExecutor struct {
-	Image string
+	Image      string  // Image which is started to execute the test
+	Privileged bool    // Enable privileged mode for the container
+	User       string  // User defines which user executes the test
 }
 
 // Execute executes the script inside a docker container
@@ -49,6 +51,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		Image:      e.Image,
 		WorkingDir: test.Command.Dir,
 		Env:        env,
+		User:       e.User,
 		Cmd:        []string{"/bin/sh", "-c", test.Command.Cmd},
 		Tty:        false,
 	}, nil, nil, "")
