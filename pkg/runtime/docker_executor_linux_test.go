@@ -2,10 +2,25 @@ package runtime
 
 import (
 	"github.com/stretchr/testify/assert"
+	"log"
+	"os"
 	"testing"
 )
 
+func isEnabled() bool {
+	v := os.Getenv("COMMANDER_TEST_ALL")
+	if v != "1" {
+		log.Println("Skip test, set env COMMANDER_TEST_ALL to 1")
+		return false
+	}
+	return true
+}
+
 func Test_DockerExecutor_Execute(t *testing.T) {
+	if !isEnabled() {
+		return
+	}
+
 	d := DockerExecutor{
 		Image: "docker.io/library/ubuntu:18.04",
 	}
@@ -31,6 +46,10 @@ func Test_DockerExecutor_Execute(t *testing.T) {
 }
 
 func Test_DockerExecutor_ExecuteCatchStderr(t *testing.T) {
+	if !isEnabled() {
+		return
+	}
+
 	d := DockerExecutor{
 		Image: "docker.io/library/ubuntu:18.04",
 	}
@@ -56,6 +75,10 @@ func Test_DockerExecutor_ExecuteCatchStderr(t *testing.T) {
 }
 
 func Test_DockerExecutor_Execute_Dir(t *testing.T) {
+	if !isEnabled() {
+		return
+	}
+
 	d := DockerExecutor{
 		Image: "docker.io/library/ubuntu:18.04",
 	}
@@ -78,6 +101,10 @@ func Test_DockerExecutor_Execute_Dir(t *testing.T) {
 }
 
 func Test_DockerExecutor_Execute_Env(t *testing.T) {
+	if !isEnabled() {
+		return
+	}
+
 	d := DockerExecutor{
 		Image: "docker.io/library/ubuntu:18.04",
 	}

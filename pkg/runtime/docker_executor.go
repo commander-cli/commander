@@ -15,11 +15,12 @@ import (
 	"time"
 )
 
+// DockerExecutor executes the test inside a docker container
 type DockerExecutor struct {
 	Image string
-	Name  string
 }
 
+// Execute executes the script inside a docker container
 func (e DockerExecutor) Execute(test TestCase) TestResult {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
