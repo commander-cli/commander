@@ -1,0 +1,13 @@
+nodes:
+  docker-host:
+    image: alpine:3.11.3
+tests:
+  echo hello:
+    stdout:
+      exactly: |-
+NAME="Alpine Linux"
+ID=alpine
+VERSION_ID=3.11.3
+PRETTY_NAME="Alpine Linux v3.11"
+HOME_URL="https://alpinelinux.org/"
+BUG_REPORT_URL="https://bugs.alpinelinux.org/"

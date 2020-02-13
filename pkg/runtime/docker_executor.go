@@ -8,7 +8,9 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
+	"io"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -28,27 +30,38 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		}
 	}
 
-	//	reader, err := cli.ImagePull(ctx, e.Image, types.ImagePullOptions{})/
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//	io.Copy(os.Stdout, reader)
+	log.Printf("Pulling image %s\n", e.Image)
+	reader, err := cli.ImagePull(ctx, e.Image, types.ImagePullOptions{})
+	if err != nil {
+		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
+		return TestResult{
+			TestCase: test,
+		}
+	}
+	io.Copy(os.Stdout, reader)
 
+	log.Printf("Started container")
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: e.Image,
 		Cmd:   []string{"/bin/sh", "-c", test.Command.Cmd},
 		Tty:   false,
 	}, nil, nil, "")
 	if err != nil {
-		panic(err)
+		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
+		return TestResult{
+			TestCase: test,
+		}
 	}
 
+	log.Printf("Started container %s\n", resp.ID)
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		panic(err)
+		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
+		return TestResult{
+			TestCase: test,
+		}
 	}
 	duration := time.Duration(1 * time.Second)
 	defer cli.ContainerStop(ctx, resp.ID, &duration)
-	fmt.Printf("Started container %s\n", resp.ID)
 
 	status, err := cli.ContainerWait(ctx, resp.ID)
 	fmt.Printf("status %d \n", status)

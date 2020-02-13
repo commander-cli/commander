@@ -172,6 +172,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Type:         v.Type,
 			Pass:         v.Pass,
 			IdentityFile: v.IdentityFile,
+			Image:        v.Image,
 		}
 
 		y.Nodes[k] = node

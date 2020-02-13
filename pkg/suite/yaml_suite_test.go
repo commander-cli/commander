@@ -356,6 +356,10 @@ tests:
 	assert.Equal(t, "ssh", node.Type)
 	assert.Equal(t, ".ssh/id_rsa", node.IdentityFile)
 
+	dockerNode, err := got.GetNodeByName("docker-host")
+	assert.Equal(t, "ubuntu:18.04", dockerNode.Image)
+	assert.Equal(t, "docker", dockerNode.Type)
+
 	assert.Contains(t, got.GetTests()[0].Nodes, "docker-host")
 	assert.Contains(t, got.GetTests()[0].Nodes, "ssh-host1")
 }

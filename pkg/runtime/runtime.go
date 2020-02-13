@@ -42,7 +42,7 @@ func NewRuntime(nodes ...Node) Runtime {
 	}
 }
 
-// Runtime represents the current runtime, please use NewRuntime() instead of createing an instance directly
+// Runtime represents the current runtime, please use NewRuntime() instead of creating an instance directly
 type Runtime struct {
 	Nodes []Node
 }
@@ -199,7 +199,10 @@ func (r *Runtime) getExecutor(node string) Executor {
 			case "local":
 				return NewLocalExecutor()
 			case "docker":
-				return DockerExecutor{}
+				log.Println("Use docker executor")
+				return DockerExecutor{
+					Image: n.Image,
+				}
 			case "":
 				return NewLocalExecutor()
 			default:
