@@ -39,7 +39,9 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 			TestCase: test,
 		}
 	}
-	log.Printf("Pull log image'%s':\n %s\n", e.Image, reader)
+	buf := bytes.Buffer{}
+	buf.ReadFrom(reader)
+	log.Printf("Pull log image'%s':\n %s\n", e.Image, buf.String())
 
 	var env []string
 	for k, v := range test.Command.Env {
