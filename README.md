@@ -644,6 +644,7 @@ Available node types are currently:
 
  - `local`, execute tests locally
  - `ssh`, execute tests viá ssh
+ - `docker`, execute tests inside a docker container
 
 ```yaml
 nodes: # define nodes in the node section
@@ -693,7 +694,9 @@ tests:
 
 The `ssh` node type will execute tests against a configured node using ssh.
 
-**Limitations:** The `inhereit-env` config is disabled for ssh hosts, nevertheless it is possible to set env variables
+**Limitations:** 
+ - The `inhereit-env` config is disabled for ssh hosts, nevertheless it is possible to set env variables
+ - Private registries are not supported at the moment
 
 ```yaml
 nodes: # define nodes in the node section
