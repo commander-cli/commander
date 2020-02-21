@@ -2,11 +2,14 @@ nodes:
   docker-host:
     type: docker
     image: docker.io/library/alpine:3.11
+    user: 1001
+
+config:
+  nodes:
+    - docker-host
+
 tests:
   cat /etc/os-release:
-    config:
-      nodes:
-        - docker-host
     stdout:
       exactly: |-
         NAME="Alpine Linux"
@@ -15,3 +18,7 @@ tests:
         PRETTY_NAME="Alpine Linux v3.11"
         HOME_URL="https://alpinelinux.org/"
         BUG_REPORT_URL="https://bugs.alpinelinux.org/"
+
+  "id -u":
+    stdout:
+      exactly: "1001"
