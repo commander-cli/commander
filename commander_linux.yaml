@@ -10,3 +10,8 @@ tests:
         - ✓ [ssh-host-default] it should test multiple hosts
         - ✓ [local] it should test multiple hosts
     exit-code: 0
+
+  test docker:
+    command: ./commander test integration/linux/docker.yaml
+    stdout: ✓ [docker-host] cat /etc/os-release
+    exit-code: 0

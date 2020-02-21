@@ -52,6 +52,7 @@ For more information take a look at the [quick start](#quick-start), the [exampl
   + [Nodes](#nodes)
     - [local](#local)
     - [ssh](#ssh)
+    - [docker](#docker)
   + [Development](#development)
 * [Misc](#misc)
 
@@ -643,6 +644,7 @@ Available node types are currently:
 
  - `local`, execute tests locally
  - `ssh`, execute tests viá ssh
+ - `docker`, execute tests inside a docker container
 
 ```yaml
 nodes: # define nodes in the node section
@@ -690,9 +692,11 @@ tests:
 
 #### ssh
 
-The `ssh` will execute tests against a configured node using ssh.
+The `ssh` node type will execute tests against a configured node using ssh.
 
-**Limitations:** The `inhereit-env` config is disabled for ssh hosts, nevertheless it is possible to set env variables
+**Limitations:** 
+ - The `inhereit-env` config is disabled for ssh hosts, nevertheless it is possible to set env variables
+ - Private registries are not supported at the moment
 
 ```yaml
 nodes: # define nodes in the node section
@@ -709,6 +713,27 @@ tests:
         - ssh-host
     stdout: hello
     exit-code: 0
+```
+
+#### docker
+
+The `docker` node type executes the given command inside a docker container.
+
+**Notes:** If the default docker registry should be used prefix the container with the registry `docker.io/library/` 
+
+```yaml:
+nodes:
+  docker-host:
+    type: docker
+    image: docker.io/library/alpine:3.11
+    user: 1000 # define the owner of the executed command
+config:
+  nodes:
+    - docker-host
+    
+tests:
+  "id -u":
+     stdout: "1001"
 ```
 
 ### Development
@@ -744,10 +769,12 @@ $ make deps
 
 ### Unit tests
 
+`COMMANDER_TEST_ALL` will enable all tests which are depending on external systems like docker or databases.
 Enables ssh tests in unit test suite and sets the credentials for the target host.
 `COMMANDER_SSH_TEST` must be set to `1` to enable ssh tests.
 
 ```
+export COMMANDER_TEST_ALL = 1
 export COMMANDER_TEST_SSH=1
 export COMMANDER_TEST_SSH_HOST=localhost:2222
 export COMMANDER_TEST_SSH_PASS=pass

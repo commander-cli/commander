@@ -334,6 +334,7 @@ nodes:
    docker-host:
        type: docker
        image: ubuntu:18.04
+       privileged: true
 tests:
    echo hello:
       config:
@@ -355,6 +356,11 @@ tests:
 	assert.Equal(t, "12345!", node.Pass)
 	assert.Equal(t, "ssh", node.Type)
 	assert.Equal(t, ".ssh/id_rsa", node.IdentityFile)
+
+	dockerNode, err := got.GetNodeByName("docker-host")
+	assert.Equal(t, "ubuntu:18.04", dockerNode.Image)
+	assert.Equal(t, "docker", dockerNode.Type)
+	assert.True(t, dockerNode.Privileged)
 
 	assert.Contains(t, got.GetTests()[0].Nodes, "docker-host")
 	assert.Contains(t, got.GetTests()[0].Nodes, "ssh-host1")

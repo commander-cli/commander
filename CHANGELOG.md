@@ -3,6 +3,7 @@
   - Added `nodes` which allow remote execution of tests
   - Added `SSHExecutor` and `LocalExecutor`
   - Removed `concurrent` argument from `test` command
+  - Added `DockerExecutor`
 
 # v1.3.0
 

@@ -42,7 +42,7 @@ func NewRuntime(nodes ...Node) Runtime {
 	}
 }
 
-// Runtime represents the current runtime, please use NewRuntime() instead of createing an instance directly
+// Runtime represents the current runtime, please use NewRuntime() instead of creating an instance directly
 type Runtime struct {
 	Nodes []Node
 }
@@ -67,6 +67,7 @@ type Node struct {
 	Addr         string
 	Image        string
 	IdentityFile string
+	Privileged   bool
 }
 
 //TestConfig represents the configuration for a test
@@ -198,6 +199,13 @@ func (r *Runtime) getExecutor(node string) Executor {
 				return NewSSHExecutor(n.Addr, n.User, WithIdentityFile(n.IdentityFile), WithPassword(n.Pass))
 			case "local":
 				return NewLocalExecutor()
+			case "docker":
+				log.Println("Use docker executor")
+				return DockerExecutor{
+					Image:      n.Image,
+					Privileged: n.Privileged,
+					User:       n.User,
+				}
 			case "":
 				return NewLocalExecutor()
 			default:
