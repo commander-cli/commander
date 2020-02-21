@@ -20,5 +20,4 @@ tests:
         BUG_REPORT_URL="https://bugs.alpinelinux.org/"
 
   "id -u":
-    stdout:
-      exactly: "1001"
+    stdout: "1001"

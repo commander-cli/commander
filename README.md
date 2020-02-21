@@ -52,6 +52,7 @@ For more information take a look at the [quick start](#quick-start), the [exampl
   + [Nodes](#nodes)
     - [local](#local)
     - [ssh](#ssh)
+    - [docker](#docker)
   + [Development](#development)
 * [Misc](#misc)
 
@@ -690,7 +691,7 @@ tests:
 
 #### ssh
 
-The `ssh` will execute tests against a configured node using ssh.
+The `ssh` node type will execute tests against a configured node using ssh.
 
 **Limitations:** The `inhereit-env` config is disabled for ssh hosts, nevertheless it is possible to set env variables
 
@@ -709,6 +710,27 @@ tests:
         - ssh-host
     stdout: hello
     exit-code: 0
+```
+
+#### docker
+
+The `docker` node type executes the given command inside a docker container.
+
+**Notes:** If the default docker registry should be used prefix the container with the registry `docker.io/library/` 
+
+```yaml:
+nodes:
+  docker-host:
+    type: docker
+    image: docker.io/library/alpine:3.11
+    user: 1000 # define the owner of the executed command
+config:
+  nodes:
+    - docker-host
+    
+tests:
+  "id -u":
+     stdout: "1001"
 ```
 
 ### Development
