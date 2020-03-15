@@ -12,9 +12,9 @@ import (
 // command is the command which should be added to the test suite
 // existed holds the existing yaml content
 func AddCommand(command string, existed []byte) ([]byte, error) {
-	conf := suite.YAMLConfig{
+	conf := suite.YAMLSuiteConf{
 		Tests:  make(map[string]suite.YAMLTest),
-		Config: suite.YAMLTestConfig{},
+		Config: suite.YAMLTestConfigConf{},
 	}
 	c := cmd.NewCommand(command)
 
@@ -64,9 +64,9 @@ func AddCommand(command string, existed []byte) ([]byte, error) {
 	return out, nil
 }
 
-func convertConfig(config suite.YAMLTestConfig) suite.YAMLTestConfig {
+func convertConfig(config suite.YAMLTestConfigConf) suite.YAMLTestConfigConf {
 	if config.Dir == "" && len(config.Env) == 0 && config.Timeout == "" {
-		return suite.YAMLTestConfig{}
+		return suite.YAMLTestConfigConf{}
 	}
 	return config
 }

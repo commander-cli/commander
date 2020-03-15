@@ -113,7 +113,7 @@ tests:
 func Test_YAMLConfig_convertToExpectedOut(t *testing.T) {
 	in := map[interface{}]interface{}{"exactly": "exactly stderr"}
 
-	y := YAMLConfig{}
+	y := YAMLSuiteConf{}
 	got := y.convertToExpectedOut(in)
 
 	assert.IsType(t, runtime.ExpectedOut{}, got)
@@ -203,6 +203,8 @@ tests:
 `)
 
 	got := ParseYAML(yaml)
+
+	// Assert global variables
 	assert.Equal(t, map[string]string{"KEY": "global", "ANOTHER_KEY": "another_global"}, got.GetGlobalConfig().Env)
 	assert.Equal(t, "/home/commander/", got.GetGlobalConfig().Dir)
 	assert.Equal(t, "10ms", got.GetGlobalConfig().Timeout)
@@ -210,6 +212,7 @@ tests:
 	assert.Equal(t, "500ms", got.GetGlobalConfig().Interval)
 	assert.True(t, got.GetGlobalConfig().InheritEnv)
 
+	// Assert local variables
 	assert.Equal(t, map[string]string{"KEY": "local", "ANOTHER_KEY": "another_global"}, got.GetTests()[0].Command.Env)
 	assert.Equal(t, "/home/test", got.GetTests()[0].Command.Dir)
 	assert.Equal(t, "1s", got.GetTests()[0].Command.Timeout)
@@ -256,7 +259,7 @@ tests:
 }
 
 func Test_YAMLConfig_MarshalYAML(t *testing.T) {
-	conf := YAMLConfig{Tests: map[string]YAMLTest{
+	conf := YAMLSuiteConf{Tests: map[string]YAMLTest{
 		"return_string": {
 			Stdout: runtime.ExpectedOut{Contains: []string{"stdout string"}},
 			Stderr: runtime.ExpectedOut{Contains: []string{"stderr string"}},
@@ -278,7 +281,7 @@ func Test_YAMLConfig_MarshalYAML(t *testing.T) {
 	}}
 
 	out, _ := conf.MarshalYAML()
-	r := out.(YAMLConfig)
+	r := out.(YAMLSuiteConf)
 
 	assert.Equal(t, "stdout string", r.Tests["return_string"].Stdout)
 	assert.Equal(t, "stderr string", r.Tests["return_string"].Stderr)
