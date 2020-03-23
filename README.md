@@ -738,49 +738,7 @@ tests:
 
 ### Development
 
-```
-# Initialise dev environment
-$ make init
-
-# Build the project binary
-$ make build
-
-# Unit tests
-$ make test
-
-# Coverage
-$ make test-coverage
-
-# Coverage with more complex tests like ssh execution
-$ make test-coverage-all
-
-# Integration tests for linux and macos
-$ make integration-unix
-
-# Integration on linux
-$ make integration-linux
-
-# Integration windows
-$ make integration-windows
-
-# Add depdencies to vendor
-$ make deps
-```
-
-### Unit tests
-
-`COMMANDER_TEST_ALL` will enable all tests which are depending on external systems like docker or databases.
-Enables ssh tests in unit test suite and sets the credentials for the target host.
-`COMMANDER_SSH_TEST` must be set to `1` to enable ssh tests.
-
-```
-export COMMANDER_TEST_ALL = 1
-export COMMANDER_TEST_SSH=1
-export COMMANDER_TEST_SSH_HOST=localhost:2222
-export COMMANDER_TEST_SSH_PASS=pass
-export COMMANDER_TEST_SSH_USER=root
-export COMMANDER_TEST_SSH_IDENTITY_FILE=integration/containers/ssh/.ssh/id_rsa
-```
+See the documentation at [development.md](docs/development.md)
 
 ## Misc
 

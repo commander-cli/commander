@@ -8,15 +8,15 @@ import (
 	"strings"
 )
 
-// YAMLConfig will be used for unmarshalling the yaml test suite
-type YAMLConfig struct {
-	Tests  map[string]YAMLTest `yaml:"tests"`
-	Config YAMLTestConfig      `yaml:"config,omitempty"`
-	Nodes  map[string]NodeConf `yaml:"nodes,omitempty"`
+// YAMLSuiteConf will be used for unmarshalling the yaml test suite
+type YAMLSuiteConf struct {
+	Tests  map[string]YAMLTest     `yaml:"tests"`
+	Config YAMLTestConfigConf      `yaml:"config,omitempty"`
+	Nodes  map[string]YAMLNodeConf `yaml:"nodes,omitempty"`
 }
 
-// YAMLTestConfig is a struct to represent the test config
-type YAMLTestConfig struct {
+// YAMLTestConfigConf is a struct to represent the test config
+type YAMLTestConfigConf struct {
 	InheritEnv bool              `yaml:"inherit-env,omitempty"`
 	Env        map[string]string `yaml:"env,omitempty"`
 	Dir        string            `yaml:"dir,omitempty"`
@@ -26,7 +26,7 @@ type YAMLTestConfig struct {
 	Nodes      []string          `yaml:"nodes,omitempty"`
 }
 
-type NodeConf struct {
+type YAMLNodeConf struct {
 	Name         string `yaml:"-"`
 	Type         string `yaml:"type"`
 	User         string `yaml:"user,omitempty"`
@@ -37,8 +37,8 @@ type NodeConf struct {
 	Privileged   bool   `yaml:"privileged,omitempty"`
 }
 
-// SSHConf represents the target host of the system
-type SSHConf struct {
+// YAMLSSHConf represents the target host of the system
+type YAMLSSHConf struct {
 	Host     string `yaml:"host"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password,omitempty"`
@@ -46,26 +46,28 @@ type SSHConf struct {
 
 // YAMLTest represents a test in the yaml test suite
 type YAMLTest struct {
-	Title    string         `yaml:"-"`
-	Command  string         `yaml:"command,omitempty"`
-	ExitCode int            `yaml:"exit-code"`
-	Stdout   interface{}    `yaml:"stdout,omitempty"`
-	Stderr   interface{}    `yaml:"stderr,omitempty"`
-	Config   YAMLTestConfig `yaml:"config,omitempty"`
+	Title    string             `yaml:"-"`
+	Command  string             `yaml:"command,omitempty"`
+	ExitCode int                `yaml:"exit-code"`
+	Stdout   interface{}        `yaml:"stdout,omitempty"`
+	Stderr   interface{}        `yaml:"stderr,omitempty"`
+	Config   YAMLTestConfigConf `yaml:"config,omitempty"`
 }
 
 // ParseYAML parses the Suite from a yaml byte slice
 func ParseYAML(content []byte) Suite {
-	yamlConfig := YAMLConfig{}
+	yamlConfig := YAMLSuiteConf{}
 
 	err := yaml.UnmarshalStrict(content, &yamlConfig)
 	if err != nil {
 		panic(err.Error())
 	}
 
+	tests := convertYAMLSuiteConfToTestCases(yamlConfig)
+
 	return Suite{
-		TestCases: convertYAMLConfToTestCases(yamlConfig),
-		Config: runtime.TestConfig{
+		TestCases: tests,
+		Config: runtime.GlobalTestConfig{
 			InheritEnv: yamlConfig.Config.InheritEnv,
 			Env:        yamlConfig.Config.Env,
 			Dir:        yamlConfig.Config.Dir,
@@ -78,7 +80,7 @@ func ParseYAML(content []byte) Suite {
 	}
 }
 
-func convertNodes(nodes map[string]NodeConf) []runtime.Node {
+func convertNodes(nodes map[string]YAMLNodeConf) []runtime.Node {
 	var n []runtime.Node
 	for _, v := range nodes {
 		n = append(n, runtime.Node{
@@ -95,8 +97,8 @@ func convertNodes(nodes map[string]NodeConf) []runtime.Node {
 	return n
 }
 
-//Convert YAMlConfig to runtime TestCases
-func convertYAMLConfToTestCases(conf YAMLConfig) []runtime.TestCase {
+//Convert YAMLSuiteConf to runtime TestCases
+func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf) []runtime.TestCase {
 	var tests []runtime.TestCase
 	for _, t := range conf.Tests {
 		tests = append(tests, runtime.TestCase{
@@ -128,11 +130,11 @@ func toString(s interface{}) string {
 }
 
 // UnmarshalYAML unmarshals the yaml
-func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var params struct {
-		Tests  map[string]YAMLTest `yaml:"tests"`
-		Config YAMLTestConfig      `yaml:"config"`
-		Nodes  map[string]NodeConf `yaml:"nodes"`
+		Tests  map[string]YAMLTest     `yaml:"tests"`
+		Config YAMLTestConfigConf      `yaml:"config"`
+		Nodes  map[string]YAMLNodeConf `yaml:"nodes"`
 	}
 
 	err := unmarshal(&params)
@@ -160,9 +162,9 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		y.Tests[k] = test
 	}
 
-	y.Nodes = make(map[string]NodeConf)
+	y.Nodes = make(map[string]YAMLNodeConf)
 	for k, v := range params.Nodes {
-		node := NodeConf{
+		node := YAMLNodeConf{
 			Name:         k,
 			Addr:         v.Addr,
 			User:         v.User,
@@ -177,7 +179,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	//Parse global configuration
-	y.Config = YAMLTestConfig{
+	y.Config = YAMLTestConfigConf{
 		InheritEnv: params.Config.InheritEnv,
 		Env:        params.Config.Env,
 		Dir:        params.Config.Dir,
@@ -191,7 +193,7 @@ func (y *YAMLConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 //Converts given value to an ExpectedOut. Especially used for Stdout and Stderr.
-func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut {
+func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.ExpectedOut {
 	exp := runtime.ExpectedOut{
 		JSON: make(map[string]string),
 	}
@@ -274,7 +276,7 @@ func (y *YAMLConfig) convertToExpectedOut(value interface{}) runtime.ExpectedOut
 }
 
 // It is needed to create a new map to avoid overwriting the global configuration
-func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) YAMLTestConfig {
+func (y *YAMLSuiteConf) mergeConfigs(local YAMLTestConfigConf, global YAMLTestConfigConf) YAMLTestConfigConf {
 	conf := global
 
 	conf.Env = y.mergeEnvironmentVariables(global, local)
@@ -306,7 +308,7 @@ func (y *YAMLConfig) mergeConfigs(local YAMLTestConfig, global YAMLTestConfig) Y
 	return conf
 }
 
-func (y *YAMLConfig) mergeEnvironmentVariables(global YAMLTestConfig, local YAMLTestConfig) map[string]string {
+func (y *YAMLSuiteConf) mergeEnvironmentVariables(global YAMLTestConfigConf, local YAMLTestConfigConf) map[string]string {
 	env := make(map[string]string)
 	for k, v := range global.Env {
 		env[k] = v
@@ -318,7 +320,7 @@ func (y *YAMLConfig) mergeEnvironmentVariables(global YAMLTestConfig, local YAML
 }
 
 //MarshalYAML adds custom logic to the struct to yaml conversion
-func (y YAMLConfig) MarshalYAML() (interface{}, error) {
+func (y YAMLSuiteConf) MarshalYAML() (interface{}, error) {
 	//Detect which values of the stdout/stderr assertions should be filled.
 	//If all values are empty except Contains it will convert it to a single string
 	//to match the easiest test suite definitions
@@ -339,7 +341,7 @@ func (y YAMLConfig) MarshalYAML() (interface{}, error) {
 	return y, nil
 }
 
-func (y *YAMLConfig) mergeNodes(nodes map[string]NodeConf, globalNodes map[string]NodeConf) map[string]NodeConf {
+func (y *YAMLSuiteConf) mergeNodes(nodes map[string]YAMLNodeConf, globalNodes map[string]YAMLNodeConf) map[string]YAMLNodeConf {
 	return nodes
 }
 

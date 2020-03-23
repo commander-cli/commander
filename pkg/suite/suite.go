@@ -10,7 +10,7 @@ import (
 // In example it could be possible to add more formats like XML or a custom DSL implementation.
 type Suite struct {
 	TestCases []runtime.TestCase
-	Config    runtime.TestConfig
+	Config    runtime.GlobalTestConfig
 	Nodes     []runtime.Node
 }
 
@@ -54,6 +54,6 @@ func (s Suite) GetTestByTitle(title string) (runtime.TestCase, error) {
 }
 
 // GetGlobalConfig returns the global configuration which applies to the complete suite
-func (s Suite) GetGlobalConfig() runtime.TestConfig {
+func (s Suite) GetGlobalConfig() runtime.GlobalTestConfig {
 	return s.Config
 }

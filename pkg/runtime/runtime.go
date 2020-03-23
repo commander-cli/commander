@@ -70,8 +70,8 @@ type Node struct {
 	Privileged   bool
 }
 
-//TestConfig represents the configuration for a test
-type TestConfig struct {
+//GlobalTestConfig represents the configuration for a test
+type GlobalTestConfig struct {
 	Env        map[string]string
 	Dir        string
 	Timeout    string

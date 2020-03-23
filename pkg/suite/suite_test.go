@@ -43,6 +43,6 @@ func Test_GetTestByTitle(t *testing.T) {
 }
 
 func Test_GetGlobalConfig(t *testing.T) {
-	s := Suite{Config: runtime.TestConfig{Dir: "/tmp"}}
+	s := Suite{Config: runtime.GlobalTestConfig{Dir: "/tmp"}}
 	assert.Equal(t, "/tmp", s.GetGlobalConfig().Dir)
 }
