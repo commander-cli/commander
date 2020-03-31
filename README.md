@@ -725,7 +725,7 @@ The `docker` node type executes the given command inside a docker container.
 nodes:
   docker-host:
     type: docker
-    image: docker.io/library/alpine:3.11
+    image: docker.io/library/alpine:3.11.3
     user: 1000 # define the owner of the executed command
 config:
   nodes:
