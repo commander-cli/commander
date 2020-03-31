@@ -35,11 +35,16 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 		au = aurora.NewAurora(false)
 	}
 
+	fileErrors := make([]error, 0)
 	failed := 0
 	testResults := []runtime.TestResult{}
 	start := time.Now()
-
 	for r := range results {
+		if r.FileError != nil {
+			fileErrors = append(fileErrors, r.FileError)
+			continue
+		}
+
 		testResults = append(testResults, r)
 		if r.ValidationResult.Success {
 			str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
@@ -61,6 +66,11 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 
 	if failed > 0 {
 		w.printFailures(testResults)
+	}
+
+	w.fprintf("")
+	for _, e := range fileErrors {
+		fmt.Println(e)
 	}
 
 	w.fprintf("")

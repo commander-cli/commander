@@ -3,11 +3,12 @@ package output
 import (
 	"bytes"
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_NewCliOutput(t *testing.T) {

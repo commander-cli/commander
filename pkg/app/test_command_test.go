@@ -2,13 +2,14 @@ package app
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"log"
 	"os"
 	"runtime"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_TestCommand_Verbose(t *testing.T) {
@@ -31,7 +32,7 @@ func Test_TestCommand(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, err.Error(), "Error open commander.yaml:")
 	} else {
-		assert.Equal(t, "Error open commander.yaml: no such file or directory", err.Error())
+		assert.Equal(t, "Error stat commander.yaml: no such file or directory", err.Error())
 	}
 }
 
@@ -41,7 +42,17 @@ func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, err.Error(), "Error open my-test.yaml: ")
 	} else {
-		assert.Equal(t, "Error open my-test.yaml: no such file or directory", err.Error())
+		assert.Equal(t, "Error stat my-test.yaml: no such file or directory", err.Error())
+	}
+}
+
+func Test_TestCommand_Dir(t *testing.T) {
+	err := TestCommand("../../examples", "echo hello", AddCommandContext{})
+
+	if runtime.GOOS == "windows" {
+		assert.Contains(t, err.Error(), "Error open my-test.yaml: ")
+	} else {
+		assert.Equal(t, "Error stat my-test.yaml: no such file or directory", err.Error())
 	}
 }
 

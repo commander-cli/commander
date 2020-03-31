@@ -2,12 +2,13 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/cmd"
 	"log"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/SimonBaeumer/cmd"
 )
 
 // Constants for defining the various tested properties
@@ -132,6 +133,7 @@ type TestResult struct {
 	Tries            int
 	Node             string
 	Error            error
+	FileError        error
 }
 
 // Start starts the given test suite and executes all tests
