@@ -73,7 +73,7 @@ jobs:
 
   - name: Integration test
     script:
-      - docker pull docker.io/library/alpine:3.11
+      - docker pull docker.io/library/alpine:3.11.3
       - make integration-linux
 
   - stage: deploy
