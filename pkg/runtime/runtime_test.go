@@ -1,13 +1,14 @@
 package runtime
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_NewRuntime(t *testing.T) {
-	runtime := NewRuntime(Node{Name: "test"}, Node{Name: "test2"})
+	runtime := NewRuntime("myfile", Node{Name: "test"}, Node{Name: "test2"})
 
 	assert.Len(t, runtime.Nodes, 3)
 }
@@ -70,6 +71,7 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 
 func Test_Runtime_getExecutor(t *testing.T) {
 	r := NewRuntime(
+		"myfile",
 		Node{Name: "ssh-host", Type: "ssh"},
 		Node{Name: "localhost", Type: "local"},
 		Node{Name: "default", Type: ""},

@@ -45,7 +45,7 @@ func TestCommand(input string, title string, ctx AddCommandContext) error {
 		return fmt.Errorf("Error " + err.Error())
 	}
 
-	out := output.NewCliOutput(!ctx.NoColor, true)
+	out := output.NewCliOutput(!ctx.NoColor, ctx.FileOrder)
 	if !out.Start(results) {
 		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}

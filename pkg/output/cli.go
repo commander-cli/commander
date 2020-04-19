@@ -93,6 +93,7 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 
 	w.fprintf("")
 	for _, e := range fileErrors {
+		w.fprintf("File Errors:")
 		w.fprintf(e)
 	}
 	return failed == 0

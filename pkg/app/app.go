@@ -13,6 +13,7 @@ const (
 type AddCommandContext struct {
 	Verbose    bool
 	NoColor    bool
+	FileOrder  bool
 	Concurrent int
 }
 
@@ -21,6 +22,7 @@ func NewAddContextFromCli(c *cli.Context) AddCommandContext {
 	return AddCommandContext{
 		Verbose:    c.Bool("verbose"),
 		NoColor:    c.Bool("no-color"),
+		FileOrder:  c.Bool("file-order"),
 		Concurrent: c.Int("concurrent"),
 	}
 }

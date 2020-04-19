@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/app"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/SimonBaeumer/commander/pkg/app"
+	"github.com/urfave/cli"
 )
 
 var version string
@@ -57,6 +58,11 @@ func createTestCommand() cli.Command {
 				Name:   "verbose",
 				Usage:  "More output for debugging",
 				EnvVar: "COMMANDER_VERBOSE",
+			},
+			cli.BoolFlag{
+				Name:   "file-order",
+				Usage:  "Preserve file order",
+				EnvVar: "COMMANDER_FILE_ORDER",
 			},
 		},
 		Action: func(c *cli.Context) error {
