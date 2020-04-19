@@ -30,7 +30,7 @@ const (
 )
 
 // NewRuntime creates a new runtime and inits default nodes
-func NewRuntime(nodes ...Node) Runtime {
+func NewRuntime(fileName string, nodes ...Node) Runtime {
 	local := Node{
 		Name: "local",
 		Type: "local",
@@ -39,13 +39,15 @@ func NewRuntime(nodes ...Node) Runtime {
 
 	nodes = append(nodes, local)
 	return Runtime{
-		Nodes: nodes,
+		Nodes:    nodes,
+		FileName: fileName,
 	}
 }
 
 // Runtime represents the current runtime, please use NewRuntime() instead of creating an instance directly
 type Runtime struct {
-	Nodes []Node
+	Nodes    []Node
+	FileName string
 }
 
 // TestCase represents a test case which will be executed by the runtime
@@ -133,6 +135,7 @@ type TestResult struct {
 	Tries            int
 	Node             string
 	Error            error
+	FileName         string
 	FileError        error
 }
 
@@ -175,6 +178,7 @@ func (r *Runtime) Start(tests []TestCase) <-chan TestResult {
 
 					executeRetryInterval(t)
 				}
+				result.FileName = r.FileName
 				out <- result
 			}
 

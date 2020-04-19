@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/SimonBaeumer/commander/pkg/output"
@@ -21,8 +22,6 @@ func TestCommand(input string, title string, ctx AddCommandContext) error {
 		log.SetOutput(os.Stdout)
 	}
 
-	out := output.NewCliOutput(!ctx.NoColor)
-
 	if input == "" {
 		input = CommanderFile
 	}
@@ -35,9 +34,7 @@ func TestCommand(input string, title string, ctx AddCommandContext) error {
 	if inputType.IsDir() {
 		fmt.Println("Starting test against directory: " + input + "...")
 		fmt.Println("")
-
 		results, err = testDir(input, title)
-
 	} else {
 		fmt.Println("Starting test file " + input + "...")
 		fmt.Println("")
@@ -48,6 +45,7 @@ func TestCommand(input string, title string, ctx AddCommandContext) error {
 		return fmt.Errorf("Error " + err.Error())
 	}
 
+	out := output.NewCliOutput(!ctx.NoColor, true)
 	if !out.Start(results) {
 		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}
@@ -60,18 +58,22 @@ func testDir(directory string, title string) (<-chan runtime.TestResult, error) 
 	if err != nil {
 		return nil, fmt.Errorf("Error " + err.Error())
 	}
-	results := make(chan runtime.TestResult)
 
+	results := make(chan runtime.TestResult)
 	var wg sync.WaitGroup
+
 	for _, f := range files {
 		wg.Add(1)
+
 		go func(f os.FileInfo) {
 			defer wg.Done()
+
 			fileResults, err := testFile(directory+"/"+f.Name(), title)
 			if err != nil {
-				results <- runtime.TestResult{FileError: err}
+				results <- runtime.TestResult{FileError: err, FileName: f.Name()}
 				return
 			}
+
 			for bb := range fileResults {
 				results <- bb //fan in results
 			}
@@ -99,12 +101,12 @@ func testFile(input string, title string) (<-chan runtime.TestResult, error) {
 	if title != "" {
 		test, err := s.GetTestByTitle(title)
 		if err != nil {
-			return nil, fmt.Errorf("Error " + err.Error())
+			return nil, fmt.Errorf(err.Error())
 		}
 		tests = []runtime.TestCase{test}
 	}
 
-	r := runtime.NewRuntime(s.Nodes...)
+	r := runtime.NewRuntime(filepath.Base(input), s.Nodes...)
 	results := r.Start(tests)
 
 	return results, nil

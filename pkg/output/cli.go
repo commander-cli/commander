@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	run "runtime"
+	"sort"
 	"time"
 
 	"github.com/SimonBaeumer/commander/pkg/runtime"
@@ -18,13 +19,16 @@ var au aurora.Aurora
 type OutputWriter struct {
 	out   io.Writer
 	color bool
+	isDir bool
+	order bool
 }
 
 // NewCliOutput creates a new OutputWriter with a stdout writer
-func NewCliOutput(color bool) OutputWriter {
+func NewCliOutput(color bool, order bool) OutputWriter {
 	return OutputWriter{
 		out:   os.Stdout,
 		color: color,
+		order: order,
 	}
 }
 
@@ -35,19 +39,31 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 		au = aurora.NewAurora(false)
 	}
 
-	fileErrors := make([]error, 0)
-	failed := 0
+	fileErrors := []string{}
 	testResults := []runtime.TestResult{}
+
 	start := time.Now()
 	for r := range results {
 		if r.FileError != nil {
-			fileErrors = append(fileErrors, r.FileError)
+			str := fmt.Sprintf("[%s] %s!", r.FileName, r.FileError.Error())
+			fileErrors = append(fileErrors, str)
 			continue
 		}
-
 		testResults = append(testResults, r)
+	}
+	duration := time.Since(start)
+
+	if w.order { //maintain file order
+		sort.SliceStable(testResults, func(i, j int) bool {
+			return testResults[i].FileName < testResults[j].FileName
+		})
+	}
+
+	failed := 0
+	//Actually print the results
+	for _, r := range testResults {
 		if r.ValidationResult.Success {
-			str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
+			str := fmt.Sprintf("✓ [%s] [%s] %s", r.FileName, r.Node, r.TestCase.Title)
 			s := w.addTries(str, r)
 			w.fprintf(s)
 			continue
@@ -55,22 +71,15 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 
 		if !r.ValidationResult.Success {
 			failed++
-			str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
+			str := fmt.Sprintf("✗ [%s] [%s] %s", r.FileName, r.Node, r.TestCase.Title)
 			s := w.addTries(str, r)
 			w.fprintf(au.Red(s))
 			continue
 		}
 	}
 
-	duration := time.Since(start)
-
 	if failed > 0 {
 		w.printFailures(testResults)
-	}
-
-	w.fprintf("")
-	for _, e := range fileErrors {
-		fmt.Println(e)
 	}
 
 	w.fprintf("")
@@ -82,6 +91,10 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 		w.fprintf(au.Green(summary))
 	}
 
+	w.fprintf("")
+	for _, e := range fileErrors {
+		w.fprintf(e)
+	}
 	return failed == 0
 }
 
@@ -99,14 +112,14 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 
 	for _, r := range results {
 		if r.TestCase.Result.Error != nil {
-			str := fmt.Sprintf("✗ [%s] '%s' could not be executed with error message:", r.Node, r.TestCase.Title)
+			str := fmt.Sprintf("✗ [%s][%s] '%s' could not be executed with error message:", r.FileName, r.Node, r.TestCase.Title)
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.TestCase.Result.Error.Error())
 			continue
 		}
 
 		if !r.ValidationResult.Success {
-			str := fmt.Sprintf("✗ [%s] '%s', on property '%s'", r.Node, r.TestCase.Title, r.FailedProperty)
+			str := fmt.Sprintf("✗ [%s][%s] '%s', on property '%s'", r.FileName, r.Node, r.TestCase.Title, r.FailedProperty)
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.ValidationResult.Diff)
 		}
