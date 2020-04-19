@@ -41,27 +41,24 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 
 	fileErrors := []string{}
 	testResults := []runtime.TestResult{}
-
 	start := time.Now()
 	for r := range results {
 		if r.FileError != nil {
-			str := fmt.Sprintf("[%s] %s!", r.FileName, r.FileError.Error())
-			fileErrors = append(fileErrors, str)
+			fileErrors = append(fileErrors, fmt.Sprintf("[%s] %s!", r.FileName, r.FileError.Error()))
 			continue
 		}
 		testResults = append(testResults, r)
 	}
 	duration := time.Since(start)
 
-	if w.order { //maintain file order
+	if w.order { //Maintain file order
 		sort.SliceStable(testResults, func(i, j int) bool {
 			return testResults[i].FileName < testResults[j].FileName
 		})
 	}
 
 	failed := 0
-	// Print Results
-	for _, r := range testResults {
+	for _, r := range testResults { //Print results
 		if r.ValidationResult.Success {
 			str := fmt.Sprintf("✓ [%s] [%s] %s", r.FileName, r.Node, r.TestCase.Title)
 			s := w.addTries(str, r)
@@ -91,11 +88,10 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 		w.fprintf(au.Green(summary))
 	}
 
-	w.fprintf("")
-	for _, e := range fileErrors {
-		w.fprintf("File Errors:")
-		w.fprintf(e)
+	if len(fileErrors) > 0 {
+		w.printFileErrors(fileErrors)
 	}
+
 	return failed == 0
 }
 
@@ -124,6 +120,14 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.ValidationResult.Diff)
 		}
+	}
+}
+
+func (w *OutputWriter) printFileErrors(errors []string) {
+	w.fprintf("")
+	for _, e := range errors {
+		w.fprintf("File Errors:")
+		w.fprintf(e)
 	}
 }
 
