@@ -74,8 +74,8 @@ func testDir(directory string, title string) (<-chan runtime.TestResult, error) 
 				return
 			}
 
-			for bb := range fileResults {
-				results <- bb //fan in results
+			for r := range fileResults {
+				results <- r //fan in results
 			}
 		}(f)
 	}

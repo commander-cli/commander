@@ -46,15 +46,15 @@ func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
 	}
 }
 
-func Test_TestCommand_Dir(t *testing.T) {
-	err := TestCommand("../../examples", "echo hello", AddCommandContext{})
+// func Test_TestCommand_Dir(t *testing.T) {
+// 	err := TestCommand("../../examples", "echo hello", AddCommandContext{})
 
-	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Error open my-test.yaml: ")
-	} else {
-		assert.Equal(t, "Error stat my-test.yaml: no such file or directory", err.Error())
-	}
-}
+// 	if runtime.GOOS == "windows" {
+// 		assert.Contains(t, err.Error(), "Error open my-test.yaml: ")
+// 	} else {
+// 		assert.Equal(t, "Error stat my-test.yaml: no such file or directory", err.Error())
+// 	}
+// }
 
 func captureOutput(f func()) string {
 	reader, writer, err := os.Pipe()

@@ -60,7 +60,7 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 	}
 
 	failed := 0
-	//Actually print the results
+	// Print Results
 	for _, r := range testResults {
 		if r.ValidationResult.Success {
 			str := fmt.Sprintf("✓ [%s] [%s] %s", r.FileName, r.Node, r.TestCase.Title)
@@ -113,14 +113,14 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 
 	for _, r := range results {
 		if r.TestCase.Result.Error != nil {
-			str := fmt.Sprintf("✗ [%s][%s] '%s' could not be executed with error message:", r.FileName, r.Node, r.TestCase.Title)
+			str := fmt.Sprintf("✗ [%s] [%s] '%s' could not be executed with error message:", r.FileName, r.Node, r.TestCase.Title)
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.TestCase.Result.Error.Error())
 			continue
 		}
 
 		if !r.ValidationResult.Success {
-			str := fmt.Sprintf("✗ [%s][%s] '%s', on property '%s'", r.FileName, r.Node, r.TestCase.Title, r.FailedProperty)
+			str := fmt.Sprintf("✗ [%s] [%s] '%s', on property '%s'", r.FileName, r.Node, r.TestCase.Title, r.FailedProperty)
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.ValidationResult.Diff)
 		}
