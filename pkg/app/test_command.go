@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"sync"
 
 	"github.com/SimonBaeumer/commander/pkg/output"
@@ -42,7 +41,7 @@ func TestCommand(input string, title string, ctx AddCommandContext) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("Error " + err.Error())
+		return fmt.Errorf(err.Error())
 	}
 
 	out := output.NewCliOutput(!ctx.NoColor, ctx.FileOrder)
@@ -75,6 +74,7 @@ func testDir(directory string, title string) (<-chan runtime.TestResult, error) 
 			}
 
 			for r := range fileResults {
+				r.FileName = f.Name()
 				results <- r //fan in results
 			}
 		}(f)
@@ -101,12 +101,12 @@ func testFile(input string, title string) (<-chan runtime.TestResult, error) {
 	if title != "" {
 		test, err := s.GetTestByTitle(title)
 		if err != nil {
-			return nil, fmt.Errorf(err.Error())
+			return nil, err
 		}
 		tests = []runtime.TestCase{test}
 	}
 
-	r := runtime.NewRuntime(filepath.Base(input), s.Nodes...)
+	r := runtime.NewRuntime(s.Nodes...)
 	results := r.Start(tests)
 
 	return results, nil

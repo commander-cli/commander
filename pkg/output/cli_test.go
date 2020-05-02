@@ -25,7 +25,7 @@ func Test_Start(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		writer := OutputWriter{out: &buf}
+		writer := OutputWriter{out: &buf, order: true}
 		got := writer.Start(results)
 
 		assert.False(t, got)
@@ -80,16 +80,36 @@ func Test_Start(t *testing.T) {
 		Node: "local",
 	}
 
+	results <- runtime.TestResult{
+		TestCase: runtime.TestCase{
+			Title: "Invalid command",
+			Command: runtime.CommandUnderTest{
+				Cmd: "some stupid config",
+			},
+			Result: runtime.CommandResult{
+				Error: fmt.Errorf("Some error message"),
+			},
+		},
+		Node:  "local",
+		Tries: 2,
+	}
+
+	results <- runtime.TestResult{
+		FileName:  "MySweetFile",
+		FileError: fmt.Errorf("Some file error message"),
+	}
+
 	close(results)
 	wg.Wait()
 
 	assert.True(t, true)
 	output := buf.String()
-	assert.Contains(t, output, "✓ [] [docker-host] Successful test")
-	assert.Contains(t, output, "✗ [] [192.168.0.1] Failed test")
-	assert.Contains(t, output, "✗ [] [local] 'Invalid command' could not be executed with error message")
-	assert.Contains(t, output, "✗ [] [ssh-host1] 'Failed test on stderr', on property 'Stderr'")
+	assert.Contains(t, output, "✓ [docker-host] Successful test")
+	assert.Contains(t, output, "✗ [192.168.0.1] Failed test")
+	assert.Contains(t, output, "✗ [local] 'Invalid command' could not be executed with error message")
+	assert.Contains(t, output, "✗ [ssh-host1] 'Failed test on stderr', on property 'Stderr'")
 	assert.Contains(t, output, "Some error message")
+	assert.Contains(t, output, "Some file error message")
 }
 
 func Test_SuccessSuite(t *testing.T) {
@@ -123,7 +143,7 @@ func Test_SuccessSuite(t *testing.T) {
 	wg.Wait()
 
 	assert.True(t, true)
-	assert.True(t, strings.Contains(buf.String(), "✓ [] [local] Successful test"))
+	assert.True(t, strings.Contains(buf.String(), "✓ [local] Successful test"))
 	assert.True(t, strings.Contains(buf.String(), "Duration"))
 	assert.True(t, strings.Contains(buf.String(), "Count: 1, Failed: 0"))
 }

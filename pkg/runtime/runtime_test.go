@@ -8,7 +8,7 @@ import (
 )
 
 func Test_NewRuntime(t *testing.T) {
-	runtime := NewRuntime("myfile", Node{Name: "test"}, Node{Name: "test2"})
+	runtime := NewRuntime(Node{Name: "test"}, Node{Name: "test2"})
 
 	assert.Len(t, runtime.Nodes, 3)
 }
@@ -71,7 +71,6 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 
 func Test_Runtime_getExecutor(t *testing.T) {
 	r := NewRuntime(
-		"myfile",
 		Node{Name: "ssh-host", Type: "ssh"},
 		Node{Name: "localhost", Type: "local"},
 		Node{Name: "default", Type: ""},

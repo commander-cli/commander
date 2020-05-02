@@ -2,6 +2,7 @@ package suite
 
 import (
 	"fmt"
+
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 )
 
@@ -12,6 +13,12 @@ type Suite struct {
 	TestCases []runtime.TestCase
 	Config    runtime.GlobalTestConfig
 	Nodes     []runtime.Node
+}
+
+// TitleErr error is returned when a file does not have a specific title
+type TitleErr struct {
+	Err   string
+	Title string
 }
 
 // GetNodes returns all nodes defined in the suite
@@ -50,10 +57,15 @@ func (s Suite) GetTestByTitle(title string) (runtime.TestCase, error) {
 			return t, nil
 		}
 	}
-	return runtime.TestCase{}, fmt.Errorf("could not find test %s", title)
+
+	return runtime.TestCase{}, &TitleErr{Err: "err", Title: title}
 }
 
 // GetGlobalConfig returns the global configuration which applies to the complete suite
 func (s Suite) GetGlobalConfig() runtime.GlobalTestConfig {
 	return s.Config
+}
+
+func (e *TitleErr) Error() string {
+	return fmt.Sprintf("could not find test %s", e.Title)
 }

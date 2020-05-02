@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/SimonBaeumer/commander/pkg/suite"
 	"github.com/logrusorgru/aurora"
 )
 
@@ -19,7 +20,6 @@ var au aurora.Aurora
 type OutputWriter struct {
 	out   io.Writer
 	color bool
-	isDir bool
 	order bool
 }
 
@@ -39,39 +39,33 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 		au = aurora.NewAurora(false)
 	}
 
-	fileErrors := []string{}
-	testResults := []runtime.TestResult{}
+	var failed int
+	var fileErrors []error
+	var testResults []runtime.TestResult
 	start := time.Now()
+
 	for r := range results {
 		if r.FileError != nil {
-			fileErrors = append(fileErrors, fmt.Sprintf("[%s] %s!", r.FileName, r.FileError.Error()))
+			//only append FileErrors that are not title Errors
+			if _, ok := r.FileError.(*suite.TitleErr); !ok {
+				fileErrors = append(fileErrors, fmt.Errorf("[%s] %s", r.FileName, r.FileError))
+			}
 			continue
 		}
 		testResults = append(testResults, r)
+		if !w.order { //if no order print now
+			failed += w.readResult(r)
+		}
 	}
+
 	duration := time.Since(start)
 
 	if w.order { //Maintain file order
 		sort.SliceStable(testResults, func(i, j int) bool {
 			return testResults[i].FileName < testResults[j].FileName
 		})
-	}
-
-	failed := 0
-	for _, r := range testResults { //Print results
-		if r.ValidationResult.Success {
-			str := fmt.Sprintf("✓ [%s] [%s] %s", r.FileName, r.Node, r.TestCase.Title)
-			s := w.addTries(str, r)
-			w.fprintf(s)
-			continue
-		}
-
-		if !r.ValidationResult.Success {
-			failed++
-			str := fmt.Sprintf("✗ [%s] [%s] %s", r.FileName, r.Node, r.TestCase.Title)
-			s := w.addTries(str, r)
-			w.fprintf(au.Red(s))
-			continue
+		for _, r := range testResults {
+			failed += w.readResult(r)
 		}
 	}
 
@@ -88,18 +82,24 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 		w.fprintf(au.Green(summary))
 	}
 
-	if len(fileErrors) > 0 {
-		w.printFileErrors(fileErrors)
-	}
+	w.printFileErrors(fileErrors)
 
 	return failed == 0
 }
 
-func (w *OutputWriter) addTries(s string, r runtime.TestResult) string {
-	if r.Tries > 1 {
-		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
+func (w *OutputWriter) readResult(r runtime.TestResult) int {
+	if !r.ValidationResult.Success {
+		str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
+		str = w.addFile(str, r)
+		s := w.addTries(str, r)
+		w.fprintf(au.Red(s))
+		return 1
 	}
-	return s
+	str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
+	str = w.addFile(str, r)
+	s := w.addTries(str, r)
+	w.fprintf(s)
+	return 0
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {
@@ -109,24 +109,45 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 
 	for _, r := range results {
 		if r.TestCase.Result.Error != nil {
-			str := fmt.Sprintf("✗ [%s] [%s] '%s' could not be executed with error message:", r.FileName, r.Node, r.TestCase.Title)
+			str := fmt.Sprintf("✗ [%s] '%s' could not be executed with error message:", r.Node, r.TestCase.Title)
+			str = w.addFile(str, r)
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.TestCase.Result.Error.Error())
 			continue
 		}
 
 		if !r.ValidationResult.Success {
-			str := fmt.Sprintf("✗ [%s] [%s] '%s', on property '%s'", r.FileName, r.Node, r.TestCase.Title, r.FailedProperty)
+			str := fmt.Sprintf("✗ [%s] '%s', on property '%s'", r.Node, r.TestCase.Title, r.FailedProperty)
+			str = w.addFile(str, r)
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.ValidationResult.Diff)
 		}
 	}
 }
 
-func (w *OutputWriter) printFileErrors(errors []string) {
+func (w *OutputWriter) addFile(s string, r runtime.TestResult) string {
+	if r.FileName == "" {
+		return s
+	}
+	s = s[:3] + " [" + r.FileName + "]" + s[3:]
+	return s
+}
+
+func (w *OutputWriter) addTries(s string, r runtime.TestResult) string {
+	if r.Tries > 1 {
+		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
+	}
+	return s
+}
+
+func (w *OutputWriter) printFileErrors(errors []error) {
+	if len(errors) <= 0 {
+		return
+	}
+
 	w.fprintf("")
+	w.fprintf("File Errors:")
 	for _, e := range errors {
-		w.fprintf("File Errors:")
 		w.fprintf(e)
 	}
 }
