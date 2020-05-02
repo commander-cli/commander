@@ -30,7 +30,7 @@ func Test_TestCommand(t *testing.T) {
 	err := TestCommand("commander.yaml", "", AddCommandContext{})
 
 	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Error stat commander.yaml:")
+		assert.Contains(t, err.Error(), "Error CreateFile commander.yaml:")
 	} else {
 		assert.Equal(t, "Error stat commander.yaml: no such file or directory", err.Error())
 	}
@@ -40,7 +40,7 @@ func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
 	err := TestCommand("my-test.yaml", "", AddCommandContext{})
 
 	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Error stat my-test.yaml: ")
+		assert.Contains(t, err.Error(), "Error CreateFile my-test.yaml: ")
 	} else {
 		assert.Equal(t, "Error stat my-test.yaml: no such file or directory", err.Error())
 	}

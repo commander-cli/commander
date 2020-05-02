@@ -65,3 +65,10 @@ tests:
         - ✓ [local] it should retry failed commands, retries 2
         - ✗ [local] it should retry failed commands with an interval, retries 2
     exit-code: 1
+
+  test directory order:
+    command: ./commander test --file-order integration/unix/directory_test/
+    stdout: 
+      lines:
+        3: ✓ [alpha_test.yaml] [local] sleep test
+        4: ✓ [beta_test.yaml] [local] ehco hello

@@ -15,3 +15,16 @@ tests:
     command: ./commander test integration/linux/docker.yaml
     stdout: ✓ [docker-host] cat /etc/os-release
     exit-code: 0
+
+  test directory:
+    command: ./commander test integration/linux/
+    stdout:
+      contains:
+        - ✓ [nodes.yaml] [ssh-host] it should test ssh host
+        - ✓ [nodes.yaml] [ssh-host] it should set env variable
+        - ✓ [nodes.yaml] [ssh-host-default] it should be executed on ssh-host-default
+        - ✓ [nodes.yaml] [ssh-host] it should test multiple hosts
+        - ✓ [nodes.yaml] [ssh-host-default] it should test multiple hosts
+        - ✓ [nodes.yaml] [local] it should test multiple hosts
+        - ✓ [docker.yaml] [docker-host] cat /etc/os-release
+    exit-code: 0

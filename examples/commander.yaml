@@ -18,5 +18,5 @@ tests:
 
   it should fail:
     command: invalid
-    stderr: "/bin/sh: 1: invalid: not found"
+    stderr: "/bin/sh: 1: command invalid: not found"
     exit-code: 127
