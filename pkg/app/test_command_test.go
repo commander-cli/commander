@@ -56,16 +56,6 @@ func Test_TestCommand_Dir(t *testing.T) {
 	}
 }
 
-func Test_TestCommand_Dir_With_Title(t *testing.T) {
-	err := TestCommand("../../examples", "it should fail", AddCommandContext{})
-
-	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Test suite failed, use --verbose for more detailed output")
-	} else {
-		assert.Equal(t, "Test suite failed, use --verbose for more detailed output", err.Error())
-	}
-}
-
 func captureOutput(f func()) string {
 	reader, writer, err := os.Pipe()
 	if err != nil {

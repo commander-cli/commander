@@ -15,12 +15,6 @@ type Suite struct {
 	Nodes     []runtime.Node
 }
 
-// TitleErr error is returned when a file does not have a specific title
-type TitleErr struct {
-	Err   string
-	Title string
-}
-
 // GetNodes returns all nodes defined in the suite
 func (s Suite) GetNodes() []runtime.Node {
 	return s.Nodes
@@ -58,14 +52,10 @@ func (s Suite) GetTestByTitle(title string) (runtime.TestCase, error) {
 		}
 	}
 
-	return runtime.TestCase{}, &TitleErr{Err: "err", Title: title}
+	return runtime.TestCase{}, fmt.Errorf("could not find test %s", title)
 }
 
 // GetGlobalConfig returns the global configuration which applies to the complete suite
 func (s Suite) GetGlobalConfig() runtime.GlobalTestConfig {
 	return s.Config
-}
-
-func (e *TitleErr) Error() string {
-	return fmt.Sprintf("could not find test %s", e.Title)
 }

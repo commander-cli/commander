@@ -6,11 +6,9 @@ import (
 	"log"
 	"os"
 	run "runtime"
-	"sort"
 	"time"
 
 	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/SimonBaeumer/commander/pkg/suite"
 	"github.com/logrusorgru/aurora"
 )
 
@@ -20,15 +18,13 @@ var au aurora.Aurora
 type OutputWriter struct {
 	out   io.Writer
 	color bool
-	order bool
 }
 
 // NewCliOutput creates a new OutputWriter with a stdout writer
-func NewCliOutput(color bool, order bool) OutputWriter {
+func NewCliOutput(color bool) OutputWriter {
 	return OutputWriter{
 		out:   os.Stdout,
 		color: color,
-		order: order,
 	}
 }
 
@@ -39,35 +35,16 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 		au = aurora.NewAurora(false)
 	}
 
-	var failed int
-	var fileErrors []error
+	failed := 0
 	var testResults []runtime.TestResult
 	start := time.Now()
 
 	for r := range results {
-		if r.FileError != nil {
-			//only append FileErrors that are not title Errors
-			if _, ok := r.FileError.(*suite.TitleErr); !ok {
-				fileErrors = append(fileErrors, fmt.Errorf("[%s] %s", r.FileName, r.FileError))
-			}
-			continue
-		}
 		testResults = append(testResults, r)
-		if !w.order { //if no order print now
-			failed += w.readResult(r)
-		}
+		failed += w.printResult(r)
 	}
 
 	duration := time.Since(start)
-
-	if w.order { //Maintain file order
-		sort.SliceStable(testResults, func(i, j int) bool {
-			return testResults[i].FileName < testResults[j].FileName
-		})
-		for _, r := range testResults {
-			failed += w.readResult(r)
-		}
-	}
 
 	if failed > 0 {
 		w.printFailures(testResults)
@@ -82,12 +59,10 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 		w.fprintf(au.Green(summary))
 	}
 
-	w.printFileErrors(fileErrors)
-
 	return failed == 0
 }
 
-func (w *OutputWriter) readResult(r runtime.TestResult) int {
+func (w *OutputWriter) printResult(r runtime.TestResult) int {
 	if !r.ValidationResult.Success {
 		str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
 		str = w.addFile(str, r)
@@ -138,18 +113,6 @@ func (w *OutputWriter) addTries(s string, r runtime.TestResult) string {
 		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
 	}
 	return s
-}
-
-func (w *OutputWriter) printFileErrors(errors []error) {
-	if len(errors) <= 0 {
-		return
-	}
-
-	w.fprintf("")
-	w.fprintf("File Errors:")
-	for _, e := range errors {
-		w.fprintf(e)
-	}
 }
 
 func (w *OutputWriter) fprintf(a ...interface{}) {

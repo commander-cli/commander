@@ -134,7 +134,6 @@ type TestResult struct {
 	Node             string
 	Error            error
 	FileName         string
-	FileError        error
 }
 
 // Start starts the given test suite and executes all tests

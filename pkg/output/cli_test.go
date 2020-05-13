@@ -12,7 +12,7 @@ import (
 )
 
 func Test_NewCliOutput(t *testing.T) {
-	got := NewCliOutput(true, true)
+	got := NewCliOutput(true)
 	assert.IsType(t, OutputWriter{}, got)
 }
 
@@ -25,7 +25,7 @@ func Test_Start(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		writer := OutputWriter{out: &buf, order: true}
+		writer := OutputWriter{out: &buf}
 		got := writer.Start(results)
 
 		assert.False(t, got)
@@ -94,11 +94,6 @@ func Test_Start(t *testing.T) {
 		Tries: 2,
 	}
 
-	results <- runtime.TestResult{
-		FileName:  "MySweetFile",
-		FileError: fmt.Errorf("Some file error message"),
-	}
-
 	close(results)
 	wg.Wait()
 
@@ -109,7 +104,6 @@ func Test_Start(t *testing.T) {
 	assert.Contains(t, output, "✗ [local] 'Invalid command' could not be executed with error message")
 	assert.Contains(t, output, "✗ [ssh-host1] 'Failed test on stderr', on property 'Stderr'")
 	assert.Contains(t, output, "Some error message")
-	assert.Contains(t, output, "Some file error message")
 }
 
 func Test_SuccessSuite(t *testing.T) {

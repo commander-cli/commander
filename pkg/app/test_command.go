@@ -33,6 +33,7 @@ func TestCommand(input string, title string, ctx AddCommandContext) error {
 	if inputType.IsDir() {
 		fmt.Println("Starting test against directory: " + input + "...")
 		fmt.Println("")
+		// since no handling of file errors occur should we not allow title
 		results, err = testDir(input, title)
 	} else {
 		fmt.Println("Starting test file " + input + "...")
@@ -44,7 +45,7 @@ func TestCommand(input string, title string, ctx AddCommandContext) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	out := output.NewCliOutput(!ctx.NoColor, ctx.FileOrder)
+	out := output.NewCliOutput(!ctx.NoColor)
 	if !out.Start(results) {
 		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}
@@ -61,24 +62,26 @@ func testDir(directory string, title string) (<-chan runtime.TestResult, error) 
 	results := make(chan runtime.TestResult)
 	var wg sync.WaitGroup
 
-	for _, f := range files {
-		wg.Add(1)
-
-		go func(f os.FileInfo) {
-			defer wg.Done()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for _, f := range files {
+			// Skip reading dirs for now. Should we also check valid file types?
+			if f.IsDir() {
+				continue
+			}
 
 			fileResults, err := testFile(directory+"/"+f.Name(), title)
 			if err != nil {
-				results <- runtime.TestResult{FileError: err, FileName: f.Name()}
-				return
+				panic(fmt.Sprintf("%s: %s", f.Name(), err))
 			}
 
 			for r := range fileResults {
 				r.FileName = f.Name()
-				results <- r //fan in results
+				results <- r
 			}
-		}(f)
-	}
+		}
+	}()
 
 	go func(ch chan runtime.TestResult) {
 		wg.Wait()
