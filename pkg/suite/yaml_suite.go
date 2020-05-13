@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"gopkg.in/yaml.v2"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -27,21 +28,15 @@ type YAMLTestConfigConf struct {
 }
 
 type YAMLNodeConf struct {
-	Name         string `yaml:"-"`
-	Type         string `yaml:"type"`
-	User         string `yaml:"user,omitempty"`
-	Pass         string `yaml:"pass,omitempty"`
-	Addr         string `yaml:"addr,omitempty"`
-	Image        string `yaml:"image,omitempty"`
-	IdentityFile string `yaml:"identity-file,omitempty"`
-	Privileged   bool   `yaml:"privileged,omitempty"`
-}
-
-// YAMLSSHConf represents the target host of the system
-type YAMLSSHConf struct {
-	Host     string `yaml:"host"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password,omitempty"`
+	Name           string `yaml:"-"`
+	Type           string `yaml:"type"`
+	User           string `yaml:"user,omitempty"`
+	Pass           string `yaml:"pass,omitempty"`
+	Addr           string `yaml:"addr,omitempty"`
+	Image          string `yaml:"image,omitempty"`
+	IdentityFile   string `yaml:"identity-file,omitempty"`
+	Privileged     bool   `yaml:"privileged,omitempty"`
+	DockerExecUser string `yaml:"docker-exec-user,omitempty"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -84,14 +79,15 @@ func convertNodes(nodes map[string]YAMLNodeConf) []runtime.Node {
 	var n []runtime.Node
 	for _, v := range nodes {
 		n = append(n, runtime.Node{
-			Pass:         v.Pass,
-			Type:         v.Type,
-			User:         v.User,
-			Addr:         v.Addr,
-			Name:         v.Name,
-			Image:        v.Image,
-			IdentityFile: v.IdentityFile,
-			Privileged:   v.Privileged,
+			Pass:           os.ExpandEnv(v.Pass),
+			Type:           os.ExpandEnv(v.Type),
+			User:           os.ExpandEnv(v.User),
+			Addr:           os.ExpandEnv(v.Addr),
+			Name:           os.ExpandEnv(v.Name),
+			Image:          os.ExpandEnv(v.Image),
+			IdentityFile:   os.ExpandEnv(v.IdentityFile),
+			Privileged:     v.Privileged,
+			DockerExecUser: os.ExpandEnv(v.DockerExecUser),
 		})
 	}
 	return n
@@ -165,14 +161,15 @@ func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	y.Nodes = make(map[string]YAMLNodeConf)
 	for k, v := range params.Nodes {
 		node := YAMLNodeConf{
-			Name:         k,
-			Addr:         v.Addr,
-			User:         v.User,
-			Type:         v.Type,
-			Pass:         v.Pass,
-			IdentityFile: v.IdentityFile,
-			Image:        v.Image,
-			Privileged:   v.Privileged,
+			Name:           k,
+			Addr:           v.Addr,
+			User:           v.User,
+			Type:           v.Type,
+			Pass:           v.Pass,
+			IdentityFile:   v.IdentityFile,
+			Image:          v.Image,
+			Privileged:     v.Privileged,
+			DockerExecUser: v.DockerExecUser,
 		}
 
 		y.Nodes[k] = node

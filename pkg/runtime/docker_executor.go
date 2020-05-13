@@ -3,6 +3,8 @@ package runtime
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -15,9 +17,11 @@ import (
 
 // DockerExecutor executes the test inside a docker container
 type DockerExecutor struct {
-	Image      string // Image which is started to execute the test
-	Privileged bool   // Enable privileged mode for the container
-	User       string // User defines which user executes the test
+	Image        string // Image which is started to execute the test
+	Privileged   bool   // Enable privileged mode for the container
+	ExecUser     string // ExecUser defines which user executes the docker container
+	RegistryUser string
+	RegistryPass string
 }
 
 // Execute executes the script inside a docker container
@@ -31,8 +35,20 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		}
 	}
 
+	authConfig := types.AuthConfig{
+		Username: e.RegistryUser,
+		Password: e.RegistryPass,
+	}
+	encodedJSON, err := json.Marshal(authConfig)
+	if err != nil {
+		panic(err)
+	}
+	authStr := base64.URLEncoding.EncodeToString(encodedJSON)
+
 	log.Printf("Pulling image %s\n", e.Image)
-	reader, err := cli.ImagePull(ctx, e.Image, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(ctx, e.Image, types.ImagePullOptions{
+		RegistryAuth: authStr,
+	})
 	if err != nil {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
@@ -53,7 +69,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		Image:      e.Image,
 		WorkingDir: test.Command.Dir,
 		Env:        env,
-		User:       e.User,
+		User:       e.ExecUser,
 		Cmd:        []string{"/bin/sh", "-c", test.Command.Cmd},
 		Tty:        false,
 	}, nil, nil, "")
