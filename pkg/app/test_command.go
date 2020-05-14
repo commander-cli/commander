@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/SimonBaeumer/commander/pkg/output"
@@ -35,7 +34,7 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 		}
 		fmt.Println("Starting test against directory: " + testPath + "...")
 		fmt.Println("")
-		results, err = testDir(testPath, testFilterTitle)
+		results, err = testDir(testPath)
 	} else {
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
@@ -54,7 +53,7 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 	return nil
 }
 
-func testDir(directory string, title string) (<-chan runtime.TestResult, error) {
+func testDir(directory string) (<-chan runtime.TestResult, error) {
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		return nil, fmt.Errorf(err.Error())
@@ -72,7 +71,7 @@ func testDir(directory string, title string) (<-chan runtime.TestResult, error) 
 				continue
 			}
 
-			fileResults, err := testFile(directory+"/"+f.Name(), title)
+			fileResults, err := testFile(directory+"/"+f.Name(), "")
 			if err != nil {
 				panic(fmt.Sprintf("%s: %s", f.Name(), err))
 			}
@@ -92,12 +91,9 @@ func testDir(directory string, title string) (<-chan runtime.TestResult, error) 
 	return results, nil
 }
 
-func testFile(input string, title string) (<-chan runtime.TestResult, error) {
-	content, err := ioutil.ReadFile(input)
+func testFile(filePath string, title string) (<-chan runtime.TestResult, error) {
+	content, err := readFile(filePath)
 	if err != nil {
-		if strings.Contains(err.Error(), "is a directory") {
-			return nil, fmt.Errorf("Error %s: is a directory\nUse --dir to test directories with multiple test files", input)
-		}
 		return nil, fmt.Errorf("Error " + err.Error())
 	}
 
@@ -117,4 +113,22 @@ func testFile(input string, title string) (<-chan runtime.TestResult, error) {
 	results := r.Start(tests)
 
 	return results, nil
+}
+
+func readFile(filePath string) ([]byte, error) {
+	f, err := os.Stat(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("open %s: no such file or directory", filePath)
+	}
+
+	if f.IsDir() {
+		return nil, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
+	}
+
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return content, nil
 }
