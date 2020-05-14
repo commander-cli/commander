@@ -67,8 +67,15 @@ tests:
     exit-code: 1
 
   test directory order:
-    command: ./commander test --file-order integration/unix/directory_test/
+    command: ./commander test --dir integration/unix/directory_test/
     stdout: 
       lines:
         3: ✓ [alpha_test.yaml] [local] sleep test
         4: ✓ [beta_test.yaml] [local] ehco hello
+  
+  test missing dir flag:
+    command: ./commander test integration/unix/directory_test/
+    stdout: 
+      contains:
+        - 'integration/unix/directory_test/: is a directory'
+    exit-code: 1

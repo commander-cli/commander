@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/SimonBaeumer/commander/pkg/output"
@@ -13,32 +14,32 @@ import (
 )
 
 // TestCommand executes the test argument
-// file is the path to the configuration file
-// title ist the title of test which should be executed, if empty it will execute all tests
+// testPath is the path to the configuration object, an object can be a dir or file
+// titleFilterTitle is the title of test which should be executed, if empty it will execute all tests
 // ctx holds the command flags
-func TestCommand(input string, title string, ctx AddCommandContext) error {
+// when --dir is enabled testFilterPath must be a zero value
+func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext) error {
 	if ctx.Verbose == true {
 		log.SetOutput(os.Stdout)
 	}
 
-	if input == "" {
-		input = CommanderFile
-	}
-	inputType, err := os.Stat(input)
-	if err != nil {
-		return fmt.Errorf("Error " + err.Error())
+	if testPath == "" {
+		testPath = CommanderFile
 	}
 
 	var results <-chan runtime.TestResult
-	if inputType.IsDir() {
-		fmt.Println("Starting test against directory: " + input + "...")
+	var err error
+	if ctx.Dir {
+		if testFilterTitle != "" {
+			return fmt.Errorf("Test may not be filtered when --dir is enabled")
+		}
+		fmt.Println("Starting test against directory: " + testPath + "...")
 		fmt.Println("")
-		// since no handling of file errors occur should we not allow title
-		results, err = testDir(input, title)
+		results, err = testDir(testPath, testFilterTitle)
 	} else {
-		fmt.Println("Starting test file " + input + "...")
+		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
-		results, err = testFile(input, title)
+		results, err = testFile(testPath, testFilterTitle)
 	}
 
 	if err != nil {
@@ -56,7 +57,7 @@ func TestCommand(input string, title string, ctx AddCommandContext) error {
 func testDir(directory string, title string) (<-chan runtime.TestResult, error) {
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
-		return nil, fmt.Errorf("Error " + err.Error())
+		return nil, fmt.Errorf(err.Error())
 	}
 
 	results := make(chan runtime.TestResult)
@@ -94,6 +95,9 @@ func testDir(directory string, title string) (<-chan runtime.TestResult, error) 
 func testFile(input string, title string) (<-chan runtime.TestResult, error) {
 	content, err := ioutil.ReadFile(input)
 	if err != nil {
+		if strings.Contains(err.Error(), "is a directory") {
+			return nil, fmt.Errorf("Error %s: is a directory\nUse --dir to test directories with multiple test files", input)
+		}
 		return nil, fmt.Errorf("Error " + err.Error())
 	}
 

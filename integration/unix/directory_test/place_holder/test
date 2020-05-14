@@ -1,0 +1,4 @@
+Hello, I am file in a directory. Don't delete me
+as I am a place hold for commander's integration tests.
+Please see missing test 'test missing dir flag' in
+commander_unix.yaml for why (:

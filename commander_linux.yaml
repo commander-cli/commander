@@ -17,7 +17,7 @@ tests:
     exit-code: 0
 
   test directory:
-    command: ./commander test integration/linux/
+    command: ./commander test --dir integration/linux/
     stdout:
       contains:
         - ✓ [nodes.yaml] [ssh-host] it should test ssh host
@@ -28,3 +28,10 @@ tests:
         - ✓ [nodes.yaml] [local] it should test multiple hosts
         - ✓ [docker.yaml] [docker-host] cat /etc/os-release
     exit-code: 0
+
+  test file with directory:
+    command: ./commander test integration/linux/
+    stdout:
+      contains:
+        - Use --dir to test directories with multiple test files
+    exit-code: 1

@@ -60,9 +60,8 @@ func createTestCommand() cli.Command {
 				EnvVar: "COMMANDER_VERBOSE",
 			},
 			cli.BoolFlag{
-				Name:   "file-order",
-				Usage:  "Preserve file order",
-				EnvVar: "COMMANDER_FILE_ORDER",
+				Name:  "dir",
+				Usage: "Execute all test files in directory - e.g. /path/to/test_files/",
 			},
 		},
 		Action: func(c *cli.Context) error {

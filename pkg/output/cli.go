@@ -41,7 +41,12 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 
 	for r := range results {
 		testResults = append(testResults, r)
-		failed += w.printResult(r)
+		if r.ValidationResult.Success {
+			w.printResult(r, "✓")
+		} else {
+			w.printResult(r, "✗")
+			failed++
+		}
 	}
 
 	duration := time.Since(start)
@@ -62,19 +67,11 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 	return failed == 0
 }
 
-func (w *OutputWriter) printResult(r runtime.TestResult) int {
-	if !r.ValidationResult.Success {
-		str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
-		str = w.addFile(str, r)
-		s := w.addTries(str, r)
-		w.fprintf(au.Red(s))
-		return 1
-	}
-	str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
+func (w *OutputWriter) printResult(r runtime.TestResult, mark string) {
+	str := fmt.Sprintf("%s [%s] %s", mark, r.Node, r.TestCase.Title)
 	str = w.addFile(str, r)
 	s := w.addTries(str, r)
 	w.fprintf(s)
-	return 0
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {

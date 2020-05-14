@@ -30,9 +30,9 @@ func Test_TestCommand(t *testing.T) {
 	err := TestCommand("commander.yaml", "", AddCommandContext{})
 
 	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Error CreateFile commander.yaml:")
+		assert.Contains(t, err.Error(), "Error open commander.yaml:")
 	} else {
-		assert.Equal(t, "Error stat commander.yaml: no such file or directory", err.Error())
+		assert.Equal(t, "Error open commander.yaml: no such file or directory", err.Error())
 	}
 }
 
@@ -40,19 +40,39 @@ func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
 	err := TestCommand("my-test.yaml", "", AddCommandContext{})
 
 	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Error CreateFile my-test.yaml: ")
+		assert.Contains(t, err.Error(), "Error open my-test.yaml:")
 	} else {
-		assert.Equal(t, "Error stat my-test.yaml: no such file or directory", err.Error())
+		assert.Equal(t, "Error open my-test.yaml: no such file or directory", err.Error())
+	}
+}
+
+func Test_TestCommand_File_WithDir(t *testing.T) {
+	err := TestCommand("../../examples", "", AddCommandContext{})
+
+	if runtime.GOOS == "windows" {
+		assert.Contains(t, err.Error(), "is a directory")
+	} else {
+		assert.Equal(t, "Error ../../examples: is a directory\nUse --dir to test directories with multiple test files", err.Error())
 	}
 }
 
 func Test_TestCommand_Dir(t *testing.T) {
-	err := TestCommand("../../examples", "", AddCommandContext{})
+	err := TestCommand("../../examples", "", AddCommandContext{Dir: true})
 
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, err.Error(), "Test suite failed, use --verbose for more detailed output")
 	} else {
 		assert.Equal(t, "Test suite failed, use --verbose for more detailed output", err.Error())
+	}
+}
+
+func Test_TestCommand_Dir_FilterTitle(t *testing.T) {
+	err := TestCommand("/fake", "hello", AddCommandContext{Dir: true})
+
+	if runtime.GOOS == "windows" {
+		assert.Contains(t, err.Error(), "Test may not be filtered when --dir is enabled")
+	} else {
+		assert.Equal(t, "Test may not be filtered when --dir is enabled", err.Error())
 	}
 }
 
