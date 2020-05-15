@@ -61,7 +61,7 @@ func createTestCommand() cli.Command {
 			},
 			cli.BoolFlag{
 				Name:  "dir",
-				Usage: "Execute all test files in directory - e.g. /path/to/test_files/",
+				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
 			},
 		},
 		Action: func(c *cli.Context) error {

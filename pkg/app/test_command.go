@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"sync"
 
 	"github.com/SimonBaeumer/commander/pkg/output"
@@ -71,7 +72,7 @@ func testDir(directory string) (<-chan runtime.TestResult, error) {
 				continue
 			}
 
-			fileResults, err := testFile(directory+"/"+f.Name(), "")
+			fileResults, err := testFile(path.Join(directory, f.Name()), "")
 			if err != nil {
 				panic(fmt.Sprintf("%s: %s", f.Name(), err))
 			}

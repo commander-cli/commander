@@ -195,6 +195,9 @@ $ ./commander test /tmp/test.yaml
 
 # Execute a single test
 $ ./commander test /tmp/test.yaml "my test"
+
+# Execute suites within a test directory
+$ ./commander test --dir /tmp
 ```
 
 ### Adding tests
