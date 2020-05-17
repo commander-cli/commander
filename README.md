@@ -729,7 +729,9 @@ nodes:
   docker-host:
     type: docker
     image: docker.io/library/alpine:3.11.3
-    user: 1000 # define the owner of the executed command
+    docker-exec-user: 1000 # define the owner of the executed command
+    user: user # registry user
+    pass: password # registry password, it is recommended to use env variables like $REGISTRY_PASS
 config:
   nodes:
     - docker-host
