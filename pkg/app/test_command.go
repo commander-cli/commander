@@ -14,10 +14,10 @@ import (
 )
 
 // TestCommand executes the test argument
-// testPath is the path to the configuration object, an object can be a dir or file
+// testPath is the path to the test suite config, it can be a dir or file
 // titleFilterTitle is the title of test which should be executed, if empty it will execute all tests
-// ctx holds the command flags
-// when --dir is enabled testFilterPath must be a zero value
+// ctx holds the command flags. If directory scanning is enabled with --dir it is
+// not supported to filter tests, therefore testFilterTitle is an empty string
 func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext) error {
 	if ctx.Verbose == true {
 		log.SetOutput(os.Stdout)
