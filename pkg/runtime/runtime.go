@@ -57,21 +57,6 @@ type TestCase struct {
 	Nodes    []string
 }
 
-// Node represents a configured node with everything needed  to connect to the given host
-// which is defined in the type property
-// If the type is not available the test will fail and stop its execution
-type Node struct {
-	Name           string
-	Type           string
-	User           string
-	Pass           string
-	Addr           string
-	Image          string
-	IdentityFile   string
-	Privileged     bool
-	DockerExecUser string
-}
-
 //GlobalTestConfig represents the configuration for a test
 type GlobalTestConfig struct {
 	Env        map[string]string
@@ -220,7 +205,7 @@ func (r *Runtime) getExecutor(node string) Executor {
 	}
 
 	log.Fatal(fmt.Sprintf("Node %s not found", node))
-	return LocalExecutor{}
+	return NewLocalExecutor()
 }
 
 func executeRetryInterval(t TestCase) {

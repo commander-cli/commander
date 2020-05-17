@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"gopkg.in/yaml.v2"
-	"os"
 	"reflect"
 	"strings"
 )
@@ -75,22 +74,25 @@ func ParseYAML(content []byte) Suite {
 	}
 }
 
-func convertNodes(nodes map[string]YAMLNodeConf) []runtime.Node {
-	var n []runtime.Node
-	for _, v := range nodes {
-		n = append(n, runtime.Node{
-			Pass:           os.ExpandEnv(v.Pass),
-			Type:           os.ExpandEnv(v.Type),
-			User:           os.ExpandEnv(v.User),
-			Addr:           os.ExpandEnv(v.Addr),
-			Name:           os.ExpandEnv(v.Name),
-			Image:          os.ExpandEnv(v.Image),
-			IdentityFile:   os.ExpandEnv(v.IdentityFile),
+func convertNodes(nodeConfs map[string]YAMLNodeConf) []runtime.Node {
+	var nodes []runtime.Node
+	for _, v := range nodeConfs {
+		node := runtime.Node{
+			Pass:           v.Pass,
+			Type:           v.Type,
+			User:           v.User,
+			Addr:           v.Addr,
+			Name:           v.Name,
+			Image:          v.Image,
+			IdentityFile:   v.IdentityFile,
 			Privileged:     v.Privileged,
-			DockerExecUser: os.ExpandEnv(v.DockerExecUser),
-		})
+			DockerExecUser: v.DockerExecUser,
+		}
+
+		node.ExpandEnv()
+		nodes = append(nodes, node)
 	}
-	return n
+	return nodes
 }
 
 //Convert YAMLSuiteConf to runtime TestCases
