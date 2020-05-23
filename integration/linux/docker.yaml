@@ -2,7 +2,7 @@ nodes:
   docker-host:
     type: docker
     image: docker.io/library/alpine:3.11.3
-    user: 1001
+    docker-exec-user: 1001
 
 config:
   nodes:

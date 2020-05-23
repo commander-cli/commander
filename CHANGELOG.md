@@ -1,6 +1,9 @@
 # v2.1.0
- 
-  - Added `--dir` flag to execute all commander test suites within a directory. This feature is not recursive.
+
+ - Add registry authentication for `docker` nodes
+ - Add environment support for `Node` configurations
+ - Add warning if `pass` is set in `Node` as clear text instead of an env variable
+ - Added `--dir` flag to execute all commander test suites within a directory. This feature is not recursive.
 
 # v2.0.0
  

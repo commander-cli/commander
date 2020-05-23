@@ -1,0 +1,18 @@
+nodes:
+  ubuntu:
+    type: docker
+    image: docker.io/simonbaeumer/test-private:latest
+    user: $COMMANDER_REGISTRY_USER
+    pass: $COMMANDER_REGISTRY_PASS
+
+tests:
+  cat /etc/lsb-release:
+    config:
+      nodes:
+        - ubuntu
+    stdout:
+      contains:
+        - Ubuntu
+        - "18.04"
+        - bionic
+    exit-code: 0

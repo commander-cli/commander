@@ -27,21 +27,15 @@ type YAMLTestConfigConf struct {
 }
 
 type YAMLNodeConf struct {
-	Name         string `yaml:"-"`
-	Type         string `yaml:"type"`
-	User         string `yaml:"user,omitempty"`
-	Pass         string `yaml:"pass,omitempty"`
-	Addr         string `yaml:"addr,omitempty"`
-	Image        string `yaml:"image,omitempty"`
-	IdentityFile string `yaml:"identity-file,omitempty"`
-	Privileged   bool   `yaml:"privileged,omitempty"`
-}
-
-// YAMLSSHConf represents the target host of the system
-type YAMLSSHConf struct {
-	Host     string `yaml:"host"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password,omitempty"`
+	Name           string `yaml:"-"`
+	Type           string `yaml:"type"`
+	User           string `yaml:"user,omitempty"`
+	Pass           string `yaml:"pass,omitempty"`
+	Addr           string `yaml:"addr,omitempty"`
+	Image          string `yaml:"image,omitempty"`
+	IdentityFile   string `yaml:"identity-file,omitempty"`
+	Privileged     bool   `yaml:"privileged,omitempty"`
+	DockerExecUser string `yaml:"docker-exec-user,omitempty"`
 }
 
 // YAMLTest represents a test in the yaml test suite
@@ -80,21 +74,25 @@ func ParseYAML(content []byte) Suite {
 	}
 }
 
-func convertNodes(nodes map[string]YAMLNodeConf) []runtime.Node {
-	var n []runtime.Node
-	for _, v := range nodes {
-		n = append(n, runtime.Node{
-			Pass:         v.Pass,
-			Type:         v.Type,
-			User:         v.User,
-			Addr:         v.Addr,
-			Name:         v.Name,
-			Image:        v.Image,
-			IdentityFile: v.IdentityFile,
-			Privileged:   v.Privileged,
-		})
+func convertNodes(nodeConfs map[string]YAMLNodeConf) []runtime.Node {
+	var nodes []runtime.Node
+	for _, v := range nodeConfs {
+		node := runtime.Node{
+			Pass:           v.Pass,
+			Type:           v.Type,
+			User:           v.User,
+			Addr:           v.Addr,
+			Name:           v.Name,
+			Image:          v.Image,
+			IdentityFile:   v.IdentityFile,
+			Privileged:     v.Privileged,
+			DockerExecUser: v.DockerExecUser,
+		}
+
+		node.ExpandEnv()
+		nodes = append(nodes, node)
 	}
-	return n
+	return nodes
 }
 
 //Convert YAMLSuiteConf to runtime TestCases
@@ -165,14 +163,15 @@ func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	y.Nodes = make(map[string]YAMLNodeConf)
 	for k, v := range params.Nodes {
 		node := YAMLNodeConf{
-			Name:         k,
-			Addr:         v.Addr,
-			User:         v.User,
-			Type:         v.Type,
-			Pass:         v.Pass,
-			IdentityFile: v.IdentityFile,
-			Image:        v.Image,
-			Privileged:   v.Privileged,
+			Name:           k,
+			Addr:           v.Addr,
+			User:           v.User,
+			Type:           v.Type,
+			Pass:           v.Pass,
+			IdentityFile:   v.IdentityFile,
+			Image:          v.Image,
+			Privileged:     v.Privileged,
+			DockerExecUser: v.DockerExecUser,
 		}
 
 		y.Nodes[k] = node
