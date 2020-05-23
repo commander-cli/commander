@@ -1,3 +1,7 @@
+# v2.1.0
+ 
+  - Added `--dir` flag to execute all commander test suites within a directory. This feature is not recursive.
+
 # v2.0.0
  
   - Added `nodes` which allow remote execution of tests

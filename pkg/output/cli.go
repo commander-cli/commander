@@ -36,24 +36,16 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 	}
 
 	failed := 0
-	testResults := []runtime.TestResult{}
+	var testResults []runtime.TestResult
 	start := time.Now()
 
 	for r := range results {
 		testResults = append(testResults, r)
 		if r.ValidationResult.Success {
-			str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
-			s := w.addTries(str, r)
-			w.fprintf(s)
-			continue
-		}
-
-		if !r.ValidationResult.Success {
+			w.printResult(r)
+		} else {
+			w.printResult(r)
 			failed++
-			str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
-			s := w.addTries(str, r)
-			w.fprintf(au.Red(s))
-			continue
 		}
 	}
 
@@ -75,11 +67,18 @@ func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
 	return failed == 0
 }
 
-func (w *OutputWriter) addTries(s string, r runtime.TestResult) string {
-	if r.Tries > 1 {
-		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
+func (w *OutputWriter) printResult(r runtime.TestResult) {
+	if !r.ValidationResult.Success {
+		str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
+		str = w.addFile(str, r)
+		s := w.addTries(str, r)
+		w.fprintf(au.Red(s))
+		return
 	}
-	return s
+	str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
+	str = w.addFile(str, r)
+	s := w.addTries(str, r)
+	w.fprintf(s)
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {
@@ -90,6 +89,7 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 	for _, r := range results {
 		if r.TestCase.Result.Error != nil {
 			str := fmt.Sprintf("✗ [%s] '%s' could not be executed with error message:", r.Node, r.TestCase.Title)
+			str = w.addFile(str, r)
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.TestCase.Result.Error.Error())
 			continue
@@ -97,10 +97,26 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 
 		if !r.ValidationResult.Success {
 			str := fmt.Sprintf("✗ [%s] '%s', on property '%s'", r.Node, r.TestCase.Title, r.FailedProperty)
+			str = w.addFile(str, r)
 			w.fprintf(au.Bold(au.Red(str)))
 			w.fprintf(r.ValidationResult.Diff)
 		}
 	}
+}
+
+func (w *OutputWriter) addFile(s string, r runtime.TestResult) string {
+	if r.FileName == "" {
+		return s
+	}
+	s = s[:3] + " [" + r.FileName + "]" + s[3:]
+	return s
+}
+
+func (w *OutputWriter) addTries(s string, r runtime.TestResult) string {
+	if r.Tries > 1 {
+		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
+	}
+	return s
 }
 
 func (w *OutputWriter) fprintf(a ...interface{}) {

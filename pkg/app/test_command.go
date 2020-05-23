@@ -2,32 +2,100 @@ package app
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/output"
-	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/SimonBaeumer/commander/pkg/suite"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
+	"sync"
+
+	"github.com/SimonBaeumer/commander/pkg/output"
+	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/SimonBaeumer/commander/pkg/suite"
 )
 
 // TestCommand executes the test argument
-// file is the path to the configuration file
-// title ist the title of test which should be executed, if empty it will execute all tests
-// ctx holds the command flags
-func TestCommand(file string, title string, ctx AddCommandContext) error {
+// testPath is the path to the test suite config, it can be a dir or file
+// titleFilterTitle is the title of test which should be executed, if empty it will execute all tests
+// ctx holds the command flags. If directory scanning is enabled with --dir it is
+// not supported to filter tests, therefore testFilterTitle is an empty string
+func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext) error {
 	if ctx.Verbose == true {
 		log.SetOutput(os.Stdout)
 	}
 
-	if file == "" {
-		file = CommanderFile
+	if testPath == "" {
+		testPath = CommanderFile
 	}
 
-	fmt.Println("Starting test file " + file + "...")
-	fmt.Println("")
-	content, err := ioutil.ReadFile(file)
+	var results <-chan runtime.TestResult
+	var err error
+	if ctx.Dir {
+		if testFilterTitle != "" {
+			return fmt.Errorf("Test may not be filtered when --dir is enabled")
+		}
+		fmt.Println("Starting test against directory: " + testPath + "...")
+		fmt.Println("")
+		results, err = testDir(testPath)
+	} else {
+		fmt.Println("Starting test file " + testPath + "...")
+		fmt.Println("")
+		results, err = testFile(testPath, testFilterTitle)
+	}
+
 	if err != nil {
-		return fmt.Errorf("Error " + err.Error())
+		return fmt.Errorf(err.Error())
+	}
+
+	out := output.NewCliOutput(!ctx.NoColor)
+	if !out.Start(results) {
+		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
+	}
+
+	return nil
+}
+
+func testDir(directory string) (<-chan runtime.TestResult, error) {
+	files, err := ioutil.ReadDir(directory)
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+
+	results := make(chan runtime.TestResult)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for _, f := range files {
+			// Skip reading dirs for now. Should we also check valid file types?
+			if f.IsDir() {
+				continue
+			}
+
+			fileResults, err := testFile(path.Join(directory, f.Name()), "")
+			if err != nil {
+				panic(fmt.Sprintf("%s: %s", f.Name(), err))
+			}
+
+			for r := range fileResults {
+				r.FileName = f.Name()
+				results <- r
+			}
+		}
+	}()
+
+	go func(ch chan runtime.TestResult) {
+		wg.Wait()
+		close(results)
+	}(results)
+
+	return results, nil
+}
+
+func testFile(filePath string, title string) (<-chan runtime.TestResult, error) {
+	content, err := readFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("Error " + err.Error())
 	}
 
 	var s suite.Suite
@@ -37,18 +105,31 @@ func TestCommand(file string, title string, ctx AddCommandContext) error {
 	if title != "" {
 		test, err := s.GetTestByTitle(title)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		tests = []runtime.TestCase{test}
 	}
 
 	r := runtime.NewRuntime(s.Nodes...)
-
 	results := r.Start(tests)
-	out := output.NewCliOutput(!ctx.NoColor)
-	if !out.Start(results) {
-		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
+
+	return results, nil
+}
+
+func readFile(filePath string) ([]byte, error) {
+	f, err := os.Stat(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("open %s: no such file or directory", filePath)
 	}
 
-	return nil
+	if f.IsDir() {
+		return nil, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
+	}
+
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return content, nil
 }

@@ -1,0 +1,4 @@
+tests:
+  sleep test:
+    command: sleep 2
+    exit-code: 0

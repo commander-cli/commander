@@ -1,0 +1,7 @@
+tests:
+  ehco hello:
+    command: echo hello
+    stdout: 
+      contains: 
+        - hello
+    exit-code: 0

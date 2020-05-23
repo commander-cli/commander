@@ -2,6 +2,7 @@ package suite
 
 import (
 	"fmt"
+
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 )
 
@@ -50,6 +51,7 @@ func (s Suite) GetTestByTitle(title string) (runtime.TestCase, error) {
 			return t, nil
 		}
 	}
+
 	return runtime.TestCase{}, fmt.Errorf("could not find test %s", title)
 }
 

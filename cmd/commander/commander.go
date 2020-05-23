@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/app"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/SimonBaeumer/commander/pkg/app"
+	"github.com/urfave/cli"
 )
 
 var version string
@@ -57,6 +58,10 @@ func createTestCommand() cli.Command {
 				Name:   "verbose",
 				Usage:  "More output for debugging",
 				EnvVar: "COMMANDER_VERBOSE",
+			},
+			cli.BoolFlag{
+				Name:  "dir",
+				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
 			},
 		},
 		Action: func(c *cli.Context) error {

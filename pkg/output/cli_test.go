@@ -3,11 +3,12 @@ package output
 import (
 	"bytes"
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_NewCliOutput(t *testing.T) {
@@ -77,6 +78,20 @@ func Test_Start(t *testing.T) {
 			},
 		},
 		Node: "local",
+	}
+
+	results <- runtime.TestResult{
+		TestCase: runtime.TestCase{
+			Title: "Invalid command",
+			Command: runtime.CommandUnderTest{
+				Cmd: "some stupid config",
+			},
+			Result: runtime.CommandResult{
+				Error: fmt.Errorf("Some error message"),
+			},
+		},
+		Node:  "local",
+		Tries: 2,
 	}
 
 	close(results)
