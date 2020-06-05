@@ -84,7 +84,7 @@ jobs:
       provider: releases
       overwrite: true
       api_key:
-        secure: pHsyDlWCuO0mCzR/OrEl7ulVsq98eu/cW0uLkqjK+72maQi/Hp2981mNfyprQ0RQNFMBMK3V0D3ziXyq04ENlwqt8cHiW8+pghRrgDlNzBLIQAXhXCyFprBng2fKrme6L28uRCGJCDVKMrkWI67bVSIQ6EbUbxzAa8egerRtyFEr/iCVs0LqBn1JJjgnCCG4y6fBR54ry5iGOod1nbmd2trGi+MvCjVt5VLeI+s3GTf9EKKl2gDs17BBlvOScSbdKuAWrBP0+lDqwN8EgxZczNwBHM7/NAyHblhJfSkkyGjuUuJo6sxaxnsN8cVpXdIZyGTjsqsbpu1f6OojqQlFRnlSuvQahdnTrVBcqXuMt3qjW7WDKpE4r4Av6OVh3jhAcW68J9rvsQMjDv4BbDim4zOgq13gIbCk5nN+Ny6j6diwgA35iGpKMHRVl6Aq4Nt/RUbQ9TGrVfdYbide+ONyo3WsQvPFJ8iWwMg7EHul4513Pe7RfxGcxCMjbh/rVCIkOrd8e+k6GJ4ngtcODcJjVjJEttvFrJ2EPnL4AYuDbRThgFBcn4j2U7jBmYbNzH2RJrfIRq6WVPwjbVJ2crT8YqkbS16JpcFFVja1r4+LsdMgsBI26c0RDpL08mCLjy8DFW3bAcGb9Myr5dxEYn+qou6LrSCw1I2qNRS/zSdifAo=
+        secure: MMpRaIevc54qXtRQeGa/tZk4wjoOWGg4wpBcBaBJUBFMr2/y9s+qmXH49BThg95/gE2TwSPwPpcKlcAuhuB1h8aABzaAqK4+yA7/0diH2KQOfWDJinEuJ/lgFMt7JRXy5euam5vVFfPRGj+hIqxq51wfJDUcb4I7iGV2zC3L3o0QDX//V3CK5/j2G5tZ3PlEScv3wfthRfxmFz8H3LYWeRct3U2VbB3WPDr2c4sGxYzerhrihEC930m+vVB2A7UuvDNhT+1Q7h5e+h9FWAl47SZMuciqbJ8VAurakthVCtyF1p6F6jQ0SP47uH3f+f+v9WWTrEz7k8ENjb/9Cisw3+pzrUAlcxolytK5QTFxiYa7ukdqLwZCiUJg8s+Q+8VowZ+vVvfa+sjwP1d+OYdUpbtOldJrHZqbOUjPSMdI1fNsdQAr68TrZwUSsaXEkRiy9HIoZ3QryeTCVsjJ8T/urJVeUzp/VpefbgnQeN4UlnVjXuqEUgSNYeBDWM6LQNu/8ucZ2cWykt+Z3eJu+Zzl2+nlA8x07dtsRFdrx+SlomNyYod+hAG4suvwwKEL90HbQLs01jo3E3hGi827+dSzT3SDHvMEpyhw5BbVyqSWaZrRDukwpEDgjsiuzywZUkzVbeZHVJZOCkEWth8VY0A/L2dnv5ewbko/WribfBjdCsc=
       file:
         - release/commander-linux-amd64
         - release/commander-linux-arm
