@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"sync"
 
 	"github.com/SimonBaeumer/commander/pkg/output"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
@@ -27,7 +26,7 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 		testPath = CommanderFile
 	}
 
-	var results <-chan runtime.TestResult
+	var result output.Result
 	var err error
 	if ctx.Dir {
 		if testFilterTitle != "" {
@@ -35,11 +34,11 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 		}
 		fmt.Println("Starting test against directory: " + testPath + "...")
 		fmt.Println("")
-		results, err = testDir(testPath)
+		result, err = testDir(testPath)
 	} else {
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
-		results, err = testFile(testPath, testFilterTitle)
+		result, err = testFile(testPath, testFilterTitle)
 	}
 
 	if err != nil {
@@ -47,55 +46,44 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 	}
 
 	out := output.NewCliOutput(!ctx.NoColor)
-	if !out.Start(results) {
+	if !out.PrintSummary(result) {
 		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}
 
 	return nil
 }
 
-func testDir(directory string) (<-chan runtime.TestResult, error) {
+func testDir(directory string) (output.Result, error) {
+	result := output.Result{}
+
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return result, fmt.Errorf(err.Error())
 	}
 
-	results := make(chan runtime.TestResult)
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for _, f := range files {
-			// Skip reading dirs for now. Should we also check valid file types?
-			if f.IsDir() {
-				continue
-			}
-
-			fileResults, err := testFile(path.Join(directory, f.Name()), "")
-			if err != nil {
-				panic(fmt.Sprintf("%s: %s", f.Name(), err))
-			}
-
-			for r := range fileResults {
-				r.FileName = f.Name()
-				results <- r
-			}
+	for _, f := range files {
+		// Skip reading dirs for now. Should we also check valid file types?
+		if f.IsDir() {
+			continue
 		}
-	}()
 
-	go func(ch chan runtime.TestResult) {
-		wg.Wait()
-		close(results)
-	}(results)
+		//TODO: aggregate into one result
+		result, err = testFile(path.Join(directory, f.Name()), "")
+		if err != nil {
+			return result, err
+		}
 
-	return results, nil
+	}
+
+	return result, nil
 }
 
-func testFile(filePath string, title string) (<-chan runtime.TestResult, error) {
+func testFile(filePath string, title string) (output.Result, error) {
+	result := output.Result{}
+
 	content, err := readFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("Error " + err.Error())
+		return result, fmt.Errorf("Error " + err.Error())
 	}
 
 	var s suite.Suite
@@ -105,15 +93,16 @@ func testFile(filePath string, title string) (<-chan runtime.TestResult, error) 
 	if title != "" {
 		test, err := s.GetTestByTitle(title)
 		if err != nil {
-			return nil, err
+			return result, err
 		}
 		tests = []runtime.TestCase{test}
 	}
 
-	r := runtime.NewRuntime(s.Nodes...)
-	results := r.Start(tests)
+	out := output.NewCliOutput(true)
+	r := runtime.NewRuntime(&out, s.Nodes...)
+	result = r.Start(tests)
 
-	return results, nil
+	return result, nil
 }
 
 func readFile(filePath string) ([]byte, error) {

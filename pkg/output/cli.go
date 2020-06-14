@@ -8,103 +8,106 @@ import (
 	run "runtime"
 	"time"
 
-	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/logrusorgru/aurora"
 )
-
-var au aurora.Aurora
 
 // OutputWriter represents the output
 type OutputWriter struct {
 	out   io.Writer
 	color bool
+	au    aurora.Aurora
 }
 
 // NewCliOutput creates a new OutputWriter with a stdout writer
 func NewCliOutput(color bool) OutputWriter {
-	return OutputWriter{
-		out:   os.Stdout,
-		color: color,
-	}
-}
-
-// Start starts the writing sequence
-func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
-	au = aurora.NewAurora(w.color)
+	au := aurora.NewAurora(color)
 	if run.GOOS == "windows" {
 		au = aurora.NewAurora(false)
 	}
 
-	failed := 0
-	var testResults []runtime.TestResult
-	start := time.Now()
-
-	for r := range results {
-		testResults = append(testResults, r)
-		if r.ValidationResult.Success {
-			w.printResult(r)
-		} else {
-			w.printResult(r)
-			failed++
-		}
+	return OutputWriter{
+		out: os.Stdout,
+		au:  au,
 	}
+}
 
-	duration := time.Since(start)
+// Result respresents the aggregation of all results/summary of a runtime
+// I.e TestResults, Duration, failures, etc..
+type Result struct {
+	TestResults []TestResult
+	Duration    time.Duration
+	Failed      int
+}
 
-	if failed > 0 {
-		w.printFailures(testResults)
+// TestResult for output
+type TestResult struct {
+	FileName       string
+	Title          string
+	Node           string
+	Tries          int
+	Success        bool
+	FailedProperty string
+	Diff           string
+	Error          error
+}
+
+// PrintSummary prints summary
+func (w *OutputWriter) PrintSummary(result Result) bool {
+	if result.Failed > 0 {
+		w.printFailures(result.TestResults)
 	}
 
 	w.fprintf("")
-	w.fprintf(fmt.Sprintf("Duration: %.3fs", duration.Seconds()))
-	summary := fmt.Sprintf("Count: %d, Failed: %d", len(testResults), failed)
-	if failed > 0 {
-		w.fprintf(au.Red(summary))
+	w.fprintf(fmt.Sprintf("Duration: %.3fs", result.Duration.Seconds()))
+	summary := fmt.Sprintf("Count: %d, Failed: %d", len(result.TestResults), result.Failed)
+	if result.Failed > 0 {
+		w.fprintf(w.au.Red(summary))
 	} else {
-		w.fprintf(au.Green(summary))
+		w.fprintf(w.au.Green(summary))
 	}
 
-	return failed == 0
+	return result.Failed == 0
 }
 
-func (w *OutputWriter) printResult(r runtime.TestResult) {
-	if !r.ValidationResult.Success {
-		str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
+// PrintResult prints the simple output form of a TestReault
+func (w *OutputWriter) PrintResult(r TestResult) {
+	if !r.Success {
+		str := fmt.Sprintf("✗ [%s] %s", r.Node, r.Title)
 		str = w.addFile(str, r)
 		s := w.addTries(str, r)
-		w.fprintf(au.Red(s))
+		w.fprintf(w.au.Red(s))
 		return
 	}
-	str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
+	str := fmt.Sprintf("✓ [%s] %s", r.Node, r.Title)
 	str = w.addFile(str, r)
 	s := w.addTries(str, r)
 	w.fprintf(s)
 }
 
-func (w *OutputWriter) printFailures(results []runtime.TestResult) {
+func (w *OutputWriter) printFailures(results []TestResult) {
 	w.fprintf("")
-	w.fprintf(au.Bold("Results"))
-	w.fprintf(au.Bold(""))
+	w.fprintf(w.au.Bold("Results"))
+	w.fprintf(w.au.Bold(""))
 
 	for _, r := range results {
-		if r.TestCase.Result.Error != nil {
-			str := fmt.Sprintf("✗ [%s] '%s' could not be executed with error message:", r.Node, r.TestCase.Title)
+		if r.Error != nil {
+			str := fmt.Sprintf("✗ [%s] '%s' could not be executed with error message:", r.Node, r.Title)
 			str = w.addFile(str, r)
-			w.fprintf(au.Bold(au.Red(str)))
-			w.fprintf(r.TestCase.Result.Error.Error())
+			w.fprintf(w.au.Bold(w.au.Red(str)))
+			w.fprintf(r.Error.Error())
 			continue
 		}
 
-		if !r.ValidationResult.Success {
-			str := fmt.Sprintf("✗ [%s] '%s', on property '%s'", r.Node, r.TestCase.Title, r.FailedProperty)
+		if !r.Success {
+			str := fmt.Sprintf("✗ [%s] '%s', on property '%s'", r.Node, r.Title, r.FailedProperty)
 			str = w.addFile(str, r)
-			w.fprintf(au.Bold(au.Red(str)))
-			w.fprintf(r.ValidationResult.Diff)
+			w.fprintf(w.au.Bold(w.au.Red(str)))
+			w.fprintf(r.Diff)
 		}
 	}
 }
 
-func (w *OutputWriter) addFile(s string, r runtime.TestResult) string {
+func (w *OutputWriter) addFile(s string, r TestResult) string {
 	if r.FileName == "" {
 		return s
 	}
@@ -112,7 +115,7 @@ func (w *OutputWriter) addFile(s string, r runtime.TestResult) string {
 	return s
 }
 
-func (w *OutputWriter) addTries(s string, r runtime.TestResult) string {
+func (w *OutputWriter) addTries(s string, r TestResult) string {
 	if r.Tries > 1 {
 		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
 	}

@@ -1,14 +1,9 @@
 package runtime
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"strings"
-	"sync"
 	"time"
 
-	"github.com/SimonBaeumer/cmd"
+	"github.com/SimonBaeumer/commander/pkg/output"
 )
 
 // Constants for defining the various tested properties
@@ -30,7 +25,7 @@ const (
 )
 
 // NewRuntime creates a new runtime and inits default nodes
-func NewRuntime(nodes ...Node) Runtime {
+func NewRuntime(out *output.OutputWriter, nodes ...Node) Runtime {
 	local := Node{
 		Name: "local",
 		Type: "local",
@@ -38,14 +33,20 @@ func NewRuntime(nodes ...Node) Runtime {
 	}
 
 	nodes = append(nodes, local)
-	return Runtime{
+	runner := Runner{
 		Nodes: nodes,
+	}
+
+	return Runtime{
+		Runner: &runner,
+		Output: out,
 	}
 }
 
 // Runtime represents the current runtime, please use NewRuntime() instead of creating an instance directly
 type Runtime struct {
-	Nodes []Node
+	Runner *Runner
+	Output *output.OutputWriter
 }
 
 // TestCase represents a test case which will be executed by the runtime
@@ -118,134 +119,43 @@ type TestResult struct {
 	FailedProperty   string
 	Tries            int
 	Node             string
-	Error            error
 	FileName         string
 }
 
 // Start starts the given test suite and executes all tests
-func (r *Runtime) Start(tests []TestCase) <-chan TestResult {
-	in := make(chan TestCase)
-	out := make(chan TestResult)
+func (r *Runtime) Start(tests []TestCase) output.Result {
+	result := output.Result{}
+	testCh := r.Runner.Execute(tests)
+	start := time.Now()
+	for tr := range testCh {
+		tr := convertTestResult(tr)
+		r.Output.PrintResult(tr)
 
-	go func(tests []TestCase) {
-		defer close(in)
-		for _, t := range tests {
-			in <- t
+		if !tr.Success {
+			result.Failed++
 		}
-	}(tests)
 
-	var wg sync.WaitGroup
-	wg.Add(1)
+		result.TestResults = append(result.TestResults, tr)
+	}
+	result.Duration = time.Since(start)
 
-	go func(tests chan TestCase) {
-		defer wg.Done()
-
-		for t := range tests {
-			// If no node was set use local mode as default
-			if len(t.Nodes) == 0 {
-				t.Nodes = []string{"local"}
-			}
-
-			for _, n := range t.Nodes {
-				result := TestResult{}
-				for i := 1; i <= t.Command.GetRetries(); i++ {
-
-					e := r.getExecutor(n)
-					result = e.Execute(t)
-					result.Node = n
-					result.Tries = i
-
-					if result.ValidationResult.Success {
-						break
-					}
-
-					executeRetryInterval(t)
-				}
-				out <- result
-			}
-
-		}
-	}(in)
-
-	go func(results chan TestResult) {
-		wg.Wait()
-		close(results)
-	}(out)
-
-	return out
+	return result
 }
 
-func (r *Runtime) getExecutor(node string) Executor {
-	if len(r.Nodes) == 0 {
-		return NewLocalExecutor()
+// convert runtime.TestResult to output.TestResult
+func convertTestResult(tr TestResult) output.TestResult {
+	testResult := output.TestResult{
+		FileName:       "", //TODO: Get filename from TestßCase
+		Title:          tr.TestCase.Title,
+		Node:           tr.Node,
+		Tries:          tr.Tries,
+		Success:        tr.ValidationResult.Success,
+		FailedProperty: tr.FailedProperty,
+		Diff:           tr.ValidationResult.Diff,
+		Error:          tr.TestCase.Result.Error,
 	}
 
-	for _, n := range r.Nodes {
-		if n.Name == node {
-			switch n.Type {
-			case "ssh":
-				return NewSSHExecutor(n.Addr, n.User, WithIdentityFile(n.IdentityFile), WithPassword(n.Pass))
-			case "local":
-				return NewLocalExecutor()
-			case "docker":
-				log.Println("Use docker executor")
-				return DockerExecutor{
-					Image:        n.Image,
-					Privileged:   n.Privileged,
-					ExecUser:     n.DockerExecUser,
-					RegistryPass: n.Pass,
-					RegistryUser: n.User,
-				}
-			case "":
-				return NewLocalExecutor()
-			default:
-				log.Fatal(fmt.Sprintf("Node type %s not found for node %s", n.Type, n.Name))
-			}
-		}
-	}
-
-	log.Fatal(fmt.Sprintf("Node %s not found", node))
-	return NewLocalExecutor()
-}
-
-func executeRetryInterval(t TestCase) {
-	if t.Command.GetRetries() > 1 && t.Command.Interval != "" {
-		interval, err := time.ParseDuration(t.Command.Interval)
-		if err != nil {
-			panic(fmt.Sprintf("'%s' interval error: %s", t.Command.Cmd, err))
-		}
-		time.Sleep(interval)
-	}
-}
-
-func createEnvVarsOption(test TestCase) func(c *cmd.Command) {
-	return func(c *cmd.Command) {
-		// Add all env variables from parent process
-		if test.Command.InheritEnv {
-			for _, v := range os.Environ() {
-				split := strings.Split(v, "=")
-				c.AddEnv(split[0], split[1])
-			}
-		}
-
-		// Add custom env variables
-		for k, v := range test.Command.Env {
-			c.AddEnv(k, v)
-		}
-	}
-}
-
-func createTimeoutOption(timeout string) (func(c *cmd.Command), error) {
-	timeoutOpt := cmd.WithoutTimeout
-	if timeout != "" {
-		d, err := time.ParseDuration(timeout)
-		if err != nil {
-			return func(c *cmd.Command) {}, err
-		}
-		timeoutOpt = cmd.WithTimeout(d)
-	}
-
-	return timeoutOpt, nil
+	return testResult
 }
 
 // GetRetries returns the retries of the command
