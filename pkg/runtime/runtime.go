@@ -56,6 +56,7 @@ type TestCase struct {
 	Expected Expected
 	Result   CommandResult
 	Nodes    []string
+	FileName string
 }
 
 //GlobalTestConfig represents the configuration for a test
@@ -145,7 +146,7 @@ func (r *Runtime) Start(tests []TestCase) output.Result {
 // convert runtime.TestResult to output.TestResult
 func convertTestResult(tr TestResult) output.TestResult {
 	testResult := output.TestResult{
-		FileName:       "", //TODO: Get filename from TestßCase
+		FileName:       tr.TestCase.FileName,
 		Title:          tr.TestCase.Title,
 		Node:           tr.Node,
 		Tries:          tr.Tries,
@@ -156,12 +157,4 @@ func convertTestResult(tr TestResult) output.TestResult {
 	}
 
 	return testResult
-}
-
-// GetRetries returns the retries of the command
-func (c *CommandUnderTest) GetRetries() int {
-	if c.Retries == 0 {
-		return 1
-	}
-	return c.Retries
 }

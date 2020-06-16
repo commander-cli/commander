@@ -67,12 +67,17 @@ func testDir(directory string) (output.Result, error) {
 			continue
 		}
 
-		//TODO: aggregate into one result
-		result, err = testFile(path.Join(directory, f.Name()), "")
+		content, err := readFile(path.Join(directory, f.Name()))
 		if err != nil {
-			return result, err
+			return result, fmt.Errorf("Error " + err.Error())
 		}
 
+		//Can either pass in f.Name() or append to content and unmarshal in yaml
+		s := suite.ParseYAML(content, f.Name())
+		result, err = execute(s, "") //TODO: aggregate into one result
+		if err != nil {
+			return result, fmt.Errorf("Error " + err.Error())
+		}
 	}
 
 	return result, nil
@@ -86,8 +91,18 @@ func testFile(filePath string, title string) (output.Result, error) {
 		return result, fmt.Errorf("Error " + err.Error())
 	}
 
-	var s suite.Suite
-	s = suite.ParseYAML(content)
+	s := suite.ParseYAML(content, "")
+	result, err = execute(s, title)
+	if err != nil {
+		return result, fmt.Errorf("Error " + err.Error())
+	}
+
+	return result, nil
+}
+
+func execute(s suite.Suite, title string) (output.Result, error) {
+	result := output.Result{}
+
 	tests := s.GetTests()
 	// Filter tests if test title was given
 	if title != "" {

@@ -13,9 +13,8 @@ import (
 
 // OutputWriter represents the output
 type OutputWriter struct {
-	out   io.Writer
-	color bool
-	au    aurora.Aurora
+	out io.Writer
+	au  aurora.Aurora
 }
 
 // NewCliOutput creates a new OutputWriter with a stdout writer

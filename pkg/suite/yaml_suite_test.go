@@ -1,9 +1,10 @@
 package suite
 
 import (
+	"testing"
+
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const ExpectedLineCount = 10
@@ -17,7 +18,7 @@ tests:
         stdout: hello
         stderr: anything
 `)
-	got := ParseYAML(yaml)
+	got := ParseYAML(yaml, "")
 	tests := got.GetTests()
 
 	assert.Len(t, tests, 1)
@@ -36,7 +37,7 @@ tests:
         stdout: hello
         stderr: anything
 `)
-	tests := ParseYAML(yaml).GetTests()
+	tests := ParseYAML(yaml, "").GetTests()
 
 	assert.Equal(t, "echo hello", tests[0].Command.Cmd)
 	assert.Equal(t, "echo hello", tests[0].Title)
@@ -50,7 +51,7 @@ tests:
         stdout:
             line-count: 10
 `)
-	tests := ParseYAML(yaml).GetTests()
+	tests := ParseYAML(yaml, "").GetTests()
 
 	assert.Equal(t, ExpectedLineCount, tests[0].Expected.Stdout.LineCount)
 }
@@ -66,7 +67,7 @@ tests:
                 1: line2
                 3: line4
 `)
-	tests := ParseYAML(yaml).GetTests()
+	tests := ParseYAML(yaml, "").GetTests()
 
 	assert.Equal(t, "line1", tests[0].Expected.Stdout.Lines[0])
 	assert.Equal(t, "line2", tests[0].Expected.Stdout.Lines[1])
@@ -88,7 +89,7 @@ tests:
             json:
                 $.object.attr: jsontest
 `)
-	tests := ParseYAML(yaml).GetTests()
+	tests := ParseYAML(yaml, "").GetTests()
 
 	assert.Equal(t, "hello", tests[0].Expected.Stdout.Contains[0])
 	assert.Equal(t, "exactly hello", tests[0].Expected.Stdout.Exactly)
@@ -104,7 +105,7 @@ tests:
         stderr:
             exactly: exactly stderr
 `)
-	tests := ParseYAML(yaml).GetTests()
+	tests := ParseYAML(yaml, "").GetTests()
 
 	assert.Equal(t, "exactly stderr", tests[0].Expected.Stderr.Exactly)
 	assert.IsType(t, runtime.ExpectedOut{}, tests[0].Expected.Stdout)
@@ -134,7 +135,7 @@ tests:
         stderr:
             typo: exactly stderr
 `)
-	_ = ParseYAML(yaml)
+	_ = ParseYAML(yaml, "")
 }
 
 func TestYAMLSuite_GetTestByTitle(t *testing.T) {
@@ -143,7 +144,7 @@ tests:
     echo hello:
         exit-code: 0
 `)
-	test, err := ParseYAML(yaml).GetTestByTitle("echo hello")
+	test, err := ParseYAML(yaml, "").GetTestByTitle("echo hello")
 
 	assert.Nil(t, err)
 	assert.Equal(t, "echo hello", test.Title)
@@ -155,7 +156,7 @@ tests:
     echo hello:
         exit-code: 0
 `)
-	_, err := ParseYAML(yaml).GetTestByTitle("does not exist")
+	_, err := ParseYAML(yaml, "").GetTestByTitle("does not exist")
 
 	assert.Equal(t, "could not find test does not exist", err.Error())
 }
@@ -171,7 +172,7 @@ tests:
        exit-code: 0
 `)
 
-	got := ParseYAML(yaml)
+	got := ParseYAML(yaml, "")
 	assert.Equal(t, map[string]string{"KEY": "value"}, got.GetGlobalConfig().Env)
 	assert.Equal(t, map[string]string{"KEY": "value"}, got.GetTests()[0].Command.Env)
 	assert.Equal(t, "/home/commander/", got.GetTests()[0].Command.Dir)
@@ -202,7 +203,7 @@ tests:
            interval: 5s
 `)
 
-	got := ParseYAML(yaml)
+	got := ParseYAML(yaml, "")
 
 	// Assert global variables
 	assert.Equal(t, map[string]string{"KEY": "global", "ANOTHER_KEY": "another_global"}, got.GetGlobalConfig().Env)
@@ -236,7 +237,7 @@ tests:
         stdot: yeah
 `)
 
-	_ = ParseYAML(yaml)
+	_ = ParseYAML(yaml, "")
 }
 
 func TestYamlSuite_ShouldFailIfArrayIsGivenToExpectedOut(t *testing.T) {
@@ -255,7 +256,7 @@ tests:
           - yeah
 `)
 
-	_ = ParseYAML(yaml)
+	_ = ParseYAML(yaml, "")
 }
 
 func Test_YAMLConfig_MarshalYAML(t *testing.T) {
@@ -347,7 +348,7 @@ tests:
       exit-code: 0
 `)
 
-	got := ParseYAML(yaml)
+	got := ParseYAML(yaml, "")
 
 	assert.Len(t, got.GetNodes(), 2)
 

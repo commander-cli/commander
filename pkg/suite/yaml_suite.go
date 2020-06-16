@@ -2,10 +2,11 @@ package suite
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"gopkg.in/yaml.v2"
 	"reflect"
 	"strings"
+
+	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"gopkg.in/yaml.v2"
 )
 
 // YAMLSuiteConf will be used for unmarshalling the yaml test suite
@@ -49,7 +50,7 @@ type YAMLTest struct {
 }
 
 // ParseYAML parses the Suite from a yaml byte slice
-func ParseYAML(content []byte) Suite {
+func ParseYAML(content []byte, fileName string) Suite {
 	yamlConfig := YAMLSuiteConf{}
 
 	err := yaml.UnmarshalStrict(content, &yamlConfig)
@@ -57,7 +58,7 @@ func ParseYAML(content []byte) Suite {
 		panic(err.Error())
 	}
 
-	tests := convertYAMLSuiteConfToTestCases(yamlConfig)
+	tests := convertYAMLSuiteConfToTestCases(yamlConfig, fileName)
 
 	return Suite{
 		TestCases: tests,
@@ -96,7 +97,7 @@ func convertNodes(nodeConfs map[string]YAMLNodeConf) []runtime.Node {
 }
 
 //Convert YAMLSuiteConf to runtime TestCases
-func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf) []runtime.TestCase {
+func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf, fileName string) []runtime.TestCase {
 	var tests []runtime.TestCase
 	for _, t := range conf.Tests {
 		tests = append(tests, runtime.TestCase{
@@ -115,7 +116,8 @@ func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf) []runtime.TestCase {
 				Stdout:   t.Stdout.(runtime.ExpectedOut),
 				Stderr:   t.Stderr.(runtime.ExpectedOut),
 			},
-			Nodes: t.Config.Nodes,
+			Nodes:    t.Config.Nodes,
+			FileName: fileName,
 		})
 	}
 
