@@ -42,7 +42,7 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 	} else {
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
-		result, err = testFile(testPath, testFilterTitle)
+		result, err = testFile(testPath, "", testFilterTitle)
 	}
 
 	if err != nil {
@@ -69,28 +69,31 @@ func testDir(directory string) (output.Result, error) {
 			continue
 		}
 
-		content, err := readFile(path.Join(directory, f.Name()))
+		newResult, err := testFile(path.Join(directory, f.Name()), f.Name(), "")
 		if err != nil {
-			return result, fmt.Errorf("Error " + err.Error())
+			return result, fmt.Errorf(err.Error())
 		}
 
-		s := suite.ParseYAML(content, f.Name())
-		result, err = execute(s, "") //TODO: aggregate into one result
-		if err != nil {
-			return result, fmt.Errorf("Error " + err.Error())
-		}
+		result = convergeResults(result, newResult)
 	}
 
 	return result, nil
 }
 
-func testFile(filePath string, title string) (output.Result, error) {
+func convergeResults(result output.Result, new output.Result) output.Result {
+	result.TestResults = append(result.TestResults, new.TestResults...)
+	result.Failed += new.Failed
+	result.Duration += new.Duration
+	return result
+}
+
+func testFile(filePath string, fileName string, title string) (output.Result, error) {
 	content, err := readFile(filePath)
 	if err != nil {
 		return output.Result{}, fmt.Errorf("Error " + err.Error())
 	}
 
-	s := suite.ParseYAML(content, "")
+	s := suite.ParseYAML(content, fileName)
 	result, err := execute(s, title)
 	if err != nil {
 		return output.Result{}, fmt.Errorf("Error " + err.Error())
