@@ -71,7 +71,7 @@ func testDir(directory string) (output.Result, error) {
 
 		newResult, err := testFile(path.Join(directory, f.Name()), f.Name(), "")
 		if err != nil {
-			return result, fmt.Errorf(err.Error())
+			return result, err
 		}
 
 		result = convergeResults(result, newResult)
@@ -84,6 +84,7 @@ func convergeResults(result output.Result, new output.Result) output.Result {
 	result.TestResults = append(result.TestResults, new.TestResults...)
 	result.Failed += new.Failed
 	result.Duration += new.Duration
+
 	return result
 }
 

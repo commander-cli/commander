@@ -13,8 +13,9 @@ import (
 
 // OutputWriter represents the output
 type OutputWriter struct {
-	out io.Writer
-	au  aurora.Aurora
+	out      io.Writer
+	au       aurora.Aurora
+	template cliTemplate
 }
 
 // NewCliOutput creates a new OutputWriter with a stdout writer
@@ -24,14 +25,16 @@ func NewCliOutput(color bool) OutputWriter {
 		au = aurora.NewAurora(false)
 	}
 
+	t := newCliTemplate()
+
 	return OutputWriter{
-		out: os.Stdout,
-		au:  au,
+		out:      os.Stdout,
+		au:       au,
+		template: t,
 	}
 }
 
-// Result respresents the aggregation of all results/summary of a runtime
-// I.e TestResults, Duration, failures, etc..
+// Result respresents the aggregation of all TestResults/summary of a runtime
 type Result struct {
 	TestResults []TestResult
 	Duration    time.Duration
@@ -57,8 +60,8 @@ func (w *OutputWriter) PrintSummary(result Result) bool {
 	}
 
 	w.fprintf("")
-	w.fprintf(fmt.Sprintf("Duration: %.3fs", result.Duration.Seconds()))
-	summary := fmt.Sprintf("Count: %d, Failed: %d", len(result.TestResults), result.Failed)
+	w.fprintf(w.template.duration(result))
+	summary := w.template.summary(result)
 	if result.Failed > 0 {
 		w.fprintf(w.au.Red(summary))
 	} else {
@@ -71,16 +74,10 @@ func (w *OutputWriter) PrintSummary(result Result) bool {
 // PrintResult prints the simple output form of a TestReault
 func (w *OutputWriter) PrintResult(r TestResult) {
 	if !r.Success {
-		str := fmt.Sprintf("✗ [%s] %s", r.Node, r.Title)
-		str = w.addFile(str, r)
-		s := w.addTries(str, r)
-		w.fprintf(w.au.Red(s))
+		w.fprintf(w.au.Red(w.template.testResult(r)))
 		return
 	}
-	str := fmt.Sprintf("✓ [%s] %s", r.Node, r.Title)
-	str = w.addFile(str, r)
-	s := w.addTries(str, r)
-	w.fprintf(s)
+	w.fprintf(w.template.testResult(r))
 }
 
 func (w *OutputWriter) printFailures(results []TestResult) {
