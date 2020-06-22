@@ -87,35 +87,15 @@ func (w *OutputWriter) printFailures(results []TestResult) {
 
 	for _, r := range results {
 		if r.Error != nil {
-			str := fmt.Sprintf("✗ [%s] '%s' could not be executed with error message:", r.Node, r.Title)
-			str = w.addFile(str, r)
-			w.fprintf(w.au.Bold(w.au.Red(str)))
+			w.fprintf(w.au.Bold(w.au.Red(w.template.errors(r))))
 			w.fprintf(r.Error.Error())
 			continue
 		}
-
 		if !r.Success {
-			str := fmt.Sprintf("✗ [%s] '%s', on property '%s'", r.Node, r.Title, r.FailedProperty)
-			str = w.addFile(str, r)
-			w.fprintf(w.au.Bold(w.au.Red(str)))
+			w.fprintf(w.au.Bold(w.au.Red(w.template.failures(r))))
 			w.fprintf(r.Diff)
 		}
 	}
-}
-
-func (w *OutputWriter) addFile(s string, r TestResult) string {
-	if r.FileName == "" {
-		return s
-	}
-	s = s[:3] + " [" + r.FileName + "]" + s[3:]
-	return s
-}
-
-func (w *OutputWriter) addTries(s string, r TestResult) string {
-	if r.Tries > 1 {
-		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
-	}
-	return s
 }
 
 func (w *OutputWriter) fprintf(a ...interface{}) {
