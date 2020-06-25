@@ -69,7 +69,8 @@ func testDir(directory string) (output.Result, error) {
 			continue
 		}
 
-		newResult, err := testFile(path.Join(directory, f.Name()), f.Name(), "")
+		path := path.Join(directory, f.Name())
+		newResult, err := testFile(path, f.Name(), "")
 		if err != nil {
 			return result, err
 		}
