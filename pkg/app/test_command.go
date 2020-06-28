@@ -32,14 +32,15 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 
 	var result output.Result
 	var err error
-	if ctx.Dir {
+	switch {
+	case ctx.Dir:
 		if testFilterTitle != "" {
 			return fmt.Errorf("Test may not be filtered when --dir is enabled")
 		}
 		fmt.Println("Starting test against directory: " + testPath + "...")
 		fmt.Println("")
 		result, err = testDir(testPath)
-	} else {
+	default:
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
 		result, err = testFile(testPath, "", testFilterTitle)
@@ -59,6 +60,7 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 func testDir(directory string) (output.Result, error) {
 	result := output.Result{}
 
+	// TODO: validate entire dir before running tests: issue #129
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		return result, fmt.Errorf(err.Error())
@@ -66,7 +68,7 @@ func testDir(directory string) (output.Result, error) {
 
 	for _, f := range files {
 		if f.IsDir() {
-			continue
+			continue // skip dirs: TODO add support for walking
 		}
 
 		path := path.Join(directory, f.Name())
@@ -90,22 +92,17 @@ func convergeResults(result output.Result, new output.Result) output.Result {
 }
 
 func testFile(filePath string, fileName string, title string) (output.Result, error) {
-	content, err := readFile(filePath)
+	s, err := readFile(filePath, fileName)
 	if err != nil {
 		return output.Result{}, fmt.Errorf("Error " + err.Error())
 	}
 
-	s := suite.ParseYAML(content, fileName)
-	result, err := execute(s, title)
-	if err != nil {
-		return output.Result{}, fmt.Errorf("Error " + err.Error())
-	}
-
-	return result, nil
+	return execute(s, title)
 }
 
 func execute(s suite.Suite, title string) (output.Result, error) {
 	tests := s.GetTests()
+
 	// Filter tests if test title was given
 	if title != "" {
 		test, err := s.GetTestByTitle(title)
@@ -121,20 +118,24 @@ func execute(s suite.Suite, title string) (output.Result, error) {
 	return result, nil
 }
 
-func readFile(filePath string) ([]byte, error) {
+func readFile(filePath string, filName string) (suite.Suite, error) {
+	s := suite.Suite{}
+
 	f, err := os.Stat(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("open %s: no such file or directory", filePath)
+		return s, fmt.Errorf("open %s: no such file or directory", filePath)
 	}
 
 	if f.IsDir() {
-		return nil, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
+		return s, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
 	}
 
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return nil, err
+		return s, err
 	}
 
-	return content, nil
+	s = suite.ParseYAML(content, filName)
+
+	return s, nil
 }
