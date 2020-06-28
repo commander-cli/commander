@@ -60,8 +60,9 @@ func createTestCommand() cli.Command {
 				EnvVar: "COMMANDER_VERBOSE",
 			},
 			cli.BoolFlag{
-				Name:  "dir",
-				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
+				Name: "dir",
+				Usage: `Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/
+	The directory can only contain subdirs and valid test files`,
 			},
 		},
 		Action: func(c *cli.Context) error {

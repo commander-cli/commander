@@ -196,7 +196,8 @@ $ ./commander test /tmp/test.yaml
 # Execute a single test
 $ ./commander test /tmp/test.yaml "my test"
 
-# Execute suites within a test directory
+# Execute suites within a test directory, 
+# directory can only contain subdirs and valid test files
 $ ./commander test --dir /tmp
 ```
 
