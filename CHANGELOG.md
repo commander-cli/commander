@@ -1,3 +1,7 @@
+# v2.1.1
+
+ - Add limitations of `--dir` to helper message
+
 # v2.1.0
 
  - Add registry authentication for `docker` nodes
