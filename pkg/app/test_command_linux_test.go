@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"testing"
@@ -18,7 +19,7 @@ tests:
 
 	assert.Nil(t, err)
 
-	got := TestCommand(TestSuiteFile, "", AddCommandContext{})
+	got := TestCommand(TestSuiteFile, AddCommandContext{})
 	assert.Nil(t, got)
 }
 
@@ -32,7 +33,7 @@ tests:
 
 	assert.Nil(t, err)
 
-	got := TestCommand(TestSuiteFile, "", AddCommandContext{})
+	got := TestCommand(TestSuiteFile, AddCommandContext{})
 	assert.Equal(t, "Test suite failed, use --verbose for more detailed output", got.Error())
 
 }
@@ -51,6 +52,8 @@ tests:
 
 	assert.Nil(t, err)
 
-	got := TestCommand(TestSuiteFile, "my title", AddCommandContext{})
+	context := AddCommandContext{}
+	context.Filters = runtime.Filters{"my title"}
+	got := TestCommand(TestSuiteFile, context)
 	assert.Nil(t, got)
 }

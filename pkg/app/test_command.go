@@ -15,10 +15,9 @@ import (
 
 // TestCommand executes the test argument
 // testPath is the path to the test suite config, it can be a dir or file
-// titleFilterTitle is the title of test which should be executed, if empty it will execute all tests
 // ctx holds the command flags. If directory scanning is enabled with --dir it is
 // not supported to filter tests, therefore testFilterTitle is an empty string
-func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext) error {
+func TestCommand(testPath string, ctx AddCommandContext) error {
 	if ctx.Verbose == true {
 		log.SetOutput(os.Stdout)
 	}
@@ -30,16 +29,13 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 	var results <-chan runtime.TestResult
 	var err error
 	if ctx.Dir {
-		if testFilterTitle != "" {
-			return fmt.Errorf("Test may not be filtered when --dir is enabled")
-		}
 		fmt.Println("Starting test against directory: " + testPath + "...")
 		fmt.Println("")
-		results, err = testDir(testPath)
+		results, err = testDir(testPath, ctx.Filters)
 	} else {
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
-		results, err = testFile(testPath, testFilterTitle)
+		results, err = testFile(testPath, ctx.Filters)
 	}
 
 	if err != nil {
@@ -54,7 +50,7 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 	return nil
 }
 
-func testDir(directory string) (<-chan runtime.TestResult, error) {
+func testDir(directory string, filters runtime.Filters) (<-chan runtime.TestResult, error) {
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		return nil, fmt.Errorf(err.Error())
@@ -72,7 +68,7 @@ func testDir(directory string) (<-chan runtime.TestResult, error) {
 				continue
 			}
 
-			fileResults, err := testFile(path.Join(directory, f.Name()), "")
+			fileResults, err := testFile(path.Join(directory, f.Name()), filters)
 			if err != nil {
 				panic(fmt.Sprintf("%s: %s", f.Name(), err))
 			}
@@ -92,7 +88,7 @@ func testDir(directory string) (<-chan runtime.TestResult, error) {
 	return results, nil
 }
 
-func testFile(filePath string, title string) (<-chan runtime.TestResult, error) {
+func testFile(filePath string, filters runtime.Filters) (<-chan runtime.TestResult, error) {
 	content, err := readFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("Error " + err.Error())
@@ -100,14 +96,19 @@ func testFile(filePath string, title string) (<-chan runtime.TestResult, error) 
 
 	var s suite.Suite
 	s = suite.ParseYAML(content)
+
 	tests := s.GetTests()
-	// Filter tests if test title was given
-	if title != "" {
-		test, err := s.GetTestByTitle(title)
+	if len(filters) != 0 {
+		tests = []runtime.TestCase{}
+	}
+
+	// Filter tests if test filters was given
+	for _, f := range filters {
+		t, err := s.GetTestByTitle(f)
 		if err != nil {
 			return nil, err
 		}
-		tests = []runtime.TestCase{test}
+		tests = append(tests, t)
 	}
 
 	r := runtime.NewRuntime(s.Nodes...)

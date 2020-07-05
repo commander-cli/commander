@@ -14,7 +14,7 @@ import (
 
 func Test_TestCommand_Verbose(t *testing.T) {
 	out := captureOutput(func() {
-		TestCommand("commander.yaml", "", AddCommandContext{Verbose: true})
+		TestCommand("commander.yaml", AddCommandContext{Verbose: true})
 		log.Println("test test test")
 	})
 
@@ -22,12 +22,12 @@ func Test_TestCommand_Verbose(t *testing.T) {
 }
 
 func Test_TestCommand_DefaultFile(t *testing.T) {
-	err := TestCommand("", "", AddCommandContext{Verbose: true})
+	err := TestCommand("", AddCommandContext{Verbose: true})
 	assert.Contains(t, err.Error(), "commander.yaml")
 }
 
 func Test_TestCommand(t *testing.T) {
-	err := TestCommand("commander.yaml", "", AddCommandContext{})
+	err := TestCommand("commander.yaml", AddCommandContext{})
 
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, err.Error(), "Error open commander.yaml:")
@@ -37,7 +37,7 @@ func Test_TestCommand(t *testing.T) {
 }
 
 func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
-	err := TestCommand("my-test.yaml", "", AddCommandContext{})
+	err := TestCommand("my-test.yaml", AddCommandContext{})
 
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, err.Error(), "Error open my-test.yaml:")
@@ -47,7 +47,7 @@ func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
 }
 
 func Test_TestCommand_File_WithDir(t *testing.T) {
-	err := TestCommand("../../examples", "", AddCommandContext{})
+	err := TestCommand("../../examples", AddCommandContext{})
 
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, err.Error(), "is a directory")
@@ -57,7 +57,7 @@ func Test_TestCommand_File_WithDir(t *testing.T) {
 }
 
 func Test_TestCommand_Dir(t *testing.T) {
-	err := TestCommand("../../examples", "", AddCommandContext{Dir: true})
+	err := TestCommand("../../examples", AddCommandContext{Dir: true})
 
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, err.Error(), "Test suite failed, use --verbose for more detailed output")
@@ -67,7 +67,7 @@ func Test_TestCommand_Dir(t *testing.T) {
 }
 
 func Test_TestCommand_Dir_FilterTitle(t *testing.T) {
-	err := TestCommand("/fake", "hello", AddCommandContext{Dir: true})
+	err := TestCommand("/fake", AddCommandContext{Dir: true})
 
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, err.Error(), "Test may not be filtered when --dir is enabled")

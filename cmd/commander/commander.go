@@ -63,13 +63,17 @@ func createTestCommand() cli.Command {
 				Name:  "dir",
 				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
 			},
+			cli.StringFlag{
+				Name:  "filter",
+				Usage: "Filter for specific tests to execute",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			if c.Bool("verbose") {
 				log.SetOutput(os.Stdout)
 			}
 
-			return app.TestCommand(c.Args().First(), c.Args().Get(1), app.NewAddContextFromCli(c))
+			return app.TestCommand(c.Args().First(), app.NewAddContextFromCli(c))
 		},
 	}
 }
