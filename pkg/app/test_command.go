@@ -20,7 +20,7 @@ var out output.OutputWriter
 // ctx holds the command flags. If directory scanning is enabled with --dir it is
 // not supported to filter tests, therefore testFilterTitle is an empty string
 func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext) error {
-	if ctx.Verbose == true {
+	if ctx.Verbose {
 		log.SetOutput(os.Stdout)
 	}
 
@@ -50,7 +50,7 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 		return fmt.Errorf(err.Error())
 	}
 
-	if !out.PrintSummary(result) {
+	if !out.PrintSummary(result) && !ctx.Verbose {
 		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}
 
