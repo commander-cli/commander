@@ -1,3 +1,7 @@
+# v2.2.0
+
+ - Remove `filter` as an argument, instead use `--filter` with regex support
+
 # v2.1.0
 
  - Add registry authentication for `docker` nodes

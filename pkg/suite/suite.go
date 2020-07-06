@@ -2,6 +2,7 @@ package suite
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 )
@@ -53,6 +54,27 @@ func (s Suite) GetTestByTitle(title string) (runtime.TestCase, error) {
 	}
 
 	return runtime.TestCase{}, fmt.Errorf("could not find test %s", title)
+}
+
+// GetTestByTitle returns a test by title, if the test was not found an error is returned
+func (s Suite) FindTests(pattern string) ([]runtime.TestCase, error) {
+	var r []runtime.TestCase
+	for _, t := range s.GetTests() {
+		matched, err := regexp.Match(pattern, []byte(t.Title))
+		if err != nil {
+			panic(fmt.Sprintf("Regex error %s: %s", pattern, err.Error()))
+		}
+
+		if matched {
+			r = append(r, t)
+		}
+	}
+
+	if len(r) == 0 {
+		return []runtime.TestCase{}, fmt.Errorf("could not find test with pattern: %s", pattern)
+	}
+
+	return r, nil
 }
 
 // GetGlobalConfig returns the global configuration which applies to the complete suite

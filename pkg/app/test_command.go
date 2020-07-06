@@ -104,11 +104,11 @@ func testFile(filePath string, filters runtime.Filters) (<-chan runtime.TestResu
 
 	// Filter tests if test filters was given
 	for _, f := range filters {
-		t, err := s.GetTestByTitle(f)
+		t, err := s.FindTests(f)
 		if err != nil {
 			return nil, err
 		}
-		tests = append(tests, t)
+		tests = append(tests, t...)
 	}
 
 	r := runtime.NewRuntime(s.Nodes...)

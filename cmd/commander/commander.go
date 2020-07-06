@@ -65,7 +65,7 @@ func createTestCommand() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  "filter",
-				Usage: "Filter for specific tests to execute",
+				Usage: "Filter tests by a given regex pattern. Tests are filtered by its title.",
 			},
 		},
 		Action: func(c *cli.Context) error {
