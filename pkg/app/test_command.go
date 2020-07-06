@@ -103,11 +103,11 @@ func execute(s suite.Suite, title string) (runtime.Result, error)
 
 	// Filter tests if test filters was given
 	for _, f := range filters {
-		t, err := s.GetTestByTitle(f)
+		t, err := s.FindTests(f)
 		if err != nil {
 			return runtime.Result{}, err
 		}
-		tests = append(tests, t)
+		tests = append(tests, t...)
 	}
 
 	r := runtime.NewRuntime(out.GetEventHandler(), s.Nodes...)

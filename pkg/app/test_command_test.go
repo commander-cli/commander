@@ -68,16 +68,6 @@ func Test_TestCommand_Dir(t *testing.T) {
 	}
 }
 
-func Test_TestCommand_Dir_FilterTitle(t *testing.T) {
-	err := TestCommand("/fake", AddCommandContext{Dir: true})
-
-	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Test may not be filtered when --dir is enabled")
-	} else {
-		assert.Equal(t, "Test may not be filtered when --dir is enabled", err.Error())
-	}
-}
-
 func Test_ConvergeResults(t *testing.T) {
 	duration, _ := time.ParseDuration("5s")
 

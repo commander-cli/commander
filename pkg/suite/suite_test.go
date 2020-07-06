@@ -46,3 +46,28 @@ func Test_GetGlobalConfig(t *testing.T) {
 	s := Suite{Config: runtime.GlobalTestConfig{Dir: "/tmp"}}
 	assert.Equal(t, "/tmp", s.GetGlobalConfig().Dir)
 }
+
+func Test_FindTests(t *testing.T) {
+	s := Suite{TestCases: []runtime.TestCase{
+		{Title: "exists"},
+		{Title: "another"},
+		{Title: "another one"},
+	}}
+
+	test, _ := s.FindTests("exists")
+	assert.Len(t, test, 1)
+}
+
+func Test_FindMultipleTests(t *testing.T) {
+	s := Suite{TestCases: []runtime.TestCase{
+		{Title: "exists"},
+		{Title: "another"},
+		{Title: "another one"},
+	}}
+
+	test, _ := s.FindTests("another")
+	assert.Len(t, test, 2)
+
+	test, _ = s.FindTests("another$")
+	assert.Len(t, test, 1)
+}

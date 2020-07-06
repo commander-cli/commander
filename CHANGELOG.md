@@ -1,6 +1,7 @@
 # v2.2.0
 
  - Move from `github.com/SimonBaeumer` to `github.com/commander-cli`
+ - Remove `filter` as an argument, instead use `--filter` with regex support
 
 # v2.1.0
 
