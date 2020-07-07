@@ -4,6 +4,8 @@ github.com/SimonBaeumer/cmd v1.1.0 h1:tr5dUMlly/8bLiC5B0J1AcE4ISru8POEfzAirWnUJn
 github.com/SimonBaeumer/cmd v1.1.0/go.mod h1:4mc/LDXDWNbkeooqHP83yx3JXtInPHjJkF8zhzqqmZE=
 github.com/SimonBaeumer/cmd v1.2.3 h1:Q9/FMZntNPlnbCPzXTCBzx+kRhVX9j3NAh2MCYvnMTA=
 github.com/SimonBaeumer/cmd v1.2.3/go.mod h1:4mc/LDXDWNbkeooqHP83yx3JXtInPHjJkF8zhzqqmZE=
+github.com/SimonBaeumer/commander v1.3.0 h1:QwZ7sTYFrmkOAccZwu8LZltDC08kIEcFjBBOkpjdZIg=
+github.com/SimonBaeumer/commander v1.3.0/go.mod h1:sNvvvwudBa2kQcSO7G1PttZHcBUnS5LmtJAjDS1Yh+U=
 github.com/antchfx/jsonquery v1.0.0 h1:1Yhk496SrCoY6fJkFZqpXEqbwOw5sFtLns9la4NoK3I=
 github.com/antchfx/jsonquery v1.0.0/go.mod h1:h7950pvPrUZzJIflNqsELgDQovTpPNa0rAHf8NwjegY=
 github.com/antchfx/xmlquery v1.1.0 h1:vj0kZ1y3Q6my4AV+a9xbWrMYzubw+84zuiKgvfV8vb8=

@@ -20,7 +20,7 @@ services:
 
 before_install:
   - go get -u golang.org/x/lint/golint
-  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.1/commander-linux-amd64 -o ~/bin/commander
+  - curl -L https://github.com/commander-cli/commander/releases/download/v1.2.1/commander-linux-amd64 -o ~/bin/commander
   - chmod +x ~/bin/commander
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
   - name: macOS integration
     os: osx
     script:
-      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-darwin-amd64 -o ~/bin/commander
+      - curl -L https://github.com/commander-cli/commander/releases/download/v0.3.0/commander-darwin-amd64 -o ~/bin/commander
       - chmod +x ~/bin/commander
       - make integration-unix
 
@@ -53,7 +53,7 @@ jobs:
     before_install:
       - choco install make
       - choco install curl
-      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.1/commander-windows-amd64 -o C:\Windows\system32\commander.exe
+      - curl -L https://github.com/commander-cli/commander/releases/download/v1.2.1/commander-windows-amd64 -o C:\Windows\system32\commander.exe
     script:
       - make integration-windows
 
@@ -95,5 +95,5 @@ jobs:
         - release/commander-windows-386.exe
       skip_cleanup: true
       on:
-        repo: SimonBaeumer/commander
+        repo: commander-cli/commander
         tags: true

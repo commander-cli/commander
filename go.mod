@@ -1,8 +1,9 @@
-module github.com/SimonBaeumer/commander
+module github.com/commander-cli/commander
 
 require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/SimonBaeumer/cmd v1.2.3
+	github.com/SimonBaeumer/commander v1.3.0 // indirect
 	github.com/antchfx/xmlquery v1.1.0
 	github.com/antchfx/xpath v1.1.0 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
