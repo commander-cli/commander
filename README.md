@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/SimonBaeumer/commander.svg?branch=master)](https://travis-ci.org/SimonBaeumer/commander)
-[![GoDoc](https://godoc.org/github.com/SimonBaeumer/commander?status.svg)](https://godoc.org/github.com/SimonBaeumer/commander)
-[![Go Report Card](https://goreportcard.com/badge/github.com/SimonBaeumer/commander)](https://goreportcard.com/report/github.com/SimonBaeumer/commander)
-[![Maintainability](https://api.codeclimate.com/v1/badges/cc848165784e0f809a51/maintainability)](https://codeclimate.com/github/SimonBaeumer/commander/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/cc848165784e0f809a51/test_coverage)](https://codeclimate.com/github/SimonBaeumer/commander/test_coverage)
-[![Github All Releases](https://img.shields.io/github/downloads/SimonBaeumer/commander/total.svg)](https://github.com/SimonBaeumer/commander/releases)
+[![Build Status](https://travis-ci.org/commander-cli/commander.svg?branch=master)](https://travis-ci.org/commander-cli/commander)
+[![GoDoc](https://godoc.org/github.com/commander-cli/commander?status.svg)](https://godoc.org/github.com/commander-cli/commander)
+[![Go Report Card](https://goreportcard.com/badge/github.com/commander-cli/commander)](https://goreportcard.com/report/github.com/SimonBaeumer/commander)
+[![Maintainability](https://api.codeclimate.com/v1/badges/cc848165784e0f809a51/maintainability)](https://codeclimate.com/github/commander-cli/commander/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/cc848165784e0f809a51/test_coverage)](https://codeclimate.com/github/commander-cli/commander/test_coverage)
+[![Github All Releases](https://img.shields.io/github/downloads/commander-cli/commander/total.svg)](https://github.com/commander-cli/commander/releases)
 
 # Commander
 
@@ -70,16 +70,16 @@ This works on any OS, as long as go is installed. If go is not installed on your
 
 ### Linux & osx
 
-Visit the [release](https://github.com/SimonBaeumer/commander/releases) page to get the binary for you system. 
+Visit the [release](https://github.com/commander-cli/commander/releases) page to get the binary for you system. 
 
 ```bash
-curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.2/commander-linux-amd64 -o commander
+curl -L https://github.com/commander-cli/commander/releases/download/v1.2.2/commander-linux-amd64 -o commander
 chmod +x commander
 ```
 
 ### Windows
 
- - Download the current [release](https://github.com/SimonBaeumer/commander/releases/latest)
+ - Download the current [release](https://github.com/commander-cli/commander/releases/latest)
  - Add the path to your [path](https://docs.alfresco.com/4.2/tasks/fot-addpath.html) environment variable
  - Test it: `commander --version`
 
