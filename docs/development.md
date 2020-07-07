@@ -239,12 +239,12 @@ The idea behind this it to add support for other formats like `json`, `toml` or 
   $ make test
   INFO: Starting build test
   go test ./...
-  ok      github.com/SimonBaeumer/commander/cmd/commander 0.011s
-  ok      github.com/SimonBaeumer/commander/pkg/app       0.014s
-  ok      github.com/SimonBaeumer/commander/pkg/matcher   (cached)
-  ok      github.com/SimonBaeumer/commander/pkg/output    (cached)
-  ok      github.com/SimonBaeumer/commander/pkg/runtime   0.229s
-  ok      github.com/SimonBaeumer/commander/pkg/suite     0.008s
+  ok      github.com/commander-cli/commander/cmd/commander 0.011s
+  ok      github.com/commander-cli/commander/pkg/app       0.014s
+  ok      github.com/commander-cli/commander/pkg/matcher   (cached)
+  ok      github.com/commander-cli/commander/pkg/output    (cached)
+  ok      github.com/commander-cli/commander/pkg/runtime   0.229s
+  ok      github.com/commander-cli/commander/pkg/suite     0.008s
   ```
      
 **7. Learning by doing**
