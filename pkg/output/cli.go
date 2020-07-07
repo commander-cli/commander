@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	run "runtime"
-	"time"
 
+	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/logrusorgru/aurora"
 )
 
@@ -34,13 +34,6 @@ func NewCliOutput(color bool) OutputWriter {
 	}
 }
 
-// Result respresents the aggregation of all TestResults/summary of a runtime
-type Result struct {
-	TestResults []TestResult
-	Duration    time.Duration
-	Failed      int
-}
-
 // TestResult for output
 type TestResult struct {
 	FileName       string
@@ -53,8 +46,18 @@ type TestResult struct {
 	Error          error
 }
 
+// GetEventHandler create a new runtime.EventHandler
+func (w *OutputWriter) GetEventHandler() *runtime.EventHandler {
+	handler := runtime.EventHandler{}
+	handler.TestFinsihed = func(testResult runtime.TestResult) {
+		tr := convertTestResult(testResult)
+		w.printResult(tr)
+	}
+	return &handler
+}
+
 // PrintSummary prints summary
-func (w *OutputWriter) PrintSummary(result Result) bool {
+func (w *OutputWriter) PrintSummary(result runtime.Result) bool {
 	if result.Failed > 0 {
 		w.printFailures(result.TestResults)
 	}
@@ -72,7 +75,7 @@ func (w *OutputWriter) PrintSummary(result Result) bool {
 }
 
 // PrintResult prints the simple output form of a TestReault
-func (w *OutputWriter) PrintResult(r TestResult) {
+func (w *OutputWriter) printResult(r TestResult) {
 	if !r.Success {
 		w.fprintf(w.au.Red(w.template.testResult(r)))
 		return
@@ -80,12 +83,13 @@ func (w *OutputWriter) PrintResult(r TestResult) {
 	w.fprintf(w.template.testResult(r))
 }
 
-func (w *OutputWriter) printFailures(results []TestResult) {
+func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 	w.fprintf("")
 	w.fprintf(w.au.Bold("Results"))
 	w.fprintf(w.au.Bold(""))
 
-	for _, r := range results {
+	for _, tr := range results {
+		r := convertTestResult(tr)
 		if r.Error != nil {
 			w.fprintf(w.au.Bold(w.au.Red(w.template.errors(r))))
 			w.fprintf(r.Error.Error())
@@ -102,4 +106,20 @@ func (w *OutputWriter) fprintf(a ...interface{}) {
 	if _, err := fmt.Fprintln(w.out, a...); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// convert runtime.TestResult to output.TestResult
+func convertTestResult(tr runtime.TestResult) TestResult {
+	testResult := TestResult{
+		FileName:       tr.TestCase.FileName,
+		Title:          tr.TestCase.Title,
+		Node:           tr.Node,
+		Tries:          tr.Tries,
+		Success:        tr.ValidationResult.Success,
+		FailedProperty: tr.FailedProperty,
+		Diff:           tr.ValidationResult.Diff,
+		Error:          tr.TestCase.Result.Error,
+	}
+
+	return testResult
 }

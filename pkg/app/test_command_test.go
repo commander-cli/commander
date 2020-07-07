@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/SimonBaeumer/commander/pkg/output"
+	commanderRuntime "github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -81,14 +81,14 @@ func Test_TestCommand_Dir_FilterTitle(t *testing.T) {
 func Test_ConvergeResults(t *testing.T) {
 	duration, _ := time.ParseDuration("5s")
 
-	result1 := output.Result{
-		TestResults: []output.TestResult{},
+	result1 := commanderRuntime.Result{
+		TestResults: []commanderRuntime.TestResult{},
 		Duration:    duration,
 		Failed:      1,
 	}
 
-	result2 := output.Result{
-		TestResults: []output.TestResult{},
+	result2 := commanderRuntime.Result{
+		TestResults: []commanderRuntime.TestResult{},
 		Duration:    duration,
 		Failed:      0,
 	}

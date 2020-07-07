@@ -30,7 +30,7 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 		testPath = CommanderFile
 	}
 
-	var result output.Result
+	var result runtime.Result
 	var err error
 	switch {
 	case ctx.Dir:
@@ -57,8 +57,8 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 	return nil
 }
 
-func testDir(directory string) (output.Result, error) {
-	result := output.Result{}
+func testDir(directory string) (runtime.Result, error) {
+	result := runtime.Result{}
 
 	// TODO: validate entire dir before running tests: issue #129
 	files, err := ioutil.ReadDir(directory)
@@ -83,7 +83,7 @@ func testDir(directory string) (output.Result, error) {
 	return result, nil
 }
 
-func convergeResults(result output.Result, new output.Result) output.Result {
+func convergeResults(result runtime.Result, new runtime.Result) runtime.Result {
 	result.TestResults = append(result.TestResults, new.TestResults...)
 	result.Failed += new.Failed
 	result.Duration += new.Duration
@@ -91,28 +91,28 @@ func convergeResults(result output.Result, new output.Result) output.Result {
 	return result
 }
 
-func testFile(filePath string, fileName string, title string) (output.Result, error) {
+func testFile(filePath string, fileName string, title string) (runtime.Result, error) {
 	s, err := readFile(filePath, fileName)
 	if err != nil {
-		return output.Result{}, fmt.Errorf("Error " + err.Error())
+		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
 	}
 
 	return execute(s, title)
 }
 
-func execute(s suite.Suite, title string) (output.Result, error) {
+func execute(s suite.Suite, title string) (runtime.Result, error) {
 	tests := s.GetTests()
 
 	// Filter tests if test title was given
 	if title != "" {
 		test, err := s.GetTestByTitle(title)
 		if err != nil {
-			return output.Result{}, err
+			return runtime.Result{}, err
 		}
 		tests = []runtime.TestCase{test}
 	}
 
-	r := runtime.NewRuntime(&out, s.Nodes...)
+	r := runtime.NewRuntime(out.GetEventHandler(), s.Nodes...)
 	result := r.Start(tests)
 
 	return result, nil

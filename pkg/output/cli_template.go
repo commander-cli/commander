@@ -3,6 +3,8 @@ package output
 import (
 	"bytes"
 	"text/template"
+
+	"github.com/SimonBaeumer/commander/pkg/runtime"
 )
 
 var resultTmpl = `
@@ -17,9 +19,7 @@ var resultTmpl = `
 
 // Add File Template
 {{define "file" -}}
-	{{with .FileName -}}
-		[{{.}}]
-	{{- end}}
+	{{with .FileName}} [{{.}}]{{- end}}
 {{- end -}}
 
 // Add Tries Template
@@ -31,7 +31,7 @@ var resultTmpl = `
 
 // BaseResult
 {{define "baseResult" -}}
-	{{template "mark" .}} {{template "file" .}} [{{ .Node }}]
+	{{template "mark" .}}{{template "file" .}} [{{ .Node }}]
 {{- end -}}`
 
 var commanderTmpl = `
@@ -47,7 +47,7 @@ var commanderTmpl = `
 
 // Result
 {{define "result" -}}
-	{{template "baseResult" .}}{{ .Title }}{{template "tries" .}}
+	{{template "baseResult" .}} {{ .Title }}{{template "tries" .}}
 {{- end -}}
 
 // Failure
@@ -75,12 +75,12 @@ func newCliTemplate() cliTemplate {
 	}
 }
 
-func (t cliTemplate) duration(result Result) string {
+func (t cliTemplate) duration(result runtime.Result) string {
 	tpl := t.getTemplatedString("duration", result)
 	return tpl.String()
 }
 
-func (t cliTemplate) summary(result Result) string {
+func (t cliTemplate) summary(result runtime.Result) string {
 	tpl := t.getTemplatedString("summary", result)
 	return tpl.String()
 }

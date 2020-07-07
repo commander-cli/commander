@@ -2,8 +2,6 @@ package runtime
 
 import (
 	"time"
-
-	"github.com/SimonBaeumer/commander/pkg/output"
 )
 
 // Constants for defining the various tested properties
@@ -25,7 +23,7 @@ const (
 )
 
 // NewRuntime creates a new runtime and inits default nodes
-func NewRuntime(out *output.OutputWriter, nodes ...Node) Runtime {
+func NewRuntime(eh *EventHandler, nodes ...Node) Runtime {
 	local := Node{
 		Name: "local",
 		Type: "local",
@@ -38,15 +36,20 @@ func NewRuntime(out *output.OutputWriter, nodes ...Node) Runtime {
 	}
 
 	return Runtime{
-		Runner: &runner,
-		Output: out,
+		Runner:       &runner,
+		EventHandler: eh,
 	}
 }
 
 // Runtime represents the current runtime, please use NewRuntime() instead of creating an instance directly
 type Runtime struct {
-	Runner *Runner
-	Output *output.OutputWriter
+	Runner       *Runner
+	EventHandler *EventHandler
+}
+
+// EventHandler is a configurable event system that handles events such as test completion
+type EventHandler struct {
+	TestFinsihed func(TestResult)
 }
 
 // TestCase represents a test case which will be executed by the runtime
@@ -123,16 +126,23 @@ type TestResult struct {
 	FileName         string
 }
 
+// Result respresents the aggregation of all TestResults/summary of a runtime
+type Result struct {
+	TestResults []TestResult
+	Duration    time.Duration
+	Failed      int
+}
+
 // Start starts the given test suite and executes all tests
-func (r *Runtime) Start(tests []TestCase) output.Result {
-	result := output.Result{}
+func (r *Runtime) Start(tests []TestCase) Result {
+	result := Result{}
 	testCh := r.Runner.Execute(tests)
 	start := time.Now()
 	for tr := range testCh {
-		tr := convertTestResult(tr)
-		r.Output.PrintResult(tr)
 
-		if !tr.Success {
+		r.EventHandler.TestFinsihed(tr)
+
+		if !tr.ValidationResult.Success {
 			result.Failed++
 		}
 
@@ -141,20 +151,4 @@ func (r *Runtime) Start(tests []TestCase) output.Result {
 	result.Duration = time.Since(start)
 
 	return result
-}
-
-// convert runtime.TestResult to output.TestResult
-func convertTestResult(tr TestResult) output.TestResult {
-	testResult := output.TestResult{
-		FileName:       tr.TestCase.FileName,
-		Title:          tr.TestCase.Title,
-		Node:           tr.Node,
-		Tries:          tr.Tries,
-		Success:        tr.ValidationResult.Success,
-		FailedProperty: tr.FailedProperty,
-		Diff:           tr.ValidationResult.Diff,
-		Error:          tr.TestCase.Result.Error,
-	}
-
-	return testResult
 }
