@@ -55,7 +55,7 @@ func Test_PrintSummary(t *testing.T) {
 	assert.False(t, outResult)
 
 	output := buf.String()
-	assert.Contains(t, output, "✗ [192.168.0.1] 'Failed test', on property Stdout")
+	assert.Contains(t, output, "✗ [192.168.0.1] 'Failed test', on property 'Stdout'")
 	assert.NotContains(t, output, "✓ [docker-host] Successful test")
 }
 

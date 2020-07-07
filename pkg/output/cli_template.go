@@ -24,9 +24,7 @@ var resultTmpl = `
 
 // Add Tries Template
 {{define "tries" -}}
-	{{if gt .Tries 1 -}}
-		{{.Tries -}}
-	{{- end}}
+	{{if gt .Tries 1 }}, retries {{.Tries }}{{- end}}
 {{- end -}}
 
 // BaseResult
@@ -52,7 +50,7 @@ var commanderTmpl = `
 
 // Failure
 {{- define "failure" -}}
-	{{- template "baseResult" .}} '{{ .Title }}', on property {{ .FailedProperty }}
+	{{- template "baseResult" .}} '{{ .Title }}', on property '{{ .FailedProperty }}'
 {{- end -}}
 
 // Error
