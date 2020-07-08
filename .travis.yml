@@ -83,8 +83,7 @@ jobs:
     deploy:
       provider: releases
       overwrite: true
-      api_key:
-        secure: d5F3Uck68MHioEm4TQF2nBnY5EwYVwGs5oP5VtjuS4+BXSnVijSFKJ+nJSd/c9PsYbQQS7JiZa+GhAH2wCWfwhsDQoPv/4nJuvaLW+agJ15DQnJKkjF3mVGC5jMCt5cPczt8Aix29pwZWavo9ck+YYl7dVLc7TdGG+eo27BlecVZHlE1kOb4toXA+2LOolScUwlzFPwX+juoOHvF9x65HZ3e9IV4ZXWHuj0BQlz0zMP7FnSx5Q9tuoa03J/VrfuPCFas3/UCOKg+HMK4ZetpBtHmj7L0AQAm5fMwGlWaHFsdjm+3wY4TIR1wt9tbMWmcqmXgGW0xY4g0u31x+wGIS4xrkoePEhsG6Yhaa+rfoEotZFrpY+7MzrgkMwhnYygoSoRzvi7o+AI6Xb3h6+ouLvGYOU14FjFUyeUSxkjGSu1SXuX1Fir+LjBMaCM37nIuNUBaqPgu6c6DhokJ2HUHbf9gdttIHr/zAXJGFReAnTk2qH++KmVd7j+U19eSSXWFh5vatbMMwTmwQpUzC9EOBkDzWCiu6ECaz1pxzYmq+7LkDMIQUfQ2035OLIrdMBVZosxxyDQ0J5IfLKnKrIZueR34TLyx4QW9LAaZzQJnfjUj0YrS5/XplFO+3D4pwh5UDNu7bQl7eR5EylXpmH7OmCpfUx1PC5kuyplPm33noiM=
+      api_key: $GITHUB_TOKEN
       file:
         - release/commander-linux-amd64
         - release/commander-linux-arm
