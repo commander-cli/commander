@@ -1,4 +1,4 @@
-module github.com/SimonBaeumer/cmd
+module github.com/commander-cli/cmd
 
 go 1.12
 

@@ -3,7 +3,7 @@ language: go
 env:
   global:
     - GO111MODULE=on
-    - CC_TEST_REPORTER_ID=1fee6b47ad638c3cb28b932d28413d643a06c90b277bc5839e306f40e932422e
+    - CC_TEST_REPORTER_ID=8eeb867f8e7a0cbfc8d6a71615c52dcb88f87d4a72bbe00f0f2ebbc02b031de8
 
 stages:
   - test
@@ -17,7 +17,7 @@ dist: trusty
 before_install:
   - go get -u golang.org/x/lint/golint
   - make deps
-  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-linux-amd64 -o ~/bin/commander
+  - curl -L https://github.com/commander-cli/commander/releases/download/v0.3.0/commander-linux-amd64 -o ~/bin/commander
   - chmod +x ~/bin/commander
 
 jobs:

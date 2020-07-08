@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/SimonBaeumer/cmd"
+	"github.com/commander-cli/cmd"
 	"github.com/commander-cli/commander/pkg/runtime"
 	"github.com/commander-cli/commander/pkg/suite"
 	"gopkg.in/yaml.v2"

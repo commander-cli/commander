@@ -1,12 +1,12 @@
 # github.com/Microsoft/go-winio v0.4.14
 github.com/Microsoft/go-winio
 github.com/Microsoft/go-winio/pkg/guid
-# github.com/SimonBaeumer/cmd v1.2.3
-github.com/SimonBaeumer/cmd
 # github.com/antchfx/xmlquery v1.1.0
 github.com/antchfx/xmlquery
 # github.com/antchfx/xpath v1.1.0
 github.com/antchfx/xpath
+# github.com/commander-cli/cmd v1.3.0
+github.com/commander-cli/cmd
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/docker/distribution v2.7.1+incompatible
