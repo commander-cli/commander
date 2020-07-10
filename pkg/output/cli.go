@@ -49,7 +49,7 @@ type TestResult struct {
 // GetEventHandler create a new runtime.EventHandler
 func (w *OutputWriter) GetEventHandler() *runtime.EventHandler {
 	handler := runtime.EventHandler{}
-	handler.TestFinsihed = func(testResult runtime.TestResult) {
+	handler.TestFinished = func(testResult runtime.TestResult) {
 		tr := convertTestResult(testResult)
 		w.printResult(tr)
 	}

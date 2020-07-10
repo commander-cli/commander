@@ -6,6 +6,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_RunnerExexcute(t *testing.T) {
+	s := getExampleTestCases()
+	r := Runner{
+		Nodes: getExampleNodes(),
+	}
+
+	got := r.Execute(s)
+
+	assert.IsType(t, make(<-chan TestResult), got)
+
+	count := 0
+	for r := range got {
+		assert.Equal(t, "Output hello", r.TestCase.Title)
+		assert.True(t, r.ValidationResult.Success)
+		count++
+	}
+	assert.Equal(t, 1, count)
+}
+
 func Test_getExecutor(t *testing.T) {
 	r := Runner{
 		Nodes: getExampleNodes(),
@@ -37,23 +56,4 @@ func getExampleNodes() []Node {
 		n1, n2, n3,
 	}
 	return nodes
-}
-
-func getExampleTestCases() []TestCase {
-	tests := []TestCase{
-		{
-			Command: CommandUnderTest{
-				Cmd:     "echo hello",
-				Timeout: "5s",
-			},
-			Expected: Expected{
-				Stdout: ExpectedOut{
-					Exactly: "hello",
-				},
-				ExitCode: 0,
-			},
-			Title: "Output hello",
-		},
-	}
-	return tests
 }

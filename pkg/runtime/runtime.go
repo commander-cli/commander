@@ -49,7 +49,7 @@ type Runtime struct {
 
 // EventHandler is a configurable event system that handles events such as test completion
 type EventHandler struct {
-	TestFinsihed func(TestResult)
+	TestFinished func(TestResult)
 }
 
 // TestCase represents a test case which will be executed by the runtime
@@ -140,7 +140,7 @@ func (r *Runtime) Start(tests []TestCase) Result {
 	start := time.Now()
 	for tr := range testCh {
 
-		r.EventHandler.TestFinsihed(tr)
+		r.EventHandler.TestFinished(tr)
 
 		if !tr.ValidationResult.Success {
 			result.Failed++

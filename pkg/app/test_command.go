@@ -60,7 +60,6 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 func testDir(directory string) (runtime.Result, error) {
 	result := runtime.Result{}
 
-	// TODO: validate entire dir before running tests: issue #129
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		return result, fmt.Errorf(err.Error())
@@ -68,7 +67,7 @@ func testDir(directory string) (runtime.Result, error) {
 
 	for _, f := range files {
 		if f.IsDir() {
-			continue // skip dirs: TODO add support for walking
+			continue // skip dirs
 		}
 
 		path := path.Join(directory, f.Name())

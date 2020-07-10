@@ -14,7 +14,7 @@ func Test_NewRuntime(t *testing.T) {
 }
 
 func Test_RuntimeStart(t *testing.T) {
-	s := getExampleTestSuite()
+	s := getExampleTestCases()
 	r := getRuntime()
 	got := r.Start(s)
 
@@ -30,7 +30,7 @@ func Test_RuntimeStart(t *testing.T) {
 }
 
 func TestRuntime_WithRetries(t *testing.T) {
-	s := getExampleTestSuite()
+	s := getExampleTestCases()
 	s[0].Command.Retries = 3
 	s[0].Command.Cmd = "echo fail"
 
@@ -48,7 +48,7 @@ func TestRuntime_WithRetries(t *testing.T) {
 }
 
 func Test_RuntimeWithRetriesAndInterval(t *testing.T) {
-	s := getExampleTestSuite()
+	s := getExampleTestCases()
 	s[0].Command.Retries = 3
 	s[0].Command.Cmd = "echo fail"
 	s[0].Command.Interval = "50ms"
@@ -71,7 +71,7 @@ func Test_RuntimeWithRetriesAndInterval(t *testing.T) {
 
 func getRuntime() Runtime {
 	eh := EventHandler{
-		TestFinsihed: func(tr TestResult) {
+		TestFinished: func(tr TestResult) {
 			fmt.Println("I do nothing")
 		},
 	}
@@ -80,7 +80,7 @@ func getRuntime() Runtime {
 	return runtime
 }
 
-func getExampleTestSuite() []TestCase {
+func getExampleTestCases() []TestCase {
 	tests := []TestCase{
 		{
 			Command: CommandUnderTest{

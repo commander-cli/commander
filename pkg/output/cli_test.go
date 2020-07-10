@@ -29,7 +29,7 @@ func Test_EventHandlerTestFinished(t *testing.T) {
 	testResults := createFakeTestResults()
 
 	for _, tr := range testResults {
-		eh.TestFinsihed(tr)
+		eh.TestFinished(tr)
 
 	}
 
