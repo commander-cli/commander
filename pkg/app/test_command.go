@@ -6,12 +6,13 @@ import (
 	"log"
 	"os"
 	"path"
-	"sync"
 
 	"github.com/SimonBaeumer/commander/pkg/output"
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/SimonBaeumer/commander/pkg/suite"
 )
+
+var out output.OutputWriter
 
 // TestCommand executes the test argument
 // testPath is the path to the test suite config, it can be a dir or file
@@ -19,117 +20,121 @@ import (
 // ctx holds the command flags. If directory scanning is enabled with --dir it is
 // not supported to filter tests, therefore testFilterTitle is an empty string
 func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext) error {
-	if ctx.Verbose == true {
+	if ctx.Verbose {
 		log.SetOutput(os.Stdout)
 	}
+
+	out = output.NewCliOutput(!ctx.NoColor)
 
 	if testPath == "" {
 		testPath = CommanderFile
 	}
 
-	var results <-chan runtime.TestResult
+	var result runtime.Result
 	var err error
-	if ctx.Dir {
+	switch {
+	case ctx.Dir:
 		if testFilterTitle != "" {
 			return fmt.Errorf("Test may not be filtered when --dir is enabled")
 		}
 		fmt.Println("Starting test against directory: " + testPath + "...")
 		fmt.Println("")
-		results, err = testDir(testPath)
-	} else {
+		result, err = testDir(testPath)
+	default:
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
-		results, err = testFile(testPath, testFilterTitle)
+		result, err = testFile(testPath, "", testFilterTitle)
 	}
 
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}
 
-	out := output.NewCliOutput(!ctx.NoColor)
-	if !out.Start(results) {
+	if !out.PrintSummary(result) && !ctx.Verbose {
 		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}
 
 	return nil
 }
 
-func testDir(directory string) (<-chan runtime.TestResult, error) {
+func testDir(directory string) (runtime.Result, error) {
+	result := runtime.Result{}
+
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return result, fmt.Errorf(err.Error())
 	}
 
-	results := make(chan runtime.TestResult)
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for _, f := range files {
-			// Skip reading dirs for now. Should we also check valid file types?
-			if f.IsDir() {
-				continue
-			}
-
-			fileResults, err := testFile(path.Join(directory, f.Name()), "")
-			if err != nil {
-				panic(fmt.Sprintf("%s: %s", f.Name(), err))
-			}
-
-			for r := range fileResults {
-				r.FileName = f.Name()
-				results <- r
-			}
+	for _, f := range files {
+		if f.IsDir() {
+			continue // skip dirs
 		}
-	}()
 
-	go func(ch chan runtime.TestResult) {
-		wg.Wait()
-		close(results)
-	}(results)
+		path := path.Join(directory, f.Name())
+		newResult, err := testFile(path, f.Name(), "")
+		if err != nil {
+			return result, err
+		}
 
-	return results, nil
+		result = convergeResults(result, newResult)
+	}
+
+	return result, nil
 }
 
-func testFile(filePath string, title string) (<-chan runtime.TestResult, error) {
-	content, err := readFile(filePath)
+func convergeResults(result runtime.Result, new runtime.Result) runtime.Result {
+	result.TestResults = append(result.TestResults, new.TestResults...)
+	result.Failed += new.Failed
+	result.Duration += new.Duration
+
+	return result
+}
+
+func testFile(filePath string, fileName string, title string) (runtime.Result, error) {
+	s, err := readFile(filePath, fileName)
 	if err != nil {
-		return nil, fmt.Errorf("Error " + err.Error())
+		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
 	}
 
-	var s suite.Suite
-	s = suite.ParseYAML(content)
+	return execute(s, title)
+}
+
+func execute(s suite.Suite, title string) (runtime.Result, error) {
 	tests := s.GetTests()
+
 	// Filter tests if test title was given
 	if title != "" {
 		test, err := s.GetTestByTitle(title)
 		if err != nil {
-			return nil, err
+			return runtime.Result{}, err
 		}
 		tests = []runtime.TestCase{test}
 	}
 
-	r := runtime.NewRuntime(s.Nodes...)
-	results := r.Start(tests)
+	r := runtime.NewRuntime(out.GetEventHandler(), s.Nodes...)
+	result := r.Start(tests)
 
-	return results, nil
+	return result, nil
 }
 
-func readFile(filePath string) ([]byte, error) {
+func readFile(filePath string, filName string) (suite.Suite, error) {
+	s := suite.Suite{}
+
 	f, err := os.Stat(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("open %s: no such file or directory", filePath)
+		return s, fmt.Errorf("open %s: no such file or directory", filePath)
 	}
 
 	if f.IsDir() {
-		return nil, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
+		return s, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
 	}
 
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return nil, err
+		return s, err
 	}
 
-	return content, nil
+	s = suite.ParseYAML(content, filName)
+
+	return s, nil
 }

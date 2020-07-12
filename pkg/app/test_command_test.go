@@ -8,7 +8,9 @@ import (
 	"runtime"
 	"sync"
 	"testing"
+	"time"
 
+	commanderRuntime "github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -74,6 +76,28 @@ func Test_TestCommand_Dir_FilterTitle(t *testing.T) {
 	} else {
 		assert.Equal(t, "Test may not be filtered when --dir is enabled", err.Error())
 	}
+}
+
+func Test_ConvergeResults(t *testing.T) {
+	duration, _ := time.ParseDuration("5s")
+
+	result1 := commanderRuntime.Result{
+		TestResults: []commanderRuntime.TestResult{},
+		Duration:    duration,
+		Failed:      1,
+	}
+
+	result2 := commanderRuntime.Result{
+		TestResults: []commanderRuntime.TestResult{},
+		Duration:    duration,
+		Failed:      0,
+	}
+
+	actual := convergeResults(result1, result2)
+
+	expectDur, _ := time.ParseDuration("10s")
+	assert.Equal(t, expectDur, actual.Duration)
+	assert.Equal(t, 1, actual.Failed)
 }
 
 func captureOutput(f func()) string {

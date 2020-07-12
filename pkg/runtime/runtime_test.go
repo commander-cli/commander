@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -8,20 +9,19 @@ import (
 )
 
 func Test_NewRuntime(t *testing.T) {
-	runtime := NewRuntime(Node{Name: "test"}, Node{Name: "test2"})
-
-	assert.Len(t, runtime.Nodes, 3)
+	runtime := getRuntime()
+	assert.Len(t, runtime.Runner.Nodes, 3)
 }
 
-func TestRuntime_Start(t *testing.T) {
-	s := getExampleTestSuite()
-	r := Runtime{}
+func Test_RuntimeStart(t *testing.T) {
+	s := getExampleTestCases()
+	r := getRuntime()
 	got := r.Start(s)
 
-	assert.IsType(t, make(<-chan TestResult), got)
+	assert.IsType(t, Result{}, got)
 
 	count := 0
-	for r := range got {
+	for _, r := range got.TestResults {
 		assert.Equal(t, "Output hello", r.TestCase.Title)
 		assert.True(t, r.ValidationResult.Success)
 		count++
@@ -30,15 +30,15 @@ func TestRuntime_Start(t *testing.T) {
 }
 
 func TestRuntime_WithRetries(t *testing.T) {
-	s := getExampleTestSuite()
+	s := getExampleTestCases()
 	s[0].Command.Retries = 3
 	s[0].Command.Cmd = "echo fail"
 
-	r := Runtime{}
+	r := getRuntime()
 	got := r.Start(s)
 
 	var counter = 0
-	for r := range got {
+	for _, r := range got.TestResults {
 		counter++
 		assert.False(t, r.ValidationResult.Success)
 		assert.Equal(t, 3, r.Tries)
@@ -47,18 +47,18 @@ func TestRuntime_WithRetries(t *testing.T) {
 	assert.Equal(t, 1, counter)
 }
 
-func TestRuntime_WithRetriesAndInterval(t *testing.T) {
-	s := getExampleTestSuite()
+func Test_RuntimeWithRetriesAndInterval(t *testing.T) {
+	s := getExampleTestCases()
 	s[0].Command.Retries = 3
 	s[0].Command.Cmd = "echo fail"
 	s[0].Command.Interval = "50ms"
 
 	start := time.Now()
-	r := Runtime{}
+	r := getRuntime()
 	got := r.Start(s)
 
 	var counter = 0
-	for r := range got {
+	for _, r := range got.TestResults {
 		counter++
 		assert.False(t, r.ValidationResult.Success)
 		assert.Equal(t, 3, r.Tries)
@@ -69,27 +69,18 @@ func TestRuntime_WithRetriesAndInterval(t *testing.T) {
 	assert.True(t, duration.Seconds() > 0.15, "Retry interval did not work")
 }
 
-func Test_Runtime_getExecutor(t *testing.T) {
-	r := NewRuntime(
-		Node{Name: "ssh-host", Type: "ssh"},
-		Node{Name: "localhost", Type: "local"},
-		Node{Name: "default", Type: ""},
-	)
+func getRuntime() Runtime {
+	eh := EventHandler{
+		TestFinished: func(tr TestResult) {
+			fmt.Println("I do nothing")
+		},
+	}
 
-	// If empty string set as type use local executor
-	n := r.getExecutor("default")
-	assert.IsType(t, LocalExecutor{}, n)
-
-	n = nil
-	n = r.getExecutor("localhost")
-	assert.IsType(t, LocalExecutor{}, n)
-
-	n = nil
-	n = r.getExecutor("ssh-host")
-	assert.IsType(t, SSHExecutor{}, n)
+	runtime := NewRuntime(&eh, Node{Name: "test"}, Node{Name: "test2"})
+	return runtime
 }
 
-func getExampleTestSuite() []TestCase {
+func getExampleTestCases() []TestCase {
 	tests := []TestCase{
 		{
 			Command: CommandUnderTest{

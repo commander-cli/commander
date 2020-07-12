@@ -6,121 +6,120 @@ import (
 	"log"
 	"os"
 	run "runtime"
-	"time"
 
 	"github.com/SimonBaeumer/commander/pkg/runtime"
 	"github.com/logrusorgru/aurora"
 )
 
-var au aurora.Aurora
-
 // OutputWriter represents the output
 type OutputWriter struct {
-	out   io.Writer
-	color bool
+	out      io.Writer
+	au       aurora.Aurora
+	template cliTemplate
 }
 
 // NewCliOutput creates a new OutputWriter with a stdout writer
 func NewCliOutput(color bool) OutputWriter {
-	return OutputWriter{
-		out:   os.Stdout,
-		color: color,
-	}
-}
-
-// Start starts the writing sequence
-func (w *OutputWriter) Start(results <-chan runtime.TestResult) bool {
-	au = aurora.NewAurora(w.color)
+	au := aurora.NewAurora(color)
 	if run.GOOS == "windows" {
 		au = aurora.NewAurora(false)
 	}
 
-	failed := 0
-	var testResults []runtime.TestResult
-	start := time.Now()
+	t := newCliTemplate()
 
-	for r := range results {
-		testResults = append(testResults, r)
-		if r.ValidationResult.Success {
-			w.printResult(r)
-		} else {
-			w.printResult(r)
-			failed++
-		}
+	return OutputWriter{
+		out:      os.Stdout,
+		au:       au,
+		template: t,
 	}
+}
 
-	duration := time.Since(start)
+// TestResult for output
+type TestResult struct {
+	FileName       string
+	Title          string
+	Node           string
+	Tries          int
+	Success        bool
+	FailedProperty string
+	Diff           string
+	Error          error
+}
 
-	if failed > 0 {
-		w.printFailures(testResults)
+// GetEventHandler create a new runtime.EventHandler
+func (w *OutputWriter) GetEventHandler() *runtime.EventHandler {
+	handler := runtime.EventHandler{}
+	handler.TestFinished = func(testResult runtime.TestResult) {
+		tr := convertTestResult(testResult)
+		w.printResult(tr)
+	}
+	return &handler
+}
+
+// PrintSummary prints summary
+func (w *OutputWriter) PrintSummary(result runtime.Result) bool {
+	if result.Failed > 0 {
+		w.printFailures(result.TestResults)
 	}
 
 	w.fprintf("")
-	w.fprintf(fmt.Sprintf("Duration: %.3fs", duration.Seconds()))
-	summary := fmt.Sprintf("Count: %d, Failed: %d", len(testResults), failed)
-	if failed > 0 {
-		w.fprintf(au.Red(summary))
+	w.fprintf(w.template.duration(result))
+	summary := w.template.summary(result)
+	if result.Failed > 0 {
+		w.fprintf(w.au.Red(summary))
 	} else {
-		w.fprintf(au.Green(summary))
+		w.fprintf(w.au.Green(summary))
 	}
 
-	return failed == 0
+	return result.Failed == 0
 }
 
-func (w *OutputWriter) printResult(r runtime.TestResult) {
-	if !r.ValidationResult.Success {
-		str := fmt.Sprintf("✗ [%s] %s", r.Node, r.TestCase.Title)
-		str = w.addFile(str, r)
-		s := w.addTries(str, r)
-		w.fprintf(au.Red(s))
+// PrintResult prints the simple output form of a TestReault
+func (w *OutputWriter) printResult(r TestResult) {
+	if !r.Success {
+		w.fprintf(w.au.Red(w.template.testResult(r)))
 		return
 	}
-	str := fmt.Sprintf("✓ [%s] %s", r.Node, r.TestCase.Title)
-	str = w.addFile(str, r)
-	s := w.addTries(str, r)
-	w.fprintf(s)
+	w.fprintf(w.template.testResult(r))
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 	w.fprintf("")
-	w.fprintf(au.Bold("Results"))
-	w.fprintf(au.Bold(""))
+	w.fprintf(w.au.Bold("Results"))
+	w.fprintf(w.au.Bold(""))
 
-	for _, r := range results {
-		if r.TestCase.Result.Error != nil {
-			str := fmt.Sprintf("✗ [%s] '%s' could not be executed with error message:", r.Node, r.TestCase.Title)
-			str = w.addFile(str, r)
-			w.fprintf(au.Bold(au.Red(str)))
-			w.fprintf(r.TestCase.Result.Error.Error())
+	for _, tr := range results {
+		r := convertTestResult(tr)
+		if r.Error != nil {
+			w.fprintf(w.au.Bold(w.au.Red(w.template.errors(r))))
+			w.fprintf(r.Error.Error())
 			continue
 		}
-
-		if !r.ValidationResult.Success {
-			str := fmt.Sprintf("✗ [%s] '%s', on property '%s'", r.Node, r.TestCase.Title, r.FailedProperty)
-			str = w.addFile(str, r)
-			w.fprintf(au.Bold(au.Red(str)))
-			w.fprintf(r.ValidationResult.Diff)
+		if !r.Success {
+			w.fprintf(w.au.Bold(w.au.Red(w.template.failures(r))))
+			w.fprintf(r.Diff)
 		}
 	}
-}
-
-func (w *OutputWriter) addFile(s string, r runtime.TestResult) string {
-	if r.FileName == "" {
-		return s
-	}
-	s = s[:3] + " [" + r.FileName + "]" + s[3:]
-	return s
-}
-
-func (w *OutputWriter) addTries(s string, r runtime.TestResult) string {
-	if r.Tries > 1 {
-		s = fmt.Sprintf("%s, retries %d", s, r.Tries)
-	}
-	return s
 }
 
 func (w *OutputWriter) fprintf(a ...interface{}) {
 	if _, err := fmt.Fprintln(w.out, a...); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// convert runtime.TestResult to output.TestResult
+func convertTestResult(tr runtime.TestResult) TestResult {
+	testResult := TestResult{
+		FileName:       tr.TestCase.FileName,
+		Title:          tr.TestCase.Title,
+		Node:           tr.Node,
+		Tries:          tr.Tries,
+		Success:        tr.ValidationResult.Success,
+		FailedProperty: tr.FailedProperty,
+		Diff:           tr.ValidationResult.Diff,
+		Error:          tr.TestCase.Result.Error,
+	}
+
+	return testResult
 }

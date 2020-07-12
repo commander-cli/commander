@@ -3,8 +3,6 @@ package output
 import (
 	"bytes"
 	"fmt"
-	"strings"
-	"sync"
 	"testing"
 
 	"github.com/SimonBaeumer/commander/pkg/runtime"
@@ -16,34 +14,53 @@ func Test_NewCliOutput(t *testing.T) {
 	assert.IsType(t, OutputWriter{}, got)
 }
 
-func Test_Start(t *testing.T) {
+func Test_GetEventHandler(t *testing.T) {
+	writer := NewCliOutput(true)
+	eh := writer.GetEventHandler()
+	assert.IsType(t, &runtime.EventHandler{}, eh)
+}
+
+func Test_EventHandlerTestFinished(t *testing.T) {
 	var buf bytes.Buffer
-	var wg sync.WaitGroup
-	results := make(chan runtime.TestResult)
+	writer := NewCliOutput(true)
+	writer.out = &buf
+	eh := writer.GetEventHandler()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	testResults := createFakeTestResults()
 
-		writer := OutputWriter{out: &buf}
-		got := writer.Start(results)
+	for _, tr := range testResults {
+		eh.TestFinished(tr)
 
-		assert.False(t, got)
-	}()
-
-	results <- runtime.TestResult{
-		TestCase: runtime.TestCase{
-			Title:   "Successful test",
-			Command: runtime.CommandUnderTest{},
-		},
-		ValidationResult: runtime.ValidationResult{
-			Success: true,
-		},
-		FailedProperty: "",
-		Node:           "docker-host",
 	}
 
-	results <- runtime.TestResult{
+	output := buf.String()
+
+	assert.Contains(t, output, "✗ [192.168.0.1] Failed test")
+	assert.Contains(t, output, "✓ [docker-host] Successful test")
+
+}
+
+func Test_PrintSummary(t *testing.T) {
+	r := runtime.Result{
+		Duration:    10,
+		Failed:      1,
+		TestResults: createFakeTestResults(),
+	}
+
+	var buf bytes.Buffer
+	writer := NewCliOutput(true)
+	writer.out = &buf
+
+	outResult := writer.PrintSummary(r)
+	assert.False(t, outResult)
+
+	output := buf.String()
+	assert.Contains(t, output, "✗ [192.168.0.1] 'Failed test', on property 'Stdout'")
+	assert.NotContains(t, output, "✓ [docker-host] Successful test")
+}
+
+func createFakeTestResults() []runtime.TestResult {
+	tr := runtime.TestResult{
 		TestCase: runtime.TestCase{
 			Title:   "Failed test",
 			Command: runtime.CommandUnderTest{},
@@ -55,32 +72,19 @@ func Test_Start(t *testing.T) {
 		Node:           "192.168.0.1",
 	}
 
-	results <- runtime.TestResult{
+	tr2 := runtime.TestResult{
 		TestCase: runtime.TestCase{
-			Title:   "Failed test on stderr",
+			Title:   "Successful test",
 			Command: runtime.CommandUnderTest{},
 		},
 		ValidationResult: runtime.ValidationResult{
-			Success: false,
+			Success: true,
 		},
-		FailedProperty: "Stderr",
-		Node:           "ssh-host1",
+		FailedProperty: "",
+		Node:           "docker-host",
 	}
 
-	results <- runtime.TestResult{
-		TestCase: runtime.TestCase{
-			Title: "Invalid command",
-			Command: runtime.CommandUnderTest{
-				Cmd: "some stupid config",
-			},
-			Result: runtime.CommandResult{
-				Error: fmt.Errorf("Some error message"),
-			},
-		},
-		Node: "local",
-	}
-
-	results <- runtime.TestResult{
+	tr3 := runtime.TestResult{
 		TestCase: runtime.TestCase{
 			Title: "Invalid command",
 			Command: runtime.CommandUnderTest{
@@ -94,50 +98,5 @@ func Test_Start(t *testing.T) {
 		Tries: 2,
 	}
 
-	close(results)
-	wg.Wait()
-
-	assert.True(t, true)
-	output := buf.String()
-	assert.Contains(t, output, "✓ [docker-host] Successful test")
-	assert.Contains(t, output, "✗ [192.168.0.1] Failed test")
-	assert.Contains(t, output, "✗ [local] 'Invalid command' could not be executed with error message")
-	assert.Contains(t, output, "✗ [ssh-host1] 'Failed test on stderr', on property 'Stderr'")
-	assert.Contains(t, output, "Some error message")
-}
-
-func Test_SuccessSuite(t *testing.T) {
-	var buf bytes.Buffer
-	var wg sync.WaitGroup
-	results := make(chan runtime.TestResult)
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		writer := OutputWriter{out: &buf}
-		got := writer.Start(results)
-
-		assert.True(t, got)
-	}()
-
-	results <- runtime.TestResult{
-		TestCase: runtime.TestCase{
-			Title:   "Successful test",
-			Command: runtime.CommandUnderTest{},
-		},
-		ValidationResult: runtime.ValidationResult{
-			Success: true,
-		},
-		FailedProperty: "",
-		Node:           "local",
-	}
-
-	close(results)
-	wg.Wait()
-
-	assert.True(t, true)
-	assert.True(t, strings.Contains(buf.String(), "✓ [local] Successful test"))
-	assert.True(t, strings.Contains(buf.String(), "Duration"))
-	assert.True(t, strings.Contains(buf.String(), "Count: 1, Failed: 0"))
+	return []runtime.TestResult{tr, tr2, tr3}
 }

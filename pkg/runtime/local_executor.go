@@ -1,9 +1,12 @@
 package runtime
 
 import (
-	"github.com/SimonBaeumer/cmd"
 	"log"
+	"os"
 	"strings"
+	"time"
+
+	"github.com/SimonBaeumer/cmd"
 )
 
 // LocalExecutor will be used to execute tests on the local host
@@ -61,4 +64,34 @@ func (e LocalExecutor) Execute(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
 	return Validate(test)
+}
+
+func createEnvVarsOption(test TestCase) func(c *cmd.Command) {
+	return func(c *cmd.Command) {
+		// Add all env variables from parent process
+		if test.Command.InheritEnv {
+			for _, v := range os.Environ() {
+				split := strings.Split(v, "=")
+				c.AddEnv(split[0], split[1])
+			}
+		}
+
+		// Add custom env variables
+		for k, v := range test.Command.Env {
+			c.AddEnv(k, v)
+		}
+	}
+}
+
+func createTimeoutOption(timeout string) (func(c *cmd.Command), error) {
+	timeoutOpt := cmd.WithoutTimeout
+	if timeout != "" {
+		d, err := time.ParseDuration(timeout)
+		if err != nil {
+			return func(c *cmd.Command) {}, err
+		}
+		timeoutOpt = cmd.WithTimeout(d)
+	}
+
+	return timeoutOpt, nil
 }
