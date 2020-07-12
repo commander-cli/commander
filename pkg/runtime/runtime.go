@@ -2,8 +2,6 @@ package runtime
 
 import (
 	"time"
-
-	"github.com/commander-cli/cmd"
 )
 
 // Constants for defining the various tested properties

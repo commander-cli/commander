@@ -2,6 +2,7 @@ module github.com/commander-cli/commander
 
 require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
+	github.com/SimonBaeumer/commander v1.3.0 // indirect
 	github.com/antchfx/xmlquery v1.1.0
 	github.com/antchfx/xpath v1.1.0 // indirect
 	github.com/commander-cli/cmd v1.3.0
