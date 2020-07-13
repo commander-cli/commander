@@ -1,3 +1,7 @@
+# v2.2.0
+
+ - Move from `github.com/SimonBaeumer` to `github.com/commander-cli`
+
 # v2.1.0
 
  - Add registry authentication for `docker` nodes

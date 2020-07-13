@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/commander-cli/commander/pkg/runtime"
 	"gopkg.in/yaml.v2"
 )
 

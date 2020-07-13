@@ -7,9 +7,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/SimonBaeumer/commander/pkg/output"
-	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/SimonBaeumer/commander/pkg/suite"
+	"github.com/commander-cli/commander/pkg/output"
+	"github.com/commander-cli/commander/pkg/runtime"
+	"github.com/commander-cli/commander/pkg/suite"
 )
 
 var out output.OutputWriter

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-LATEST=$(curl -s https://api.github.com/repos/SimonBaeumer/commander/releases/latest | jq -r .tag_name)
+LATEST=$(curl -s https://api.github.com/repos/commander-cli/commander/releases/latest | jq -r .tag_name)
 
 if [ -z "$COMMANDER_VER" ]; then
     COMMANDER_VER=${COMMANDER_VER:-$LATEST}
@@ -19,7 +19,7 @@ else
     arch="386"
 fi
 
-url="https://github.com/SimonBaeumer/commander/releases/download/$COMMANDER_VER/commander-linux-$arch"
+url="https://github.com/commander-cli/commander/releases/download/$COMMANDER_VER/commander-linux-$arch"
 
 echo "Downloading $url"
 curl -L "$url" -o "$INSTALL_LOC"

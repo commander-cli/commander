@@ -3,7 +3,7 @@ package suite
 import (
 	"fmt"
 
-	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/commander-cli/commander/pkg/runtime"
 )
 
 // Suite represents the current tests, nodes and configs.

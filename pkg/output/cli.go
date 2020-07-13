@@ -7,7 +7,7 @@ import (
 	"os"
 	run "runtime"
 
-	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/commander-cli/commander/pkg/runtime"
 	"github.com/logrusorgru/aurora"
 )
 

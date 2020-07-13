@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/SimonBaeumer/cmd.svg?branch=master)](https://travis-ci.org/SimonBaeumer/cmd)
-[![GoDoc](https://godoc.org/github.com/SimonBaeumer/cmd?status.svg)](https://godoc.org/github.com/SimonBaeumer/cmd)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/af3487439a313d580619/test_coverage)](https://codeclimate.com/github/SimonBaeumer/cmd/test_coverage)
-[![Maintainability](https://api.codeclimate.com/v1/badges/af3487439a313d580619/maintainability)](https://codeclimate.com/github/SimonBaeumer/cmd/maintainability)
-[![Go Report Card](https://goreportcard.com/badge/github.com/SimonBaeumer/cmd)](https://goreportcard.com/report/github.com/SimonBaeumer/cmd)
+[![Build Status](https://travis-ci.org/commander-cli/cmd.svg?branch=master)](https://travis-ci.org/commander-cli/cmd)
+[![GoDoc](https://godoc.org/github.com/commander-cli/cmd?status.svg)](https://godoc.org/github.com/commander-cli/cmd)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/af3487439a313d580619/test_coverage)](https://codeclimate.com/github/commander-cli/cmd/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/af3487439a313d580619/maintainability)](https://codeclimate.com/github/commander-cli/cmd/maintainability)
+[![Go Report Card](https://goreportcard.com/badge/github.com/commander-cli/cmd)](https://goreportcard.com/report/github.com/commander-cli/cmd)
 
 # cmd package
 
@@ -10,7 +10,7 @@ A simple package to execute shell commands on linux, darwin and windows.
 
 ## Installation
 
-`$ go get -u github.com/SimonBaeumer/cmd@v1.0.0`
+`$ go get -u github.com/commander-cli/cmd@v1.0.0`
 
 ## Usage
 

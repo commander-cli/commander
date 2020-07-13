@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"text/template"
 
-	"github.com/SimonBaeumer/commander/pkg/runtime"
+	"github.com/commander-cli/commander/pkg/runtime"
 )
 
 var resultTmpl = `

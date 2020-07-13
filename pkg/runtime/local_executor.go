@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/SimonBaeumer/cmd"
+	"github.com/commander-cli/cmd"
 )
 
 // LocalExecutor will be used to execute tests on the local host

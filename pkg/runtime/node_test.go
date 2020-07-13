@@ -1,7 +1,7 @@
 package runtime
 
 import (
-	"github.com/SimonBaeumer/cmd"
+	"github.com/commander-cli/cmd"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"

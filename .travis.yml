@@ -3,7 +3,7 @@ language: go
 env:
   global:
     - GO111MODULE=on
-    - CC_TEST_REPORTER_ID=4015795135868ee4781bd8cad1d345c20e7d0c2ef6ad5b0f08ccb13da24e66a1
+    - CC_TEST_REPORTER_ID=f97333d5fd390f3f77c129767cf8970cd288bf201bddee48e52197c86c7ce9c9
 
 stages:
   - test
@@ -20,7 +20,7 @@ services:
 
 before_install:
   - go get -u golang.org/x/lint/golint
-  - curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.1/commander-linux-amd64 -o ~/bin/commander
+  - curl -L https://github.com/commander-cli/commander/releases/download/v1.2.1/commander-linux-amd64 -o ~/bin/commander
   - chmod +x ~/bin/commander
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
   - name: macOS integration
     os: osx
     script:
-      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v0.3.0/commander-darwin-amd64 -o ~/bin/commander
+      - curl -L https://github.com/commander-cli/commander/releases/download/v0.3.0/commander-darwin-amd64 -o ~/bin/commander
       - chmod +x ~/bin/commander
       - make integration-unix
 
@@ -53,7 +53,7 @@ jobs:
     before_install:
       - choco install make
       - choco install curl
-      - curl -L https://github.com/SimonBaeumer/commander/releases/download/v1.2.1/commander-windows-amd64 -o C:\Windows\system32\commander.exe
+      - curl -L https://github.com/commander-cli/commander/releases/download/v1.2.1/commander-windows-amd64 -o C:\Windows\system32\commander.exe
     script:
       - make integration-windows
 
@@ -83,8 +83,7 @@ jobs:
     deploy:
       provider: releases
       overwrite: true
-      api_key:
-        secure: MMpRaIevc54qXtRQeGa/tZk4wjoOWGg4wpBcBaBJUBFMr2/y9s+qmXH49BThg95/gE2TwSPwPpcKlcAuhuB1h8aABzaAqK4+yA7/0diH2KQOfWDJinEuJ/lgFMt7JRXy5euam5vVFfPRGj+hIqxq51wfJDUcb4I7iGV2zC3L3o0QDX//V3CK5/j2G5tZ3PlEScv3wfthRfxmFz8H3LYWeRct3U2VbB3WPDr2c4sGxYzerhrihEC930m+vVB2A7UuvDNhT+1Q7h5e+h9FWAl47SZMuciqbJ8VAurakthVCtyF1p6F6jQ0SP47uH3f+f+v9WWTrEz7k8ENjb/9Cisw3+pzrUAlcxolytK5QTFxiYa7ukdqLwZCiUJg8s+Q+8VowZ+vVvfa+sjwP1d+OYdUpbtOldJrHZqbOUjPSMdI1fNsdQAr68TrZwUSsaXEkRiy9HIoZ3QryeTCVsjJ8T/urJVeUzp/VpefbgnQeN4UlnVjXuqEUgSNYeBDWM6LQNu/8ucZ2cWykt+Z3eJu+Zzl2+nlA8x07dtsRFdrx+SlomNyYod+hAG4suvwwKEL90HbQLs01jo3E3hGi827+dSzT3SDHvMEpyhw5BbVyqSWaZrRDukwpEDgjsiuzywZUkzVbeZHVJZOCkEWth8VY0A/L2dnv5ewbko/WribfBjdCsc=
+      api_key: $GITHUB_TOKEN
       file:
         - release/commander-linux-amd64
         - release/commander-linux-arm
@@ -95,5 +94,5 @@ jobs:
         - release/commander-windows-386.exe
       skip_cleanup: true
       on:
-        repo: SimonBaeumer/commander
+        repo: commander-cli/commander
         tags: true

@@ -1,7 +1,7 @@
 package runtime
 
 import (
-	"github.com/SimonBaeumer/commander/pkg/matcher"
+	"github.com/commander-cli/commander/pkg/matcher"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

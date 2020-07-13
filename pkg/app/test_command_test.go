@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	commanderRuntime "github.com/SimonBaeumer/commander/pkg/runtime"
+	commanderRuntime "github.com/commander-cli/commander/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 )
 

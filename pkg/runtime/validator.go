@@ -2,7 +2,7 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/SimonBaeumer/commander/pkg/matcher"
+	"github.com/commander-cli/commander/pkg/matcher"
 	"log"
 	"strings"
 )
