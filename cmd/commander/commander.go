@@ -47,7 +47,7 @@ func createTestCommand() cli.Command {
 	return cli.Command{
 		Name:      "test",
 		Usage:     "Execute the test suite, by default it will use the commander.yaml from your current directory",
-		ArgsUsage: "[file] [title]",
+		ArgsUsage: "[file] [--filter]",
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:   "no-color",
@@ -64,8 +64,15 @@ func createTestCommand() cli.Command {
 				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
 			},
 			cli.StringFlag{
-				Name:  "filter",
-				Usage: "Filter tests by a given regex pattern. Tests are filtered by its title.",
+				Name: "filter",
+				Usage: `Filter tests by a given regex pattern. Tests are filtered by its title.
+
+Example:
+test commander.yaml --filter="my test"
+
+Apply multiple filters separated by commas:
+test commander.yaml --filter=filter1,filter2
+`,
 			},
 		},
 		Action: func(c *cli.Context) error {
