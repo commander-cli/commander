@@ -39,7 +39,7 @@ func TestCommand(testPath string, ctx AddCommandContext) error {
 	default:
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
-		result, err = testFile(testPath, ctx.Filters)
+		result, err = testFile(testPath, "", ctx.Filters)
 	}
 
 	if err != nil {
@@ -85,17 +85,16 @@ func convergeResults(result runtime.Result, new runtime.Result) runtime.Result {
 	return result
 }
 
-func testFile(filePath string, fileName string, filters runtime.Filters) (<-chan runtime.TestResult, error) {
-	content, err := readFile(filePath, fileName)
+func testFile(filePath string, fileName string, filters runtime.Filters) (runtime.Result, error) {
+	s, err := readFile(filePath, fileName)
 	if err != nil {
 		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
 	}
 
-	return execute(content, filters)
+	return execute(s, filters)
 }
 
-func execute(s suite.Suite, title string) (runtime.Result, error)
-{
+func execute(s suite.Suite, filters runtime.Filters) (runtime.Result, error) {
 	tests := s.GetTests()
 	if len(filters) != 0 {
 		tests = []runtime.TestCase{}

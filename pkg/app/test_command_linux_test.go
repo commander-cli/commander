@@ -1,10 +1,11 @@
 package app
 
 import (
-	"github.com/SimonBaeumer/commander/pkg/runtime"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"testing"
+
+	"github.com/commander-cli/commander/pkg/runtime"
+	"github.com/stretchr/testify/assert"
 )
 
 const TestSuiteFile = "/tmp/commander_test.yaml"

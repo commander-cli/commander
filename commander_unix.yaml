@@ -79,3 +79,24 @@ tests:
       contains:
         - 'integration/unix/directory_test/: is a directory'
     exit-code: 1
+
+  test filter flag works:
+    command: ./commander test integration/unix/filter_test.yaml --filter=executed
+    stdout:
+      contains:
+        - ✓ [local] should be executed
+        - ✓ [local] should also be executed
+      not-contains:
+        - should be filtered
+    exit-code: 0
+
+  test filter flag with regex:
+    command: ./commander test integration/unix/filter_test.yaml --filter="executed$"
+    stdout:
+      contains:
+        - ✓ [local] should be executed
+        - ✓ [local] should also be executed
+      not-contains:
+        - should be ignored
+        - executed at the beginning is ignored
+    exit-code: 0

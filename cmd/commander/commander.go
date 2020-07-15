@@ -69,7 +69,7 @@ func createTestCommand() cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			return app.TestCommand(c.Args().First(), c.Args().Get(1), app.NewAddContextFromCli(c))
+			return app.TestCommand(c.Args().First(), app.NewAddContextFromCli(c))
 		},
 	}
 }
