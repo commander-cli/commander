@@ -100,3 +100,14 @@ tests:
         - should be ignored
         - executed at the beginning is ignored
     exit-code: 0
+
+  test mulitple filters:
+    command: ./commander test integration/unix/filter_test.yaml --filter="executed$,should be ignored"
+    stdout:
+      contains:
+        - ✓ [local] should be executed
+        - ✓ [local] should also be executed
+        - ✓ [local] should be ignored
+      not-contains:
+        - executed at the beginning is ignored
+    exit-code: 0
