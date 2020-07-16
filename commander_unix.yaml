@@ -102,7 +102,7 @@ tests:
     exit-code: 0
 
   test mulitple filters:
-    command: ./commander test integration/unix/filter_test.yaml --filter="executed$,should be ignored"
+    command: ./commander test integration/unix/filter_test.yaml --filter="executed$" --filter="should be ignored"
     stdout:
       contains:
         - ✓ [local] should be executed

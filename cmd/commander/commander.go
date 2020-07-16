@@ -63,15 +63,15 @@ func createTestCommand() cli.Command {
 				Name:  "dir",
 				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
 			},
-			cli.StringFlag{
+			cli.StringSliceFlag{
 				Name: "filter",
 				Usage: `Filter tests by a given regex pattern. Tests are filtered by its title.
 
 Example:
 test commander.yaml --filter="my test"
 
-Apply multiple filters separated by commas:
-test commander.yaml --filter=filter1,filter2
+Apply multiple filters:
+test commander.yaml --filter=filter1 --filter=filter2
 `,
 			},
 		},
