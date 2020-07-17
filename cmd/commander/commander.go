@@ -76,7 +76,7 @@ test commander.yaml --filter=filter1 --filter=filter2
 			},
 		},
 		Action: func(c *cli.Context) error {
-			return app.TestCommand(c.Args().First(), app.NewAddContextFromCli(c))
+			return app.TestCommand(c.Args().First(), app.NewTestContextFromCli(c))
 		},
 	}
 }

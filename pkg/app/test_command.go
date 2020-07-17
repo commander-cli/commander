@@ -18,7 +18,7 @@ var out output.OutputWriter
 // testPath is the path to the test suite config, it can be a dir or file
 // ctx holds the command flags. If directory scanning is enabled with --dir it is
 // not supported to filter tests, therefore testFilterTitle is an empty string
-func TestCommand(testPath string, ctx AddCommandContext) error {
+func TestCommand(testPath string, ctx TestCommandContext) error {
 	if ctx.Verbose {
 		log.SetOutput(os.Stdout)
 	}
@@ -65,8 +65,8 @@ func testDir(directory string, filters runtime.Filters) (runtime.Result, error) 
 			continue // skip dirs
 		}
 
-		path := path.Join(directory, f.Name())
-		newResult, err := testFile(path, f.Name(), filters)
+		p := path.Join(directory, f.Name())
+		newResult, err := testFile(p, f.Name(), filters)
 		if err != nil {
 			return result, err
 		}

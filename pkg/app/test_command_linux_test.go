@@ -20,7 +20,7 @@ tests:
 
 	assert.Nil(t, err)
 
-	got := TestCommand(TestSuiteFile, AddCommandContext{})
+	got := TestCommand(TestSuiteFile, TestCommandContext{})
 	assert.Nil(t, got)
 }
 
@@ -34,7 +34,7 @@ tests:
 
 	assert.Nil(t, err)
 
-	got := TestCommand(TestSuiteFile, AddCommandContext{})
+	got := TestCommand(TestSuiteFile, TestCommandContext{})
 	assert.Equal(t, "Test suite failed, use --verbose for more detailed output", got.Error())
 
 }
@@ -53,7 +53,7 @@ tests:
 
 	assert.Nil(t, err)
 
-	context := AddCommandContext{}
+	context := TestCommandContext{}
 	context.Filters = runtime.Filters{"my title"}
 	got := TestCommand(TestSuiteFile, context)
 	assert.Nil(t, got)
