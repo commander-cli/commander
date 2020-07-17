@@ -1,6 +1,8 @@
 package app
 
-import "github.com/urfave/cli"
+import (
+	"github.com/urfave/cli"
+)
 
 const (
 	//AppName defines the app name
@@ -9,20 +11,22 @@ const (
 	CommanderFile = "commander.yaml"
 )
 
-//AddCommandContext holds all flags for the add command
-type AddCommandContext struct {
+//TestCommandContext holds all flags for the add command
+type TestCommandContext struct {
 	Verbose    bool
 	NoColor    bool
 	Dir        bool
 	Concurrent int
+	Filters    []string
 }
 
-//NewAddContextFromCli is a constructor which creates the context
-func NewAddContextFromCli(c *cli.Context) AddCommandContext {
-	return AddCommandContext{
+//NewTestContextFromCli is a constructor which creates the context
+func NewTestContextFromCli(c *cli.Context) TestCommandContext {
+	return TestCommandContext{
 		Verbose:    c.Bool("verbose"),
 		NoColor:    c.Bool("no-color"),
 		Dir:        c.Bool("dir"),
 		Concurrent: c.Int("concurrent"),
+		Filters:    c.StringSlice("filter"),
 	}
 }

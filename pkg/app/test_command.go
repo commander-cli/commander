@@ -16,10 +16,9 @@ var out output.OutputWriter
 
 // TestCommand executes the test argument
 // testPath is the path to the test suite config, it can be a dir or file
-// titleFilterTitle is the title of test which should be executed, if empty it will execute all tests
 // ctx holds the command flags. If directory scanning is enabled with --dir it is
 // not supported to filter tests, therefore testFilterTitle is an empty string
-func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext) error {
+func TestCommand(testPath string, ctx TestCommandContext) error {
 	if ctx.Verbose {
 		log.SetOutput(os.Stdout)
 	}
@@ -34,16 +33,13 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 	var err error
 	switch {
 	case ctx.Dir:
-		if testFilterTitle != "" {
-			return fmt.Errorf("Test may not be filtered when --dir is enabled")
-		}
 		fmt.Println("Starting test against directory: " + testPath + "...")
 		fmt.Println("")
-		result, err = testDir(testPath)
+		result, err = testDir(testPath, ctx.Filters)
 	default:
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
-		result, err = testFile(testPath, "", testFilterTitle)
+		result, err = testFile(testPath, "", ctx.Filters)
 	}
 
 	if err != nil {
@@ -57,9 +53,8 @@ func TestCommand(testPath string, testFilterTitle string, ctx AddCommandContext)
 	return nil
 }
 
-func testDir(directory string) (runtime.Result, error) {
+func testDir(directory string, filters runtime.Filters) (runtime.Result, error) {
 	result := runtime.Result{}
-
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		return result, fmt.Errorf(err.Error())
@@ -70,8 +65,8 @@ func testDir(directory string) (runtime.Result, error) {
 			continue // skip dirs
 		}
 
-		path := path.Join(directory, f.Name())
-		newResult, err := testFile(path, f.Name(), "")
+		p := path.Join(directory, f.Name())
+		newResult, err := testFile(p, f.Name(), filters)
 		if err != nil {
 			return result, err
 		}
@@ -90,25 +85,28 @@ func convergeResults(result runtime.Result, new runtime.Result) runtime.Result {
 	return result
 }
 
-func testFile(filePath string, fileName string, title string) (runtime.Result, error) {
+func testFile(filePath string, fileName string, filters runtime.Filters) (runtime.Result, error) {
 	s, err := readFile(filePath, fileName)
 	if err != nil {
 		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
 	}
 
-	return execute(s, title)
+	return execute(s, filters)
 }
 
-func execute(s suite.Suite, title string) (runtime.Result, error) {
+func execute(s suite.Suite, filters runtime.Filters) (runtime.Result, error) {
 	tests := s.GetTests()
+	if len(filters) != 0 {
+		tests = []runtime.TestCase{}
+	}
 
-	// Filter tests if test title was given
-	if title != "" {
-		test, err := s.GetTestByTitle(title)
+	// Filter tests if test filters was given
+	for _, f := range filters {
+		t, err := s.FindTests(f)
 		if err != nil {
 			return runtime.Result{}, err
 		}
-		tests = []runtime.TestCase{test}
+		tests = append(tests, t...)
 	}
 
 	r := runtime.NewRuntime(out.GetEventHandler(), s.Nodes...)

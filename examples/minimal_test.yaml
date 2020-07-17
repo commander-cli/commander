@@ -1,3 +1,5 @@
 tests:
   echo hello:
     exit-code: 0
+  echo hello123:
+    exit-code: 0

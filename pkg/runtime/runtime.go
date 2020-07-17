@@ -22,6 +22,8 @@ const (
 	Skipped
 )
 
+type Filters []string
+
 // NewRuntime creates a new runtime and inits default nodes
 func NewRuntime(eh *EventHandler, nodes ...Node) Runtime {
 	local := Node{

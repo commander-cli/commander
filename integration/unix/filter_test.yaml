@@ -1,0 +1,16 @@
+tests:
+  should be executed:
+    command: echo executed
+    exit-code: 0
+
+  should also be executed:
+    command: echo executed
+    exit-code: 0
+
+  executed at the beginning is ignored:
+    command: echo ignored
+    exit-code: 0
+
+  should be ignored:
+    command: echo filtered
+    exit-code: 0
