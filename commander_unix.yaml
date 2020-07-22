@@ -112,3 +112,14 @@ tests:
       not-contains:
         - executed at the beginning is ignored
     exit-code: 0
+
+  it should be executed in alphabetical order:
+    command: ./commander test integration/unix/alphabetically_order.yaml
+    stdout:
+      contains:
+      - |-
+        ✓ [local] ---
+        ✓ [local] 123
+        ✓ [local] a
+        ✓ [local] b
+    exit-code: 0

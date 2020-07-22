@@ -1,0 +1,13 @@
+tests:
+  a:
+    command: echo test
+    exit-code: 0
+  b:
+    command: echo test
+    exit-code: 0
+  123:
+    command: echo test
+    exit-code: 0
+  "---":
+    command: echo test
+    exit-code: 0

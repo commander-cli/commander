@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"log"
+	"sort"
 	"time"
 )
 
@@ -131,10 +132,16 @@ type Result struct {
 
 // Start starts the given test suite and executes all tests
 func (r *Runtime) Start(tests []TestCase) Result {
+	// Sort tests alphabetically to preserve a reproducible execution order
+	sort.SliceStable(tests, func(i, j int) bool {
+		return tests[i].Title < tests[j].Title
+	})
+
 	result := Result{}
 	testCh := r.Runner.Run(tests)
 	start := time.Now()
 	for tr := range testCh {
+		r.EventHandler.TestFinished(tr)
 		if tr.Skipped {
 			result.Skipped++
 
