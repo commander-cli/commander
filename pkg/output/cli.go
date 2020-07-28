@@ -44,6 +44,7 @@ type TestResult struct {
 	FailedProperty string
 	Diff           string
 	Error          error
+	Skip           bool
 }
 
 // GetEventHandler create a new runtime.EventHandler
@@ -53,6 +54,12 @@ func (w *OutputWriter) GetEventHandler() *runtime.EventHandler {
 		tr := convertTestResult(testResult)
 		w.printResult(tr)
 	}
+
+	handler.TestSkipped = func(testResult runtime.TestResult) {
+		tr := convertTestResult(testResult)
+		w.printSkipped(tr)
+	}
+
 	return &handler
 }
 
@@ -74,13 +81,17 @@ func (w *OutputWriter) PrintSummary(result runtime.Result) bool {
 	return result.Failed == 0
 }
 
-// PrintResult prints the simple output form of a TestReault
+// printResult prints the simple output form of a TestReault
 func (w *OutputWriter) printResult(r TestResult) {
 	if !r.Success {
 		w.fprintf(w.au.Red(w.template.testResult(r)))
 		return
 	}
 	w.fprintf(w.template.testResult(r))
+}
+
+func (w *OutputWriter) printSkipped(r TestResult) {
+	w.fprintf(fmt.Sprintf("- [skipped] %s: was skipped", r.Title))
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {
@@ -119,6 +130,7 @@ func convertTestResult(tr runtime.TestResult) TestResult {
 		FailedProperty: tr.FailedProperty,
 		Diff:           tr.ValidationResult.Diff,
 		Error:          tr.TestCase.Result.Error,
+		Skip:           tr.Skipped,
 	}
 
 	return testResult
