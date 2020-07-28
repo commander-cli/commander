@@ -47,6 +47,7 @@ type YAMLTest struct {
 	Stdout   interface{}        `yaml:"stdout,omitempty"`
 	Stderr   interface{}        `yaml:"stderr,omitempty"`
 	Config   YAMLTestConfigConf `yaml:"config,omitempty"`
+	Disable  bool               `yaml:"disable,omitempty"`
 }
 
 // ParseYAML parses the Suite from a yaml byte slice
@@ -118,6 +119,7 @@ func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf, fileName string) []runt
 			},
 			Nodes:    t.Config.Nodes,
 			FileName: fileName,
+			Disable:  t.Disable,
 		})
 	}
 
@@ -152,6 +154,7 @@ func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Stdout:   y.convertToExpectedOut(v.Stdout),
 			Stderr:   y.convertToExpectedOut(v.Stderr),
 			Config:   y.mergeConfigs(v.Config, params.Config),
+			Disable:  v.Disable,
 		}
 
 		// Set key as command, if command property was empty

@@ -12,16 +12,6 @@ const (
 	LineCount = "LineCount"
 )
 
-// Result status codes
-const (
-	//Success status
-	Success ResultStatus = iota
-	// Failed status
-	Failed
-	// Skipped status
-	Skipped
-)
-
 type Filters []string
 
 // NewRuntime creates a new runtime and inits default nodes
@@ -62,6 +52,7 @@ type TestCase struct {
 	Result   CommandResult
 	Nodes    []string
 	FileName string
+	Disable  bool
 }
 
 //GlobalTestConfig represents the configuration for a test
@@ -125,7 +116,7 @@ type TestResult struct {
 	FailedProperty   string
 	Tries            int
 	Node             string
-	FileName         string
+	Skipped          bool
 }
 
 // Result respresents the aggregation of all TestResults/summary of a runtime
@@ -133,6 +124,7 @@ type Result struct {
 	TestResults []TestResult
 	Duration    time.Duration
 	Failed      int
+	Skipped     int
 }
 
 // Start starts the given test suite and executes all tests
@@ -141,8 +133,13 @@ func (r *Runtime) Start(tests []TestCase) Result {
 	testCh := r.Runner.Execute(tests)
 	start := time.Now()
 	for tr := range testCh {
-
 		r.EventHandler.TestFinished(tr)
+
+		if tr.Skipped {
+			result.Skipped++
+			// Do not count as failed
+			tr.ValidationResult.Success = true
+		}
 
 		if !tr.ValidationResult.Success {
 			result.Failed++

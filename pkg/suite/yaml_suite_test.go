@@ -74,6 +74,28 @@ tests:
 	assert.Equal(t, "line4", tests[0].Expected.Stdout.Lines[3])
 }
 
+func TestYAMLConfig_UnmarshalYAML_ShouldDisable(t *testing.T) {
+	yaml := []byte(`
+tests:
+    it should print hello:
+        command: echo hello
+        exit-code: 0
+        stdout: hello
+        stderr: anything
+        disable: true
+`)
+	got := ParseYAML(yaml, "")
+	tests := got.GetTests()
+
+	assert.Len(t, tests, 1)
+	assert.Equal(t, "echo hello", tests[0].Command.Cmd)
+	assert.Equal(t, 0, tests[0].Expected.ExitCode)
+	assert.Equal(t, "it should print hello", tests[0].Title)
+	assert.Equal(t, "hello", tests[0].Expected.Stdout.Contains[0])
+	assert.Equal(t, "anything", tests[0].Expected.Stderr.Contains[0])
+	assert.True(t, tests[0].Disable)
+}
+
 func TestYAMLConfig_UnmarshalYAML_ShouldConvertStdoutToExpectedOut(t *testing.T) {
 	yaml := []byte(`
 tests:

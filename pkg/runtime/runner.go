@@ -19,9 +19,16 @@ func (r *Runner) Execute(tests []TestCase) <-chan TestResult {
 
 	go func(tests []TestCase) {
 		defer close(in)
+
 		for _, t := range tests {
+			if t.Disable {
+				tr := TestResult{TestCase: t, Skipped: true}
+				out <- tr
+				continue
+			}
 			in <- t
 		}
+
 	}(tests)
 
 	var wg sync.WaitGroup

@@ -69,6 +69,16 @@ func Test_RuntimeWithRetriesAndInterval(t *testing.T) {
 	assert.True(t, duration.Seconds() > 0.15, "Retry interval did not work")
 }
 
+func Test_RuntimeWithSkip(t *testing.T) {
+	s := getExampleTestCases()
+	s[0].Disable = true
+
+	r := getRuntime()
+	got := r.Start(s)
+
+	assert.Equal(t, 1, got.Skipped)
+}
+
 func getRuntime() Runtime {
 	eh := EventHandler{
 		TestFinished: func(tr TestResult) {

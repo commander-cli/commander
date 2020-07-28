@@ -20,3 +20,7 @@ tests:
     command: invalid
     stderr: "/bin/sh: 1: command invalid: not found"
     exit-code: 127
+
+  it should skip:
+    command: echo hello
+    disable: true
