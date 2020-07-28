@@ -131,10 +131,11 @@ type Result struct {
 // Start starts the given test suite and executes all tests
 func (r *Runtime) Start(tests []TestCase) Result {
 	result := Result{}
-	testCh := r.Runner.Execute(tests)
+	testCh := r.Runner.Run(tests)
 	start := time.Now()
 	for tr := range testCh {
 		if tr.Skipped {
+			result.Skipped++
 			r.EventHandler.TestSkipped(tr)
 			result.TestResults = append(result.TestResults, tr)
 			continue

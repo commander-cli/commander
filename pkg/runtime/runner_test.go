@@ -12,7 +12,7 @@ func Test_RunnerExexcute(t *testing.T) {
 		Nodes: getExampleNodes(),
 	}
 
-	got := r.Execute(s)
+	got := r.Run(s)
 
 	assert.IsType(t, make(<-chan TestResult), got)
 

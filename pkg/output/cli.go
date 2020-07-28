@@ -57,7 +57,7 @@ func (w *OutputWriter) GetEventHandler() *runtime.EventHandler {
 
 	handler.TestSkipped = func(testResult runtime.TestResult) {
 		tr := convertTestResult(testResult)
-		w.printSkipped(tr)
+		w.printSkip(tr)
 	}
 
 	return &handler
@@ -90,7 +90,7 @@ func (w *OutputWriter) printResult(r TestResult) {
 	w.fprintf(w.template.testResult(r))
 }
 
-func (w *OutputWriter) printSkipped(r TestResult) {
+func (w *OutputWriter) printSkip(r TestResult) {
 	w.fprintf(fmt.Sprintf("- [skipped] %s: was skipped", r.Title))
 }
 

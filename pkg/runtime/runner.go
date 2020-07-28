@@ -12,23 +12,16 @@ type Runner struct {
 	Nodes []Node
 }
 
-// Execute the runner
-func (r *Runner) Execute(tests []TestCase) <-chan TestResult {
+// Run the runner
+func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 	in := make(chan TestCase)
 	out := make(chan TestResult)
 
 	go func(tests []TestCase) {
 		defer close(in)
-
 		for _, t := range tests {
-			if t.Disable {
-				tr := TestResult{TestCase: t, Skipped: true}
-				out <- tr
-				continue
-			}
 			in <- t
 		}
-
 	}(tests)
 
 	var wg sync.WaitGroup
@@ -38,6 +31,13 @@ func (r *Runner) Execute(tests []TestCase) <-chan TestResult {
 		defer wg.Done()
 
 		for t := range tests {
+			// If test is disabled skip it
+			if t.Disable {
+				tr := TestResult{TestCase: t, Skipped: true}
+				out <- tr
+				continue
+			}
+
 			// If no node was set use local mode as default
 			if len(t.Nodes) == 0 {
 				t.Nodes = []string{"local"}
@@ -60,7 +60,6 @@ func (r *Runner) Execute(tests []TestCase) <-chan TestResult {
 				}
 				out <- result
 			}
-
 		}
 	}(in)
 

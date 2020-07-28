@@ -84,6 +84,9 @@ func getRuntime() Runtime {
 		TestFinished: func(tr TestResult) {
 			fmt.Println("I do nothing")
 		},
+		TestSkipped: func(tr TestResult) {
+			fmt.Printf("%s was skipped", tr.TestCase.Title)
+		},
 	}
 
 	runtime := NewRuntime(&eh, Node{Name: "test"}, Node{Name: "test2"})
