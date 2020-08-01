@@ -1,5 +1,6 @@
 # v2.3.0
 
+ - Preserve test execution order alphabetical order
  - Add property `skip`, adds the ability to skip test cases 
 
 # v2.2.0
