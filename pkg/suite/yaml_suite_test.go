@@ -82,7 +82,7 @@ tests:
         exit-code: 0
         stdout: hello
         stderr: anything
-        disable: true
+        skip: true
 `)
 	got := ParseYAML(yaml, "")
 	tests := got.GetTests()
@@ -93,7 +93,7 @@ tests:
 	assert.Equal(t, "it should print hello", tests[0].Title)
 	assert.Equal(t, "hello", tests[0].Expected.Stdout.Contains[0])
 	assert.Equal(t, "anything", tests[0].Expected.Stderr.Contains[0])
-	assert.True(t, tests[0].Disable)
+	assert.True(t, tests[0].Skip)
 }
 
 func TestYAMLConfig_UnmarshalYAML_ShouldConvertStdoutToExpectedOut(t *testing.T) {

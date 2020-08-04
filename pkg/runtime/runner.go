@@ -32,7 +32,7 @@ func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 
 		for t := range tests {
 			// If test is disabled skip it
-			if t.Disable {
+			if t.Skip {
 				tr := TestResult{TestCase: t, Skipped: true}
 				out <- tr
 				continue

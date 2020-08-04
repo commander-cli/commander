@@ -53,7 +53,7 @@ type TestCase struct {
 	Result   CommandResult
 	Nodes    []string
 	FileName string
-	Disable  bool
+	Skip     bool
 }
 
 //GlobalTestConfig represents the configuration for a test

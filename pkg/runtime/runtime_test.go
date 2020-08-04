@@ -71,7 +71,7 @@ func Test_RuntimeWithRetriesAndInterval(t *testing.T) {
 
 func Test_RuntimeWithSkip(t *testing.T) {
 	s := getExampleTestCases()
-	s[0].Disable = true
+	s[0].Skip = true
 
 	r := getRuntime()
 	got := r.Start(s)

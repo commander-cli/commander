@@ -23,4 +23,4 @@ tests:
 
   it should skip:
     command: echo hello
-    disable: true
+    skip: true
