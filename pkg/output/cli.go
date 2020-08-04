@@ -44,7 +44,7 @@ type TestResult struct {
 	FailedProperty string
 	Diff           string
 	Error          error
-	Skip           bool
+	Skipped        bool
 }
 
 // GetEventHandler create a new runtime.EventHandler
@@ -91,7 +91,7 @@ func (w *OutputWriter) printResult(r TestResult) {
 }
 
 func (w *OutputWriter) printSkip(r TestResult) {
-	w.fprintf(fmt.Sprintf("- [skipped] %s: was skipped", r.Title))
+	w.fprintf(fmt.Sprintf("- [skipped] %s", r.Title))
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {
@@ -106,7 +106,7 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 			w.fprintf(r.Error.Error())
 			continue
 		}
-		if !r.Success {
+		if !r.Success && !r.Skipped {
 			w.fprintf(w.au.Bold(w.au.Red(w.template.failures(r))))
 			w.fprintf(r.Diff)
 		}
@@ -130,7 +130,7 @@ func convertTestResult(tr runtime.TestResult) TestResult {
 		FailedProperty: tr.FailedProperty,
 		Diff:           tr.ValidationResult.Diff,
 		Error:          tr.TestCase.Result.Error,
-		Skip:           tr.Skipped,
+		Skipped:        tr.Skipped,
 	}
 
 	return testResult

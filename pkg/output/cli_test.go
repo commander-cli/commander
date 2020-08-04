@@ -30,14 +30,28 @@ func Test_EventHandlerTestFinished(t *testing.T) {
 
 	for _, tr := range testResults {
 		eh.TestFinished(tr)
-
 	}
 
 	output := buf.String()
-
 	assert.Contains(t, output, "✗ [192.168.0.1] Failed test")
 	assert.Contains(t, output, "✓ [docker-host] Successful test")
+}
 
+func Test_EventHandlerTestSkipped(t *testing.T) {
+	var buf bytes.Buffer
+	writer := NewCliOutput(true)
+	writer.out = &buf
+	eh := writer.GetEventHandler()
+
+	testResults := createFakeTestResults()
+
+	for _, tr := range testResults {
+		if tr.Skipped {
+			eh.TestSkipped(tr)
+		}
+	}
+	output := buf.String()
+	assert.Contains(t, output, "- [skipped] Skipped test")
 }
 
 func Test_PrintSummary(t *testing.T) {
@@ -98,5 +112,15 @@ func createFakeTestResults() []runtime.TestResult {
 		Tries: 2,
 	}
 
-	return []runtime.TestResult{tr, tr2, tr3}
+	tr4 := runtime.TestResult{
+		TestCase: runtime.TestCase{
+			Title:   "Skipped test",
+			Command: runtime.CommandUnderTest{},
+		},
+		FailedProperty: "Stdout",
+		Node:           "192.168.0.1",
+		Skipped:        true,
+	}
+
+	return []runtime.TestResult{tr, tr2, tr3, tr4}
 }

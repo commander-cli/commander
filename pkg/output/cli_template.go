@@ -40,7 +40,7 @@ var commanderTmpl = `
 
 // Summary
 {{define "summary" -}}
-	Count: {{len .TestResults}}, Failed: {{ .Failed }}
+	Count: {{len .TestResults}}, Failed: {{ .Failed }}, Skipped: {{ .Skipped }}
 {{- end -}}
 
 // Result

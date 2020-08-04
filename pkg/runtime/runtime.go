@@ -141,12 +141,11 @@ func (r *Runtime) Start(tests []TestCase) Result {
 			continue
 		}
 
-		r.EventHandler.TestFinished(tr)
-
 		if !tr.ValidationResult.Success {
 			result.Failed++
 		}
 
+		r.EventHandler.TestFinished(tr)
 		result.TestResults = append(result.TestResults, tr)
 	}
 	result.Duration = time.Since(start)
