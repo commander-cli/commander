@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"log"
 	"time"
 )
 
@@ -136,6 +137,12 @@ func (r *Runtime) Start(tests []TestCase) Result {
 	for tr := range testCh {
 		if tr.Skipped {
 			result.Skipped++
+
+			log.Println("title: '"+tr.TestCase.Title+"'", " Was skipped")
+			log.Println("title: '"+tr.TestCase.Title+"'", " Command: ", tr.TestCase.Command.Cmd)
+			log.Println("title: '"+tr.TestCase.Title+"'", " Directory: ", tr.TestCase.Command.Dir)
+			log.Println("title: '"+tr.TestCase.Title+"'", " Env: ", tr.TestCase.Command.Env)
+
 			r.EventHandler.TestSkipped(tr)
 			result.TestResults = append(result.TestResults, tr)
 			continue
