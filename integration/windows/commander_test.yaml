@@ -39,3 +39,8 @@ tests:
     stdout:
       not-contains:
       - not contains
+
+  it should skip:
+    command: whoami
+    stdout: root
+    skip: true

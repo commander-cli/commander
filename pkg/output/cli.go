@@ -91,7 +91,7 @@ func (w *OutputWriter) printResult(r TestResult) {
 }
 
 func (w *OutputWriter) printSkip(r TestResult) {
-	w.fprintf(fmt.Sprintf("- [skipped] %s", r.Title))
+	w.fprintf(fmt.Sprintf("- [] %s, was skipped", r.Title))
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {

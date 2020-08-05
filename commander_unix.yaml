@@ -15,7 +15,8 @@ tests:
     stdout:
       contains:
         - ✓ [local] it should exit with error code
-      line-count: 16
+        - "- [] it should skip, was skipped"
+      line-count: 17
     exit-code: 0
 
   it should assert that commander will fail:

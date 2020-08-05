@@ -51,7 +51,7 @@ func Test_EventHandlerTestSkipped(t *testing.T) {
 		}
 	}
 	output := buf.String()
-	assert.Contains(t, output, "- [skipped] Skipped test")
+	assert.Contains(t, output, "- [] Skipped test, was skipped")
 }
 
 func Test_PrintSummary(t *testing.T) {

@@ -40,6 +40,11 @@ tests:
   it should be executed on ssh-host-default:
     command: whoami
     stdout: root
+  
+  it should skip:
+    command: whoami
+    stdout: root
+    skip: true
 
   it should test multiple hosts:
     command: echo hello
