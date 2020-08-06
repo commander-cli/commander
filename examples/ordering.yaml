@@ -1,0 +1,18 @@
+# Tests are always executed in alphabetical order
+
+tests:
+  001 - test:
+    command: exit 0
+    exit-code: 0
+
+  002 - test:
+    command: exit 0
+    exit-code: 0
+
+  003 - test:
+    command: exit 0
+    exit-code: 0
+
+  004 - test:
+    command: exit 0
+    exit-code: 0
