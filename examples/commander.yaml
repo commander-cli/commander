@@ -22,5 +22,6 @@ tests:
     exit-code: 127
 
   it should skip:
-    command: echo hello
+    command: echo "I should be skipped"
+    stdout: I should be skipped
     skip: true

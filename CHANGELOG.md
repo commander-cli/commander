@@ -1,3 +1,7 @@
+# v2.3.0
+
+ - Add property `skip`, adds the ability to skip test cases 
+
 # v2.2.0
 
  - Move from `github.com/SimonBaeumer` to `github.com/commander-cli`
