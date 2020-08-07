@@ -14,7 +14,7 @@ tests:
     command: commander.exe test ./integration/windows/commander_test.yaml
     stdout:
       contains:
-        - "- [] it should skip, was skipped"
+        - "- [local] it should skip, was skipped"
         - test
     exit-code: 0
 

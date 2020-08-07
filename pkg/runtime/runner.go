@@ -31,12 +31,6 @@ func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 		defer wg.Done()
 
 		for t := range tests {
-			if t.Skip {
-				tr := TestResult{TestCase: t, Skipped: true}
-				out <- tr
-				continue
-			}
-
 			// If no node was set use local mode as default
 			if len(t.Nodes) == 0 {
 				t.Nodes = []string{"local"}
@@ -45,6 +39,11 @@ func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 			for _, n := range t.Nodes {
 				result := TestResult{}
 				for i := 1; i <= t.Command.GetRetries(); i++ {
+
+					if t.Skip {
+						result = TestResult{TestCase: t, Skipped: true, Node: n}
+						break
+					}
 
 					e := r.getExecutor(n)
 					result = e.Execute(t)

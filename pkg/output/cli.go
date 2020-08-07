@@ -91,7 +91,7 @@ func (w *OutputWriter) printResult(r TestResult) {
 }
 
 func (w *OutputWriter) printSkip(r TestResult) {
-	w.fprintf(fmt.Sprintf("- [] %s, was skipped", r.Title))
+	w.fprintf(fmt.Sprintf("- [%s] %s, was skipped", r.Node, r.Title))
 }
 
 func (w *OutputWriter) printFailures(results []runtime.TestResult) {
@@ -101,12 +101,17 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 
 	for _, tr := range results {
 		r := convertTestResult(tr)
+		if r.Skipped {
+			continue
+		}
+
 		if r.Error != nil {
 			w.fprintf(w.au.Bold(w.au.Red(w.template.errors(r))))
 			w.fprintf(r.Error.Error())
 			continue
 		}
-		if !r.Success && !r.Skipped {
+
+		if !r.Success {
 			w.fprintf(w.au.Bold(w.au.Red(w.template.failures(r))))
 			w.fprintf(r.Diff)
 		}

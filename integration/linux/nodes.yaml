@@ -44,6 +44,11 @@ tests:
   it should skip:
     command: whoami
     stdout: root
+    config:
+      nodes:
+      - ssh-host-default
+      - ssh-host
+      - local
     skip: true
 
   it should test multiple hosts:

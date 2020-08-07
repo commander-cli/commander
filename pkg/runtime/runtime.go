@@ -138,7 +138,7 @@ func (r *Runtime) Start(tests []TestCase) Result {
 		if tr.Skipped {
 			result.Skipped++
 
-			log.Println("title: '"+tr.TestCase.Title+"'", " Was skipped")
+			log.Println("title: '"+tr.TestCase.Title+"'", " was skipped")
 			log.Println("title: '"+tr.TestCase.Title+"'", " Command: ", tr.TestCase.Command.Cmd)
 			log.Println("title: '"+tr.TestCase.Title+"'", " Directory: ", tr.TestCase.Command.Dir)
 			log.Println("title: '"+tr.TestCase.Title+"'", " Env: ", tr.TestCase.Command.Env)
