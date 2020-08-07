@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"log"
 	"time"
 )
 
@@ -10,16 +11,6 @@ const (
 	Stdout    = "Stdout"
 	Stderr    = "Stderr"
 	LineCount = "LineCount"
-)
-
-// Result status codes
-const (
-	//Success status
-	Success ResultStatus = iota
-	// Failed status
-	Failed
-	// Skipped status
-	Skipped
 )
 
 type Filters []string
@@ -52,6 +43,7 @@ type Runtime struct {
 // EventHandler is a configurable event system that handles events such as test completion
 type EventHandler struct {
 	TestFinished func(TestResult)
+	TestSkipped  func(TestResult)
 }
 
 // TestCase represents a test case which will be executed by the runtime
@@ -62,6 +54,7 @@ type TestCase struct {
 	Result   CommandResult
 	Nodes    []string
 	FileName string
+	Skip     bool
 }
 
 //GlobalTestConfig represents the configuration for a test
@@ -125,7 +118,7 @@ type TestResult struct {
 	FailedProperty   string
 	Tries            int
 	Node             string
-	FileName         string
+	Skipped          bool
 }
 
 // Result respresents the aggregation of all TestResults/summary of a runtime
@@ -133,21 +126,33 @@ type Result struct {
 	TestResults []TestResult
 	Duration    time.Duration
 	Failed      int
+	Skipped     int
 }
 
 // Start starts the given test suite and executes all tests
 func (r *Runtime) Start(tests []TestCase) Result {
 	result := Result{}
-	testCh := r.Runner.Execute(tests)
+	testCh := r.Runner.Run(tests)
 	start := time.Now()
 	for tr := range testCh {
+		if tr.Skipped {
+			result.Skipped++
 
-		r.EventHandler.TestFinished(tr)
+			log.Println("title: '"+tr.TestCase.Title+"'", " was skipped")
+			log.Println("title: '"+tr.TestCase.Title+"'", " Command: ", tr.TestCase.Command.Cmd)
+			log.Println("title: '"+tr.TestCase.Title+"'", " Directory: ", tr.TestCase.Command.Dir)
+			log.Println("title: '"+tr.TestCase.Title+"'", " Env: ", tr.TestCase.Command.Env)
+
+			r.EventHandler.TestSkipped(tr)
+			result.TestResults = append(result.TestResults, tr)
+			continue
+		}
 
 		if !tr.ValidationResult.Success {
 			result.Failed++
 		}
 
+		r.EventHandler.TestFinished(tr)
 		result.TestResults = append(result.TestResults, tr)
 	}
 	result.Duration = time.Since(start)

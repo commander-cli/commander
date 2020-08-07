@@ -20,3 +20,8 @@ tests:
     command: invalid
     stderr: "/bin/sh: 1: command invalid: not found"
     exit-code: 127
+
+  it should skip:
+    command: echo "I should be skipped"
+    stdout: I should be skipped
+    skip: true

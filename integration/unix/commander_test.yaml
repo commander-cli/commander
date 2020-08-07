@@ -65,3 +65,8 @@ tests:
     command: echo $USER
     stdout: from_parent
     exit-code: 0
+  
+  it should skip:
+    command: whoami
+    stdout: root
+    skip: true

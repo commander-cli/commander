@@ -12,8 +12,8 @@ type Runner struct {
 	Nodes []Node
 }
 
-// Execute the runner
-func (r *Runner) Execute(tests []TestCase) <-chan TestResult {
+// Run the runner
+func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 	in := make(chan TestCase)
 	out := make(chan TestResult)
 
@@ -40,6 +40,11 @@ func (r *Runner) Execute(tests []TestCase) <-chan TestResult {
 				result := TestResult{}
 				for i := 1; i <= t.Command.GetRetries(); i++ {
 
+					if t.Skip {
+						result = TestResult{TestCase: t, Skipped: true, Node: n}
+						break
+					}
+
 					e := r.getExecutor(n)
 					result = e.Execute(t)
 					result.Node = n
@@ -53,7 +58,6 @@ func (r *Runner) Execute(tests []TestCase) <-chan TestResult {
 				}
 				out <- result
 			}
-
 		}
 	}(in)
 

@@ -41,6 +41,7 @@ For more information take a look at the [quick start](#quick-start), the [exampl
       * [not-contains](#not-contains)
       * [xml](#xml)
     - [stderr](#stderr)
+    - [skip](#skip)
   + [Config](#user-content-config-config)
     - [dir](#dir)
     - [env](#env)
@@ -146,6 +147,11 @@ tests:
         stdout: hello # Default is to check if it contains the given characters
         exit-code: 0 # Assert exit-code
         
+    it should skip:
+        command: echo "I should be skipped"
+        stdout: I should be skipped
+        skip: true
+        
     it should fail:
         command: invalid
         stderr:
@@ -162,7 +168,8 @@ tests:
             xml:
                 "//book//auhtor": Steven King # Make assertions on xml documents
         exit-code: 127
-        
+        skip: false
+
     it has configs:
         command: echo hello
         stdout:
@@ -534,6 +541,20 @@ See [stdout](#stdout) for more information.
 ">&2 echo more errors":
   stderr:
     line-count: 1
+```
+
+#### skip
+
+`skip` is a `boolean` type, setting this field to `true` will skip the test case.
+
+ - name: `skip`
+ - type: `bool`
+ - default: `false`
+
+```yaml
+echo test:
+  stdout: test
+  skip: true
 ```
 
 ### <a name="config-config"></a>Config
