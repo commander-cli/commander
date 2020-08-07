@@ -141,7 +141,6 @@ func (r *Runtime) Start(tests []TestCase) Result {
 	testCh := r.Runner.Run(tests)
 	start := time.Now()
 	for tr := range testCh {
-		r.EventHandler.TestFinished(tr)
 		if tr.Skipped {
 			result.Skipped++
 
