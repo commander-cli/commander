@@ -46,7 +46,22 @@ func createCliApp() *cli.App {
 func createTestCommand() cli.Command {
 	return cli.Command{
 		Name:      "test",
-		Usage:     "Execute the test suite, by default it will use the commander.yaml from your current directory",
+		Usage:     `Execute cli app tests
+
+By default it will use the commander.yaml from your current directory.
+Tests are always executed in alphabetical order.
+
+Examples:
+
+Filtering tests:
+test commander.yaml --filter="my test"
+
+Multiple filters:
+test commander.yaml --filter=filter1 --filter=filter2
+
+Regex filters:
+test commander.yaml --filter="^filter1$"
+`,
 		ArgsUsage: "[file] [--filter]",
 		Flags: []cli.Flag{
 			cli.BoolFlag{
@@ -65,14 +80,7 @@ func createTestCommand() cli.Command {
 			},
 			cli.StringSliceFlag{
 				Name: "filter",
-				Usage: `Filter tests by a given regex pattern. Tests are filtered by its title.
-
-Example:
-test commander.yaml --filter="my test"
-
-Apply multiple filters:
-test commander.yaml --filter=filter1 --filter=filter2
-`,
+				Usage: `Filter tests by a given regex pattern. Tests are filtered by its title.`,
 			},
 		},
 		Action: func(c *cli.Context) error {

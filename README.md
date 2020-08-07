@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/commander-cli/commander.svg?branch=master)](https://travis-ci.org/commander-cli/commander)
 [![GoDoc](https://godoc.org/github.com/commander-cli/commander?status.svg)](https://godoc.org/github.com/commander-cli/commander)
-[![Go Report Card](https://goreportcard.com/badge/github.com/commander-cli/commander)](https://goreportcard.com/report/github.com/SimonBaeumer/commander)
+[![Go Report Card](https://goreportcard.com/badge/github.com/commander-cli/commander)](https://goreportcard.com/report/github.com/commander-cli/commander)
 [![Maintainability](https://api.codeclimate.com/v1/badges/cc848165784e0f809a51/maintainability)](https://codeclimate.com/github/commander-cli/commander/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/cc848165784e0f809a51/test_coverage)](https://codeclimate.com/github/commander-cli/commander/test_coverage)
 [![Github All Releases](https://img.shields.io/github/downloads/commander-cli/commander/total.svg)](https://github.com/commander-cli/commander/releases)

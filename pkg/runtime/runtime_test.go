@@ -47,6 +47,27 @@ func TestRuntime_WithRetries(t *testing.T) {
 	assert.Equal(t, 1, counter)
 }
 
+func Test_AlphabeticalOrder(t *testing.T) {
+	tests := []TestCase{
+		{Title: "bbb", Command: CommandUnderTest{Cmd: "exit 0;"}},
+		{Title: "aaa"},
+		{Title: "111"},
+		{Title: "_"},
+	}
+
+	got := []string{}
+	runtime := NewRuntime(&EventHandler{TestFinished: func(r TestResult) {
+		got = append(got, r.TestCase.Title)
+	}})
+
+	runtime.Start(tests)
+
+	assert.Equal(t, "111", got[0])
+	assert.Equal(t, "_", got[1])
+	assert.Equal(t, "aaa", got[2])
+	assert.Equal(t, "bbb", got[3])
+}
+
 func Test_RuntimeWithRetriesAndInterval(t *testing.T) {
 	s := getExampleTestCases()
 	s[0].Command.Retries = 3
