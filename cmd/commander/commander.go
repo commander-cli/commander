@@ -45,8 +45,8 @@ func createCliApp() *cli.App {
 
 func createTestCommand() cli.Command {
 	return cli.Command{
-		Name:      "test",
-		Usage:     `Execute cli app tests
+		Name: "test",
+		Usage: `Execute cli app tests
 
 By default it will use the commander.yaml from your current directory.
 Tests are always executed in alphabetical order.
@@ -79,7 +79,7 @@ test commander.yaml --filter="^filter1$"
 				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
 			},
 			cli.StringSliceFlag{
-				Name: "filter",
+				Name:  "filter",
 				Usage: `Filter tests by a given regex pattern. Tests are filtered by its title.`,
 			},
 		},
