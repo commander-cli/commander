@@ -18,8 +18,8 @@ var out output.OutputWriter
 
 // TestCommand executes the test argument
 // testPath is the path to the test suite config, it can be a dir or file
-// ctx holds the command flags. If directory scanning is enabled with --dir it is
-// not supported to filter tests, therefore testFilterTitle is an empty string
+// ctx holds the command flags. If directory scanning is enabled with --dir,
+// test filtering is not supported
 func TestCommand(testPath string, ctx TestCommandContext) error {
 	if ctx.Verbose {
 		log.SetOutput(os.Stdout)
@@ -72,7 +72,7 @@ func testDir(directory string, filters runtime.Filters) (runtime.Result, error) 
 	result := runtime.Result{}
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
-		return result, fmt.Errorf(err.Error())
+		return result, fmt.Errorf("Error: Input is not a directory")
 	}
 
 	for _, f := range files {
