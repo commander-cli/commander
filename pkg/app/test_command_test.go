@@ -69,6 +69,16 @@ func Test_TestCommand_Dir(t *testing.T) {
 	}
 }
 
+func Test_TestCommand_Dir_Err(t *testing.T) {
+	err := TestCommand("http://foo.com/bar", TestCommandContext{Dir: true})
+
+	if runtime.GOOS == "windows" {
+		assert.Contains(t, err.Error(), "Error: Input is not a directory")
+	} else {
+		assert.Equal(t, "Error: Input is not a directory", err.Error())
+	}
+}
+
 func Test_TestCommand_Http(t *testing.T) {
 	defer gock.Off()
 
@@ -86,6 +96,16 @@ tests:
 	})
 
 	assert.Contains(t, out, "✓ [local] echo hello")
+}
+
+func Test_TestCommand_Http_Err(t *testing.T) {
+	err := TestCommand("http://error/not/a/url", TestCommandContext{Dir: false})
+
+	if runtime.GOOS == "windows" {
+		assert.NotNil(t, err)
+	} else {
+		assert.NotNil(t, err)
+	}
 }
 
 func Test_ConvergeResults(t *testing.T) {
