@@ -203,6 +203,9 @@ $ ./commander test /tmp/test.yaml
 # Execute a single test
 $ ./commander test /tmp/test.yaml "my test"
 
+# Execute suite from url
+$ ./commander test https://raw.githubusercontent.com/commander-cli/commander/master/integration/unix/commander_test.yaml
+
 # Execute suites within a test directory
 $ ./commander test --dir /tmp
 ```
