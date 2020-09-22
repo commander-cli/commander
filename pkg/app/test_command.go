@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -36,6 +37,10 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 		fmt.Println("Starting test against directory: " + testPath + "...")
 		fmt.Println("")
 		result, err = testDir(testPath, ctx.Filters)
+	case testPath == "-":
+		fmt.Println("Starting test from stdin...")
+		fmt.Println("")
+		result, err = testStdin(ctx.Filters)
 	default:
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
@@ -90,6 +95,23 @@ func testFile(filePath string, fileName string, filters runtime.Filters) (runtim
 	if err != nil {
 		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
 	}
+
+	return execute(s, filters)
+}
+
+func testStdin(filters runtime.Filters) (runtime.Result, error) {
+	f, err := os.Stdin.Stat()
+	if err != nil {
+		return runtime.Result{}, err
+	}
+
+	if f.Mode()&os.ModeCharDevice != 0 {
+		return runtime.Result{}, fmt.Errorf("Error: command is intended to work with pipes")
+	}
+
+	r := bufio.NewReader(os.Stdin)
+	content, err := ioutil.ReadAll(r)
+	s := suite.ParseYAML(content, "")
 
 	return execute(s, filters)
 }
