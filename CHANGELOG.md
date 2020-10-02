@@ -1,3 +1,7 @@
+# v2.4.0
+
+ - Add ability to test suite from a url
+
 # v2.3.0
 
  - Preserve test execution order alphabetical order

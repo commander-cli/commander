@@ -123,3 +123,15 @@ tests:
         ✓ [local] a
         ✓ [local] b
     exit-code: 0
+
+  it should execute test from url:
+    config:
+      env:
+        USER: from_parent
+    command: ./commander test https://raw.githubusercontent.com/commander-cli/commander/master/integration/unix/commander_test.yaml
+    stdout:
+      contains:
+        - ✓ [local] it should exit with error code
+        - "- [local] it should skip, was skipped"
+      line-count: 17
+    exit-code: 0
