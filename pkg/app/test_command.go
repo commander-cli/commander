@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/commander-cli/commander/pkg/output"
 	"github.com/commander-cli/commander/pkg/runtime"
@@ -17,8 +19,8 @@ var out output.OutputWriter
 
 // TestCommand executes the test argument
 // testPath is the path to the test suite config, it can be a dir or file
-// ctx holds the command flags. If directory scanning is enabled with --dir it is
-// not supported to filter tests, therefore testFilterTitle is an empty string
+// ctx holds the command flags. If directory scanning is enabled with --dir,
+// test filtering is not supported
 func TestCommand(testPath string, ctx TestCommandContext) error {
 	if ctx.Verbose {
 		log.SetOutput(os.Stdout)
@@ -41,6 +43,10 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 		fmt.Println("Starting test from stdin...")
 		fmt.Println("")
 		result, err = testStdin(ctx.Filters)
+	case isURL(testPath):
+		fmt.Println("Starting test from " + testPath + "...")
+		fmt.Println("")
+		result, err = testURL(testPath, ctx.Filters)
 	default:
 		fmt.Println("Starting test file " + testPath + "...")
 		fmt.Println("")
@@ -62,7 +68,7 @@ func testDir(directory string, filters runtime.Filters) (runtime.Result, error) 
 	result := runtime.Result{}
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
-		return result, fmt.Errorf(err.Error())
+		return result, fmt.Errorf("Error: Input is not a directory")
 	}
 
 	for _, f := range files {
@@ -80,6 +86,27 @@ func testDir(directory string, filters runtime.Filters) (runtime.Result, error) 
 	}
 
 	return result, nil
+}
+
+func testURL(url string, filters runtime.Filters) (runtime.Result, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return runtime.Result{}, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return runtime.Result{}, err
+	}
+
+	s := suite.ParseYAML(body, "")
+
+	return execute(s, filters)
+}
+
+func isURL(s string) bool {
+	return strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://")
 }
 
 func convergeResults(result runtime.Result, new runtime.Result) runtime.Result {
@@ -137,7 +164,7 @@ func execute(s suite.Suite, filters runtime.Filters) (runtime.Result, error) {
 	return result, nil
 }
 
-func readFile(filePath string, filName string) (suite.Suite, error) {
+func readFile(filePath string, fileName string) (suite.Suite, error) {
 	s := suite.Suite{}
 
 	f, err := os.Stat(filePath)
@@ -154,7 +181,7 @@ func readFile(filePath string, filName string) (suite.Suite, error) {
 		return s, err
 	}
 
-	s = suite.ParseYAML(content, filName)
+	s = suite.ParseYAML(content, fileName)
 
 	return s, nil
 }

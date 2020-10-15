@@ -12,6 +12,7 @@ import (
 
 	commanderRuntime "github.com/commander-cli/commander/pkg/runtime"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/h2non/gock.v1"
 )
 
 func Test_TestCommand_Verbose(t *testing.T) {
@@ -65,6 +66,45 @@ func Test_TestCommand_Dir(t *testing.T) {
 		assert.Contains(t, err.Error(), "Test suite failed, use --verbose for more detailed output")
 	} else {
 		assert.Equal(t, "Test suite failed, use --verbose for more detailed output", err.Error())
+	}
+}
+
+func Test_TestCommand_Dir_Err(t *testing.T) {
+	err := TestCommand("http://foo.com/bar", TestCommandContext{Dir: true})
+
+	if runtime.GOOS == "windows" {
+		assert.Contains(t, err.Error(), "Error: Input is not a directory")
+	} else {
+		assert.Equal(t, "Error: Input is not a directory", err.Error())
+	}
+}
+
+func Test_TestCommand_Http(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("http://foo.com").
+		Get("/bar").
+		Reply(200).
+		BodyString(`
+tests:
+  echo hello:
+    exit-code: 0
+`)
+
+	out := captureOutput(func() {
+		TestCommand("http://foo.com/bar", TestCommandContext{Verbose: true})
+	})
+
+	assert.Contains(t, out, "✓ [local] echo hello")
+}
+
+func Test_TestCommand_Http_Err(t *testing.T) {
+	err := TestCommand("http://error/not/a/url", TestCommandContext{Dir: false})
+
+	if runtime.GOOS == "windows" {
+		assert.NotNil(t, err)
+	} else {
+		assert.NotNil(t, err)
 	}
 }
 
