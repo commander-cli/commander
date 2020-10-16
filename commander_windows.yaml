@@ -65,7 +65,7 @@ tests:
     exit-code: 1
 
   test retries with stdin:
-    command: type integration/windows/retries.yaml | commander.exe test -
+    command: type integration\windows\retries.yaml | commander.exe test -
     stdout:
       contains:
         - ✗ [local] echo hello, retries 3
