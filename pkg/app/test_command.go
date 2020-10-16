@@ -64,6 +64,15 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 	return nil
 }
 
+func testFile(filePath string, fileName string, filters runtime.Filters) (runtime.Result, error) {
+	s, err := readFile(filePath, fileName)
+	if err != nil {
+		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
+	}
+
+	return execute(s, filters)
+}
+
 func testDir(directory string, filters runtime.Filters) (runtime.Result, error) {
 	result := runtime.Result{}
 	files, err := ioutil.ReadDir(directory)
@@ -115,15 +124,6 @@ func convergeResults(result runtime.Result, new runtime.Result) runtime.Result {
 	result.Duration += new.Duration
 
 	return result
-}
-
-func testFile(filePath string, fileName string, filters runtime.Filters) (runtime.Result, error) {
-	s, err := readFile(filePath, fileName)
-	if err != nil {
-		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
-	}
-
-	return execute(s, filters)
 }
 
 func testStdin(filters runtime.Filters) (runtime.Result, error) {
