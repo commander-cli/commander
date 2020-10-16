@@ -63,3 +63,10 @@ tests:
       contains:
         - ✗ [local] echo hello, retries 3
     exit-code: 1
+
+  test retries with stdin:
+    command: cat integration/windows/retries.yaml | commander.exe test -
+    stdout:
+      contains:
+        - ✗ [local] echo hello, retries 3
+    exit-code: 1

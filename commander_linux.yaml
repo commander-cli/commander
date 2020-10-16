@@ -38,3 +38,18 @@ tests:
       contains:
         - Use --dir to test directories with multiple test files
     exit-code: 1
+
+  test nodes with stdin:
+    command: cat integration/linux/nodes.yaml | ./commander test -
+    stdout:
+      contains:
+        - ✓ [ssh-host] it should test ssh host
+        - ✓ [ssh-host] it should set env variable
+        - ✓ [ssh-host-default] it should be executed on ssh-host-default
+        - "- [ssh-host-default] it should skip, was skipped" 
+        - "- [ssh-host] it should skip, was skipped" 
+        - "- [local] it should skip, was skipped" 
+        - ✓ [ssh-host] it should test multiple hosts
+        - ✓ [ssh-host-default] it should test multiple hosts
+        - ✓ [local] it should test multiple hosts
+    exit-code: 0

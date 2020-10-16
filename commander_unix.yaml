@@ -135,3 +135,12 @@ tests:
         - "- [local] it should skip, was skipped"
       line-count: 17
     exit-code: 0
+
+  test retries with stdin:
+    command: cat integration/unix/retries.yaml | ./commander test -
+    stdout:
+      contains:
+        - ✗ [local] echo hello, retries 3
+        - ✓ [local] it should retry failed commands, retries 2
+        - ✗ [local] it should retry failed commands with an interval, retries 2
+    exit-code: 1
