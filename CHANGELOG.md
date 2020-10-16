@@ -1,6 +1,7 @@
 # v2.4.0
 
  - Add ability to test suite from a url
+ - Add ability to test suite from stdin
 
 # v2.3.0
 
