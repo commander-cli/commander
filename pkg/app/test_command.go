@@ -133,7 +133,7 @@ func testStdin(filters runtime.Filters) (runtime.Result, error) {
 	}
 
 	if f.Mode()&os.ModeCharDevice != 0 {
-		return runtime.Result{}, fmt.Errorf("Error: command is intended to work with pipes")
+		return runtime.Result{}, fmt.Errorf("Error: when testing from stdin the command is intended to work with pipes")
 	}
 
 	r := bufio.NewReader(os.Stdin)
