@@ -54,22 +54,22 @@ Tests are always executed in alphabetical order.
 Examples:
 
 Directory test:
-test --dir /your/dir/
+commander test --dir /your/dir/
 
 Stdin test:
 cat commander.yaml | commander test -
 
 HTTP test:
-test https://your-url/commander_test.yaml
+commander test https://your-url/commander_test.yaml
 
 Filtering tests:
-test commander.yaml --filter="my test"
+commander test commander.yaml --filter="my test"
 
 Multiple filters:
-test commander.yaml --filter=filter1 --filter=filter2
+commander test commander.yaml --filter=filter1 --filter=filter2
 
 Regex filters:
-test commander.yaml --filter="^filter1$"
+commander test commander.yaml --filter="^filter1$"
 `,
 		ArgsUsage: "[file] [--filter]",
 		Flags: []cli.Flag{
