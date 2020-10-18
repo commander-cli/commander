@@ -128,10 +128,15 @@ tests:
     config:
       env:
         USER: from_parent
-    command: ./commander test https://raw.githubusercontent.com/commander-cli/commander/master/integration/unix/commander_test.yaml
+    command: ./commander test https://raw.githubusercontent.com/commander-cli/commander/master/integration/unix/remote_http.yaml
     stdout:
       contains:
-        - ✓ [local] it should exit with error code
-        - "- [local] it should skip, was skipped"
-      line-count: 17
+        - ✓ [local] hello world
+    exit-code: 0
+
+  test stdin input:
+    command: cat integration/unix/stdin.yaml | ./commander test -
+    stdout:
+      contains:
+        - ✓ [local] hello world
     exit-code: 0

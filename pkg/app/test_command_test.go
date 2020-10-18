@@ -3,6 +3,7 @@ package app
 import (
 	"bytes"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
@@ -101,11 +102,55 @@ tests:
 func Test_TestCommand_Http_Err(t *testing.T) {
 	err := TestCommand("http://error/not/a/url", TestCommandContext{Dir: false})
 
-	if runtime.GOOS == "windows" {
-		assert.NotNil(t, err)
-	} else {
-		assert.NotNil(t, err)
+	assert.NotNil(t, err)
+}
+
+func Test_TestCommand_StdIn(t *testing.T) {
+	tmpfile, err := ioutil.TempFile("", "test")
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer os.Remove(tmpfile.Name()) //clean up
+
+	content := []byte(`
+tests:
+   echo hello:
+     exit-code: 0
+`)
+
+	if _, err := tmpfile.Write(content); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := tmpfile.Seek(0, 0); err != nil {
+		log.Fatal(err)
+	}
+
+	// set stdin to tempfile
+	oldStdin := os.Stdin
+	defer func() { os.Stdin = oldStdin }() // Restore original Stdin
+	os.Stdin = tmpfile
+
+	out := captureOutput(func() {
+		TestCommand("-", TestCommandContext{Verbose: false})
+	})
+
+	if err := tmpfile.Close(); err != nil {
+		log.Fatal(err)
+	}
+
+	assert.Contains(t, out, "✓ [local] echo hello")
+}
+
+func Test_TestCommand_StdIn_Err(t *testing.T) {
+	// set stdin to nil
+	oldStdin := os.Stdin
+	defer func() { os.Stdin = oldStdin }() // Restore original Stdin
+	os.Stdin = nil
+
+	err := TestCommand("-", TestCommandContext{Verbose: false})
+
+	assert.NotNil(t, err)
 }
 
 func Test_ConvergeResults(t *testing.T) {
