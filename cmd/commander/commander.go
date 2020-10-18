@@ -54,7 +54,7 @@ Tests are always executed in alphabetical order.
 Examples:
 
 Directory test:
-commander test --dir /your/dir/
+test --dir /your/dir/
 
 Stdin test:
 cat commander.yaml | commander test -

@@ -134,11 +134,9 @@ tests:
         - ✓ [local] hello world
     exit-code: 0
 
-  test retries with stdin:
-    command: cat integration/unix/retries.yaml | ./commander test -
+  test stdin input:
+    command: cat integration/unix/stdin.yaml | ./commander test -
     stdout:
       contains:
-        - ✗ [local] echo hello, retries 3
-        - ✓ [local] it should retry failed commands, retries 2
-        - ✗ [local] it should retry failed commands with an interval, retries 2
-    exit-code: 1
+        - ✓ [local] hello world
+    exit-code: 0

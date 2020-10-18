@@ -132,7 +132,7 @@ func testStdin(filters runtime.Filters) (runtime.Result, error) {
 		return runtime.Result{}, err
 	}
 
-	if f.Mode()&os.ModeCharDevice != 0 {
+	if (f.Mode() & os.ModeCharDevice) != 0 {
 		return runtime.Result{}, fmt.Errorf("Error: when testing from stdin the command is intended to work with pipes")
 	}
 

@@ -102,11 +102,7 @@ tests:
 func Test_TestCommand_Http_Err(t *testing.T) {
 	err := TestCommand("http://error/not/a/url", TestCommandContext{Dir: false})
 
-	if runtime.GOOS == "windows" {
-		assert.NotNil(t, err)
-	} else {
-		assert.NotNil(t, err)
-	}
+	assert.NotNil(t, err)
 }
 
 func Test_TestCommand_StdIn(t *testing.T) {
@@ -154,11 +150,7 @@ func Test_TestCommand_StdIn_Err(t *testing.T) {
 
 	err := TestCommand("-", TestCommandContext{Verbose: false})
 
-	if runtime.GOOS == "windows" {
-		assert.NotNil(t, err)
-	} else {
-		assert.NotNil(t, err)
-	}
+	assert.NotNil(t, err)
 }
 
 func Test_ConvergeResults(t *testing.T) {
