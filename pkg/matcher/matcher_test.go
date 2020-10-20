@@ -184,18 +184,23 @@ another`
 	assert.Equal(t, diff, r.Diff)
 }
 
-func TestFileMatcher_Validate(t *testing.T) {
+func TestFileMatcher_Match(t *testing.T) {
+	ReadFile = func(filename string) ([]byte, error) {
+		return []byte("line one\nline two"), nil
+	}
 	m := FileMatcher{}
-	got := m.Match("zoom", "zoom.txt")
+	got := m.Match("line one\nline two", "fake.txt")
 	assert.True(t, got.Success)
 	assert.Equal(t, "", got.Diff)
 }
 
 func TestFileMatcher_ValidateFails(t *testing.T) {
+	ReadFile = func(filename string) ([]byte, error) {
+		return []byte("line one\nline two"), nil
+	}
 	m := FileMatcher{}
-	got := m.Match("zoom", "zoologist.txt")
+	got := m.Match("line one\nline three", "fake.txt")
 	assert.False(t, got.Success)
-	println(got.Diff)
-	assert.Contains(t, got.Diff, "+zoologist")
-	assert.Contains(t, got.Diff, "-zoom")
+	assert.Contains(t, got.Diff, "+line two")
+	assert.Contains(t, got.Diff, "-line three")
 }

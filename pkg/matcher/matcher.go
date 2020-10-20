@@ -24,6 +24,10 @@ const (
 	File        = "file"
 )
 
+// The function used to open files when necessary for matching
+// Allows the file IO to be overridden during tests
+var ReadFile = ioutil.ReadFile
+
 // NewMatcher creates a new matcher by type
 func NewMatcher(matcher string) Matcher {
 	switch matcher {
@@ -251,7 +255,7 @@ type FileMatcher struct {
 }
 
 func (m FileMatcher) Match(got interface{}, expected interface{}) MatcherResult {
-	expectedText, err := ioutil.ReadFile(expected.(string))
+	expectedText, err := ReadFile(expected.(string))
 	if err != nil {
 		panic(err.Error())
 	}
