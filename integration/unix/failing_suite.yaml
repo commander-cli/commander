@@ -8,3 +8,8 @@ tests:
     config:
       timeout: 10ms
     exit-code: 0
+
+  file matcher should fail when file and output are different:
+    command: cat ./integration/unix/_fixtures/file_output_1.txt
+    stdout:
+      file: ./integration/unix/_fixtures/file_output_0.txt
