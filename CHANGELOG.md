@@ -1,6 +1,7 @@
 # v2.4.0
 
  - Add ability to test suite from a url
+ - Add ability to test suite from stdin
  - Add `file` assertion to `stdout` and `stderr`
 
 # v2.3.0
