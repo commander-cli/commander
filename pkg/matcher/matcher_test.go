@@ -48,16 +48,16 @@ func TestTextMatcher_ValidateFails(t *testing.T) {
 
 func TestEqualMatcher_Validate(t *testing.T) {
 	m := EqualMatcher{}
-	got := m.Match(1, 1)
+	got := m.Match(2, 2)
 	assert.True(t, got.Success)
 }
 
 func TestEqualMatcher_ValidateFails(t *testing.T) {
 	m := EqualMatcher{}
-	got := m.Match(1, 0)
+	got := m.Match(2, 3)
 	assert.False(t, got.Success)
-	assert.Contains(t, got.Diff, "+0")
-	assert.Contains(t, got.Diff, "-1")
+	assert.Contains(t, got.Diff, "+3")
+	assert.Contains(t, got.Diff, "-2")
 }
 
 func TestContainsMatcher_Match(t *testing.T) {
@@ -182,4 +182,20 @@ another`
 
 	assert.False(t, r.Success)
 	assert.Equal(t, diff, r.Diff)
+}
+
+func TestFileMatcher_Validate(t *testing.T) {
+	m := FileMatcher{}
+	got := m.Match("zoom", "zoom.txt")
+	assert.True(t, got.Success)
+	assert.Equal(t, "", got.Diff)
+}
+
+func TestFileMatcher_ValidateFails(t *testing.T) {
+	m := FileMatcher{}
+	got := m.Match("zoom", "zoologist.txt")
+	assert.False(t, got.Success)
+	println(got.Diff)
+	assert.Contains(t, got.Diff, "+zoologist")
+	assert.Contains(t, got.Diff, "-zoom")
 }

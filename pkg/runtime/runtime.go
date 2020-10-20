@@ -99,6 +99,7 @@ type ExpectedOut struct {
 	NotContains []string          `yaml:"not-contains,omitempty"`
 	JSON        map[string]string `yaml:"json,omitempty"`
 	XML         map[string]string `yaml:"xml,omitempty"`
+	File        string            `yaml:"file,omitempty"`
 }
 
 // CommandUnderTest represents the command under test

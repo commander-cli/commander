@@ -222,6 +222,7 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 				"lines",
 				"json",
 				"xml",
+				"file",
 				"not-contains":
 				break
 			default:
@@ -240,6 +241,11 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 		//Parse exactly key
 		if exactly := v["exactly"]; exactly != nil {
 			exp.Exactly = toString(exactly)
+		}
+
+		// Parse file key
+		if file := v["file"]; file != nil {
+			exp.File = toString(file)
 		}
 
 		//Parse line-count key

@@ -16,7 +16,7 @@ tests:
       contains:
         - ✓ [local] it should exit with error code
         - "- [local] it should skip, was skipped"
-      line-count: 17
+      line-count: 19
     exit-code: 0
 
   it should assert that commander will fail:

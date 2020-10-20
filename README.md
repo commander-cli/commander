@@ -167,6 +167,7 @@ tests:
                 object.attr: hello # Make assertions on json objects
             xml:
                 "//book//auhtor": Steven King # Make assertions on xml documents
+            file: correct-output.txt
         exit-code: 127
         skip: false
 

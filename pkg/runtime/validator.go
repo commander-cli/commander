@@ -118,6 +118,13 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 		}
 	}
 
+	if expected.File != "" {
+		m = matcher.NewMatcher(matcher.File)
+		if result = m.Match(got, expected.File); !result.Success {
+			return result
+		}
+	}
+
 	return result
 }
 

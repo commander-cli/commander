@@ -59,6 +59,16 @@ tests:
         /books/0/author: J. R. R. Tokien
         /books/1/author: Joanne K. Rowling
 
+  it should assert file contents on stdout:
+    command: cat ./integration/unix/_fixtures/big_out.txt
+    stdout:
+      file: ./integration/unix/_fixtures/big_out.txt
+
+  it should assert file contents on stderr:
+    command: cat ./integration/unix/_fixtures/big_out.txt >&2
+    stderr:
+      file: ./integration/unix/_fixtures/big_out.txt
+
   it should inherit from parent env:
     config:
       inherit-env: true
