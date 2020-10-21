@@ -25,3 +25,8 @@ tests:
     command: echo "I should be skipped"
     stdout: I should be skipped
     skip: true
+
+  it should match file output:
+    command: printf "line one\nline two"
+    stdout:
+      file: _fixtures/output.txt
