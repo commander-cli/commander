@@ -5,6 +5,7 @@ import (
 	"github.com/antchfx/xmlquery"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/tidwall/gjson"
+	"io/ioutil"
 	"log"
 	"strings"
 )
@@ -20,7 +21,12 @@ const (
 	NotContains = "notcontains"
 	JSON        = "json"
 	XML         = "xml"
+	File        = "file"
 )
+
+// The function used to open files when necessary for matching
+// Allows the file IO to be overridden during tests
+var ReadFile = ioutil.ReadFile
 
 // NewMatcher creates a new matcher by type
 func NewMatcher(matcher string) Matcher {
@@ -37,6 +43,8 @@ func NewMatcher(matcher string) Matcher {
 		return JSONMatcher{}
 	case XML:
 		return XMLMatcher{}
+	case File:
+		return FileMatcher{}
 	default:
 		panic(fmt.Sprintf("Validator '%s' does not exist!", matcher))
 	}
@@ -239,4 +247,33 @@ to be equal to
 	}
 
 	return result
+}
+
+// FileMatcher matches output captured from stdout or stderr
+// against the contents of a file
+type FileMatcher struct {
+}
+
+func (m FileMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+	expectedText, err := ReadFile(expected.(string))
+	if err != nil {
+		panic(err.Error())
+	}
+	expectedString := string(expectedText)
+
+	result := got == expectedString
+
+	diff := difflib.UnifiedDiff{
+		A:        difflib.SplitLines(got.(string)),
+		B:        difflib.SplitLines(expectedString),
+		FromFile: "Got",
+		ToFile:   "Expected",
+		Context:  3,
+	}
+	diffText, _ := difflib.GetUnifiedDiffString(diff)
+
+	return MatcherResult{
+		Diff:    diffText,
+		Success: result,
+	}
 }

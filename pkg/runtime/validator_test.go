@@ -3,6 +3,7 @@ package runtime
 import (
 	"github.com/commander-cli/commander/pkg/matcher"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"testing"
 )
 
@@ -190,6 +191,29 @@ test`
 	r = validateExpectedOut(json, ExpectedOut{JSON: map[string]string{"object.attr": "no"}})
 	assert.False(t, r.Success)
 	assert.Equal(t, diff, r.Diff)
+}
+
+func Test_ValidateExpectedOut_ValidateFile(t *testing.T) {
+	content := "line one"
+	matcher.ReadFile = func(filename string) ([]byte, error) {
+		return []byte(content), nil
+	}
+	r := validateExpectedOut(content, ExpectedOut{File: "fake.txt"})
+	assert.True(t, r.Success)
+	assert.Equal(t, "", r.Diff)
+
+	diff := `--- Got
++++ Expected
+@@ -1,2 +1 @@
+ line one
+-line two
+`
+
+	r = validateExpectedOut(content+"\nline two", ExpectedOut{File: "fake.txt"})
+	assert.False(t, r.Success)
+	assert.Equal(t, diff, r.Diff)
+
+	matcher.ReadFile = ioutil.ReadFile
 }
 
 func Test_ValidateExpectedOut_ValidateXML(t *testing.T) {

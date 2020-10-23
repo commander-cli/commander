@@ -40,6 +40,7 @@ For more information take a look at the [quick start](#quick-start), the [exampl
       * [line-count](#line-count)
       * [not-contains](#not-contains)
       * [xml](#xml)
+      * [file](#file)
     - [stderr](#stderr)
     - [skip](#skip)
   + [Config](#user-content-config-config)
@@ -167,6 +168,7 @@ tests:
                 object.attr: hello # Make assertions on json objects
             xml:
                 "//book//auhtor": Steven King # Make assertions on xml documents
+            file: correct-output.txt
         exit-code: 127
         skip: false
 
@@ -527,6 +529,21 @@ cat some.xml:
 <book>
     <author>J. R. R. Tolkien</author>
 </book>
+```
+
+##### file
+
+`file` is a file path, relative to the working directory that will have
+its entire contents matched against the command output. Other than
+reading from a file this works the same as [exactly](#exactly).
+
+The example below will always pass.
+
+```yaml
+output should match file:
+  command: cat output.txt
+  stdout:
+    file: output.txt
 ```
 
 #### stderr

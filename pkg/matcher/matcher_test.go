@@ -48,16 +48,16 @@ func TestTextMatcher_ValidateFails(t *testing.T) {
 
 func TestEqualMatcher_Validate(t *testing.T) {
 	m := EqualMatcher{}
-	got := m.Match(1, 1)
+	got := m.Match(2, 2)
 	assert.True(t, got.Success)
 }
 
 func TestEqualMatcher_ValidateFails(t *testing.T) {
 	m := EqualMatcher{}
-	got := m.Match(1, 0)
+	got := m.Match(2, 3)
 	assert.False(t, got.Success)
-	assert.Contains(t, got.Diff, "+0")
-	assert.Contains(t, got.Diff, "-1")
+	assert.Contains(t, got.Diff, "+3")
+	assert.Contains(t, got.Diff, "-2")
 }
 
 func TestContainsMatcher_Match(t *testing.T) {
@@ -182,4 +182,25 @@ another`
 
 	assert.False(t, r.Success)
 	assert.Equal(t, diff, r.Diff)
+}
+
+func TestFileMatcher_Match(t *testing.T) {
+	ReadFile = func(filename string) ([]byte, error) {
+		return []byte("line one\nline two"), nil
+	}
+	m := FileMatcher{}
+	got := m.Match("line one\nline two", "fake.txt")
+	assert.True(t, got.Success)
+	assert.Equal(t, "", got.Diff)
+}
+
+func TestFileMatcher_ValidateFails(t *testing.T) {
+	ReadFile = func(filename string) ([]byte, error) {
+		return []byte("line one\nline two"), nil
+	}
+	m := FileMatcher{}
+	got := m.Match("line one\nline three", "fake.txt")
+	assert.False(t, got.Success)
+	assert.Contains(t, got.Diff, "+line two")
+	assert.Contains(t, got.Diff, "-line three")
 }

@@ -16,17 +16,18 @@ tests:
       contains:
         - ✓ [local] it should exit with error code
         - "- [local] it should skip, was skipped"
-      line-count: 17
+      line-count: 19
     exit-code: 0
 
   it should assert that commander will fail:
     command: ./commander test ./integration/unix/failing_suite.yaml
     stdout:
       contains:
+        - ✗ [local] 'file matcher should fail when file and output are different', on property 'Stdout'
         - ✗ [local] 'it will fail', on property 'ExitCode'
         - ✗ [local] 'test timeout' could not be executed with error message
         - Command timed out after 10ms
-        - "Count: 2, Failed: 2"
+        - "Count: 3, Failed: 3"
     exit-code: 1
 
   it should validate a big output:
