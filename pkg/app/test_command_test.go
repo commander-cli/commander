@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -15,6 +16,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 )
+
+const TestSuiteDir = "/tmp/commander/"
+const TestSuiteDirWin = "C:\\tmp\\commander\\"
 
 func Test_TestCommand_Verbose(t *testing.T) {
 	out := captureOutput(func() {
@@ -51,23 +55,38 @@ func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
 }
 
 func Test_TestCommand_File_WithDir(t *testing.T) {
-	err := TestCommand("../../examples", TestCommandContext{})
-
+	dir := TestSuiteDir
 	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "is a directory")
-	} else {
-		assert.Equal(t, "Error ../../examples: is a directory\nUse --dir to test directories with multiple test files", err.Error())
+		dir = TestSuiteDirWin
 	}
+
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.MkdirAll(dir, 0755)
+	}
+
+	err := TestCommand(dir, TestCommandContext{})
+	assert.Equal(t, fmt.Sprintf("Error %s: is a directory\nUse --dir to test directories with multiple test files", dir), err.Error())
 }
 
 func Test_TestCommand_Dir(t *testing.T) {
-	err := TestCommand("../../examples", TestCommandContext{Dir: true})
-
+	tests := []byte(`
+tests:
+    echo hello:
+        exit-code: 1
+`)
+	dir := TestSuiteDir
 	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Test suite failed, use --verbose for more detailed output")
-	} else {
-		assert.Equal(t, "Test suite failed, use --verbose for more detailed output", err.Error())
+		dir = TestSuiteDirWin
 	}
+
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.MkdirAll(dir, 0755)
+	}
+
+	err := ioutil.WriteFile(dir+"commander_test.yaml", tests, 0755)
+	assert.Nil(t, err)
+	err = TestCommand(dir, TestCommandContext{Dir: true})
+	assert.Contains(t, err.Error(), "Test suite failed, use --verbose for more detailed output")
 }
 
 func Test_TestCommand_Dir_Err(t *testing.T) {
