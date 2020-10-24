@@ -75,7 +75,7 @@ This works on any OS, as long as go is installed. If go is not installed on your
 Visit the [release](https://github.com/commander-cli/commander/releases) page to get the binary for you system. 
 
 ```bash
-curl -L https://github.com/commander-cli/commander/releases/download/v1.2.2/commander-linux-amd64 -o commander
+curl -L https://github.com/commander-cli/commander/releases/download/v2.3.0/commander-linux-amd64 -o commander
 chmod +x commander
 ```
 
