@@ -81,6 +81,8 @@ tests:
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		os.MkdirAll(dir, 0755)
+		// create extra dir to ensure we are skipping subdirs
+		os.MkdirAll(dir+"fake/", 0755)
 	}
 
 	err := ioutil.WriteFile(dir+"commander_test.yaml", tests, 0755)
