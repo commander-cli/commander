@@ -59,19 +59,18 @@ func Test_TestCommand_WithTitle(t *testing.T) {
 func Test_TestCommand_FailingSuite(t *testing.T) {
 	err := TestCommand("testdata/test_fail.yaml", TestCommandContext{})
 	assert.Equal(t, "Test suite failed, use --verbose for more detailed output", err.Error())
-
 }
 
-func Test_TestCommand_File_WithDir(t *testing.T) {
+func Test_TestCommand_FileWithDir(t *testing.T) {
 	err := TestCommand("testdata", TestCommandContext{})
 	assert.Equal(t, "Error testdata: is a directory\nUse --dir to test directories with multiple test files", err.Error())
 }
 
 func Test_TestCommand_Dir(t *testing.T) {
 	out := captureOutput(func() {
-		TestCommand("testdata/test.yaml", TestCommandContext{})
+		TestCommand("testdata/", TestCommandContext{Dir: true})
 	})
-	assert.Contains(t, out, "✓ [local] it should print hello world")
+	assert.Contains(t, out, "✓ [test.yaml] [local] it should print hello world")
 }
 
 func Test_TestCommand_Dir_Err(t *testing.T) {
