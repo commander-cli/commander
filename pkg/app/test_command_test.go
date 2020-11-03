@@ -41,33 +41,37 @@ func Test_TestCommand(t *testing.T) {
 }
 
 func Test_TestCommand_ShouldUseCustomFile(t *testing.T) {
-	err := TestCommand("my-test.yaml", TestCommandContext{})
+	out := captureOutput(func() {
+		TestCommand("testdata/test.yaml", TestCommandContext{})
+	})
+	assert.Contains(t, out, "✓ [local] it should print hello world")
+}
 
-	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Error open my-test.yaml:")
-	} else {
-		assert.Equal(t, "Error open my-test.yaml: no such file or directory", err.Error())
-	}
+func Test_TestCommand_WithTitle(t *testing.T) {
+	out := captureOutput(func() {
+		context := TestCommandContext{}
+		context.Filters = commanderRuntime.Filters{"another"}
+		TestCommand("testdata/test.yaml", context)
+	})
+	assert.Contains(t, out, "✓ [local] another")
+}
+
+func Test_TestCommand_FailingSuite(t *testing.T) {
+	err := TestCommand("testdata/test_fail.yaml", TestCommandContext{})
+	assert.Equal(t, "Test suite failed, use --verbose for more detailed output", err.Error())
+
 }
 
 func Test_TestCommand_File_WithDir(t *testing.T) {
-	err := TestCommand("../../examples", TestCommandContext{})
-
-	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "is a directory")
-	} else {
-		assert.Equal(t, "Error ../../examples: is a directory\nUse --dir to test directories with multiple test files", err.Error())
-	}
+	err := TestCommand("testdata", TestCommandContext{})
+	assert.Equal(t, "Error testdata: is a directory\nUse --dir to test directories with multiple test files", err.Error())
 }
 
 func Test_TestCommand_Dir(t *testing.T) {
-	err := TestCommand("../../examples", TestCommandContext{Dir: true})
-
-	if runtime.GOOS == "windows" {
-		assert.Contains(t, err.Error(), "Test suite failed, use --verbose for more detailed output")
-	} else {
-		assert.Equal(t, "Test suite failed, use --verbose for more detailed output", err.Error())
-	}
+	out := captureOutput(func() {
+		TestCommand("testdata/test.yaml", TestCommandContext{})
+	})
+	assert.Contains(t, out, "✓ [local] it should print hello world")
 }
 
 func Test_TestCommand_Dir_Err(t *testing.T) {
