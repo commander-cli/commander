@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+var _ Executor = (*SSHExecutor)(nil)
+
 // SSHExecutor
 type SSHExecutor struct {
 	Host         string

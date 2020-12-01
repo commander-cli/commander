@@ -24,6 +24,16 @@ const (
 	File        = "file"
 )
 
+var (
+	_ Matcher = (*TextMatcher)(nil)
+	_ Matcher = (*ContainsMatcher)(nil)
+	_ Matcher = (*EqualMatcher)(nil)
+	_ Matcher = (*NotContainsMatcher)(nil)
+	_ Matcher = (*JSONMatcher)(nil)
+	_ Matcher = (*XMLMatcher)(nil)
+	_ Matcher = (*FileMatcher)(nil)
+)
+
 // The function used to open files when necessary for matching
 // Allows the file IO to be overridden during tests
 var ReadFile = ioutil.ReadFile

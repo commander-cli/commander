@@ -9,6 +9,8 @@ import (
 	"github.com/commander-cli/cmd"
 )
 
+var _ Executor = (*LocalExecutor)(nil)
+
 // LocalExecutor will be used to execute tests on the local host
 type LocalExecutor struct {
 }
