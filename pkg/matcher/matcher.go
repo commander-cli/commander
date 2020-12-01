@@ -2,12 +2,14 @@ package matcher
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"path/filepath"
+	"strings"
+
 	"github.com/antchfx/xmlquery"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/tidwall/gjson"
-	"io/ioutil"
-	"log"
-	"strings"
 )
 
 const (
@@ -29,7 +31,7 @@ const (
 var ReadFile = ioutil.ReadFile
 
 // NewMatcher creates a new matcher by type
-func NewMatcher(matcher string) Matcher {
+func NewMatcher(matcher string, workdir string) Matcher {
 	switch matcher {
 	case Text:
 		return TextMatcher{}
@@ -44,7 +46,9 @@ func NewMatcher(matcher string) Matcher {
 	case XML:
 		return XMLMatcher{}
 	case File:
-		return FileMatcher{}
+		return FileMatcher{
+			workdir: workdir,
+		}
 	default:
 		panic(fmt.Sprintf("Validator '%s' does not exist!", matcher))
 	}
@@ -252,10 +256,11 @@ to be equal to
 // FileMatcher matches output captured from stdout or stderr
 // against the contents of a file
 type FileMatcher struct {
+	workdir string
 }
 
 func (m FileMatcher) Match(got interface{}, expected interface{}) MatcherResult {
-	expectedText, err := ReadFile(expected.(string))
+	expectedText, err := ReadFile(filepath.Join(m.workdir, expected.(string)))
 	if err != nil {
 		panic(err.Error())
 	}

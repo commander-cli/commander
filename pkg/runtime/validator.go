@@ -2,9 +2,10 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/commander-cli/commander/pkg/matcher"
 	"log"
 	"strings"
+
+	"github.com/commander-cli/commander/pkg/matcher"
 )
 
 // ValidationResult will be returned after the validation was executed
@@ -23,10 +24,10 @@ func newValidationResult(m matcher.MatcherResult) ValidationResult {
 // Validate validates the test results with the expected values
 // The test should hold the result and expected to validate the result
 func Validate(test TestCase) TestResult {
-	equalMatcher := matcher.NewMatcher(matcher.Equal)
+	equalMatcher := matcher.NewMatcher(matcher.Equal, "")
 
 	log.Println("title: '"+test.Title+"'", " Stdout-Expected: ", test.Expected.Stdout)
-	matcherResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout)
+	matcherResult := validateExpectedOut(test.Result.Stdout, test.Expected.Stdout, test.Command.Dir)
 	log.Println("title: '"+test.Title+"'", " Stdout-Result: ", matcherResult.Success)
 	if !matcherResult.Success {
 		return TestResult{
@@ -37,7 +38,7 @@ func Validate(test TestCase) TestResult {
 	}
 
 	log.Println("title: '"+test.Title+"'", " Stderr-Expected: ", test.Expected.Stderr)
-	matcherResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr)
+	matcherResult = validateExpectedOut(test.Result.Stderr, test.Expected.Stderr, test.Command.Dir)
 	log.Println("title: '"+test.Title+"'", " Stderr-Result: ", matcherResult.Success)
 	if !matcherResult.Success {
 		return TestResult{
@@ -64,19 +65,19 @@ func Validate(test TestCase) TestResult {
 	}
 }
 
-func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult {
+func validateExpectedOut(got string, expected ExpectedOut, workdir string) matcher.MatcherResult {
 	var m matcher.Matcher
 	var result matcher.MatcherResult
 	result.Success = true
 
 	if expected.Exactly != "" {
-		m = matcher.NewMatcher(matcher.Text)
+		m = matcher.NewMatcher(matcher.Text, "")
 		if result = m.Match(got, expected.Exactly); !result.Success {
 			return result
 		}
 	}
 
-	m = matcher.NewMatcher(matcher.Contains)
+	m = matcher.NewMatcher(matcher.Contains, "")
 	for _, c := range expected.Contains {
 		if result = m.Match(got, c); !result.Success {
 			return result
@@ -97,21 +98,21 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 		}
 	}
 
-	m = matcher.NewMatcher(matcher.NotContains)
+	m = matcher.NewMatcher(matcher.NotContains, "")
 	for _, c := range expected.NotContains {
 		if result = m.Match(got, c); !result.Success {
 			return result
 		}
 	}
 
-	m = matcher.NewMatcher(matcher.JSON)
+	m = matcher.NewMatcher(matcher.JSON, "")
 	for i, v := range expected.JSON {
 		if result = m.Match(got, map[string]string{i: v}); !result.Success {
 			return result
 		}
 	}
 
-	m = matcher.NewMatcher(matcher.XML)
+	m = matcher.NewMatcher(matcher.XML, "")
 	for i, v := range expected.XML {
 		if result = m.Match(got, map[string]string{i: v}); !result.Success {
 			return result
@@ -119,7 +120,7 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 	}
 
 	if expected.File != "" {
-		m = matcher.NewMatcher(matcher.File)
+		m = matcher.NewMatcher(matcher.File, workdir)
 		if result = m.Match(got, expected.File); !result.Success {
 			return result
 		}
@@ -129,7 +130,7 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 }
 
 func validateExpectedLineCount(got string, expected ExpectedOut) matcher.MatcherResult {
-	m := matcher.NewMatcher(matcher.Equal)
+	m := matcher.NewMatcher(matcher.Equal, "")
 	count := strings.Count(got, getLineBreak()) + 1
 
 	if got == "" {
@@ -140,7 +141,7 @@ func validateExpectedLineCount(got string, expected ExpectedOut) matcher.Matcher
 }
 
 func validateExpectedLines(got string, expected ExpectedOut) matcher.MatcherResult {
-	m := matcher.NewMatcher(matcher.Equal)
+	m := matcher.NewMatcher(matcher.Equal, "")
 	actualLines := strings.Split(got, getLineBreak())
 	result := matcher.MatcherResult{Success: true}
 

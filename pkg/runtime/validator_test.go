@@ -1,10 +1,11 @@
 package runtime
 
 import (
-	"github.com/commander-cli/commander/pkg/matcher"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"testing"
+
+	"github.com/commander-cli/commander/pkg/matcher"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewValidationResult(t *testing.T) {
@@ -67,7 +68,7 @@ func Test_ValidateExitCodeShouldFail(t *testing.T) {
 func Test_ValidateExpectedOut_Contains_Fails(t *testing.T) {
 	value := `test`
 
-	got := validateExpectedOut(value, ExpectedOut{Contains: []string{"not-exists"}})
+	got := validateExpectedOut(value, ExpectedOut{Contains: []string{"not-exists"}}, "")
 
 	diff := `
 Expected
@@ -89,7 +90,7 @@ multi
 line
 output`
 
-	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{1: "my", 3: "line"}})
+	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{1: "my", 3: "line"}}, "")
 
 	assert.True(t, got.Success)
 	assert.Empty(t, got.Diff)
@@ -98,7 +99,7 @@ output`
 func Test_ValidateExpectedOut_MatchLines_ExpectedLineDoesNotExists(t *testing.T) {
 	value := `test`
 
-	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "my"}})
+	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "my"}}, "")
 
 	assert.False(t, got.Success)
 	diff := `Line number 2 does not exists in result: 
@@ -112,7 +113,7 @@ func Test_ValidateExpectedOut_MatchLines_Fails(t *testing.T) {
 line 2
 line 3`
 
-	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "line 3"}})
+	got := validateExpectedOut(value, ExpectedOut{Lines: map[int]string{2: "line 3"}}, "")
 
 	assert.False(t, got.Success)
 	diff := `--- Got
@@ -127,7 +128,7 @@ line 3`
 func Test_ValidateExpectedOut_LineCount_Fails(t *testing.T) {
 	value := ``
 
-	got := validateExpectedOut(value, ExpectedOut{LineCount: 2})
+	got := validateExpectedOut(value, ExpectedOut{LineCount: 2}, "")
 
 	assert.False(t, got.Success)
 	diff := `--- Got
@@ -142,7 +143,7 @@ func Test_ValidateExpectedOut_LineCount_Fails(t *testing.T) {
 func Test_ValidateExpectedOut_NotContains_Fails(t *testing.T) {
 	value := `my string contains`
 
-	got := validateExpectedOut(value, ExpectedOut{NotContains: []string{"contains"}})
+	got := validateExpectedOut(value, ExpectedOut{NotContains: []string{"contains"}}, "")
 
 	diff := `
 Expected
@@ -167,7 +168,7 @@ func Test_ValidateExpectedOut_PanicIfLineDoesNotExist(t *testing.T) {
 	}()
 
 	value := `my`
-	_ = validateExpectedOut(value, ExpectedOut{Lines: map[int]string{0: "my"}})
+	_ = validateExpectedOut(value, ExpectedOut{Lines: map[int]string{0: "my"}}, "")
 }
 
 func Test_ValidateExpectedOut_ValidateJSON(t *testing.T) {
@@ -178,7 +179,7 @@ func Test_ValidateExpectedOut_ValidateJSON(t *testing.T) {
   }
 }
 `
-	r := validateExpectedOut(json, ExpectedOut{JSON: map[string]string{"object.attr": "test"}})
+	r := validateExpectedOut(json, ExpectedOut{JSON: map[string]string{"object.attr": "test"}}, "")
 	assert.True(t, r.Success)
 
 	diff := `Expected json path "object.attr" with result
@@ -188,7 +189,7 @@ no
 to be equal to
 
 test`
-	r = validateExpectedOut(json, ExpectedOut{JSON: map[string]string{"object.attr": "no"}})
+	r = validateExpectedOut(json, ExpectedOut{JSON: map[string]string{"object.attr": "no"}}, "")
 	assert.False(t, r.Success)
 	assert.Equal(t, diff, r.Diff)
 }
@@ -198,7 +199,7 @@ func Test_ValidateExpectedOut_ValidateFile(t *testing.T) {
 	matcher.ReadFile = func(filename string) ([]byte, error) {
 		return []byte(content), nil
 	}
-	r := validateExpectedOut(content, ExpectedOut{File: "fake.txt"})
+	r := validateExpectedOut(content, ExpectedOut{File: "fake.txt"}, "")
 	assert.True(t, r.Success)
 	assert.Equal(t, "", r.Diff)
 
@@ -209,7 +210,7 @@ func Test_ValidateExpectedOut_ValidateFile(t *testing.T) {
 -line two
 `
 
-	r = validateExpectedOut(content+"\nline two", ExpectedOut{File: "fake.txt"})
+	r = validateExpectedOut(content+"\nline two", ExpectedOut{File: "fake.txt"}, "")
 	assert.False(t, r.Success)
 	assert.Equal(t, diff, r.Diff)
 
@@ -221,7 +222,7 @@ func Test_ValidateExpectedOut_ValidateXML(t *testing.T) {
   <author>J. R. R. Tolkien</author>
 </book>`
 
-	r := validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//author": "J. R. R. Tolkien"}})
+	r := validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//author": "J. R. R. Tolkien"}}, "")
 	assert.True(t, r.Success)
 	assert.Equal(t, "", r.Diff)
 
@@ -232,11 +233,11 @@ Joanne K. Rowling
 to be equal to
 
 J. R. R. Tolkien`
-	r = validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//author": "Joanne K. Rowling"}})
+	r = validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//author": "Joanne K. Rowling"}}, "")
 	assert.False(t, r.Success)
 	assert.Equal(t, diff, r.Diff)
 
-	r = validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//title": "J. R. R. Tolkien"}})
+	r = validateExpectedOut(xml, ExpectedOut{XML: map[string]string{"/book//title": "J. R. R. Tolkien"}}, "")
 	assert.False(t, r.Success)
 	assert.Equal(t, `Query "/book//title" did not match a path`, r.Diff)
 }

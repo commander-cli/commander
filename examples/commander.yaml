@@ -28,5 +28,7 @@ tests:
 
   it should match file output:
     command: printf "line one\nline two"
+    config:
+      dir: examples/
     stdout:
-      file: ../../examples/_fixtures/output.txt
+      file: _fixtures/output.txt

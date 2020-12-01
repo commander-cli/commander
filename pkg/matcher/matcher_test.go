@@ -1,23 +1,31 @@
 package matcher
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_NewMatcher_Text(t *testing.T) {
-	got := NewMatcher(Text)
+	got := NewMatcher(Text, "")
 	assert.IsType(t, TextMatcher{}, got)
 }
 
 func Test_NewMatcher_Contains(t *testing.T) {
-	got := NewMatcher(Contains)
+	got := NewMatcher(Contains, "")
 	assert.IsType(t, ContainsMatcher{}, got)
 }
 
 func Test_NewMatcher_Equal(t *testing.T) {
-	got := NewMatcher(Equal)
+	got := NewMatcher(Equal, "")
 	assert.IsType(t, EqualMatcher{}, got)
+}
+
+func Test_NewMatcher_File(t *testing.T) {
+	workdir := "/foo/bar"
+	got := NewMatcher(File, workdir)
+	assert.IsType(t, FileMatcher{}, got)
+	assert.Equal(t, workdir, got.(FileMatcher).workdir)
 }
 
 func TestTextMatcher_Validate(t *testing.T) {
@@ -35,7 +43,7 @@ func TestNewMatcher_Fail(t *testing.T) {
 		assert.NotNil(t, r)
 	}()
 
-	_ = NewMatcher("no")
+	_ = NewMatcher("no", "")
 }
 
 func TestTextMatcher_ValidateFails(t *testing.T) {
@@ -73,7 +81,7 @@ func TestContainsMatcher_MatchFail(t *testing.T) {
 }
 
 func TestNewMatcher_NotContains(t *testing.T) {
-	m := NewMatcher(NotContains)
+	m := NewMatcher(NotContains, "")
 	assert.IsType(t, NotContainsMatcher{}, m)
 }
 
@@ -125,7 +133,7 @@ func TestXMLMatcher_DoesNotFindPath(t *testing.T) {
 }
 
 func TestXMLMatcher_MatchArray(t *testing.T) {
-	m := NewMatcher(XML)
+	m := NewMatcher(XML, "")
 	html := "<books><book>test1</book><book>test2</book></books>"
 
 	r := m.Match(html, map[string]string{"/books": "test1test2"})
@@ -169,7 +177,7 @@ func TestJSONMatcher_MatchArray(t *testing.T) {
 }
 
 func TestJSONMatcher_DoesNotMatch(t *testing.T) {
-	m := NewMatcher(JSON)
+	m := NewMatcher(JSON, "")
 	r := m.Match(`{"book": "another"}`, map[string]string{"book": "test"})
 
 	diff := `Expected json path "book" with result
