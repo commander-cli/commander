@@ -213,6 +213,9 @@ $ ./commander test https://your-url/commander_test.yaml
 
 # Execute suites within a test directory
 $ ./commander test --dir /tmp
+
+# Execute suites in a different working directory 
+$ ./commander test --workdir /examples minimal_test.yaml
 ```
 
 ### Adding tests

@@ -1,3 +1,7 @@
+# v2.5.0
+  
+ - Add `--workdir` flag to change the wokring directory of commander `test` execution 
+
 # v2.4.0
 
  - Add ability to test suite from a url
