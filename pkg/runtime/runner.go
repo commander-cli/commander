@@ -5,19 +5,21 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/commander-cli/commander/pkg/suite"
 )
 
 // Runner holds the config and executes the desired runtime env
 type Runner struct {
-	Nodes []Node
+	Nodes []suite.Node
 }
 
 // Run the runner
-func (r *Runner) Run(tests []TestCase) <-chan TestResult {
-	in := make(chan TestCase)
+func (r *Runner) Run(tests []suite.TestCase) <-chan TestResult {
+	in := make(chan suite.TestCase)
 	out := make(chan TestResult)
 
-	go func(tests []TestCase) {
+	go func(tests []suite.TestCase) {
 		defer close(in)
 		for _, t := range tests {
 			in <- t
@@ -27,7 +29,7 @@ func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	go func(tests chan TestCase) {
+	go func(tests chan suite.TestCase) {
 		defer wg.Done()
 
 		for t := range tests {
@@ -97,7 +99,7 @@ func (r *Runner) getExecutor(node string) Executor {
 	return NewLocalExecutor()
 }
 
-func executeRetryInterval(t TestCase) {
+func executeRetryInterval(t suite.TestCase) {
 	if t.Command.GetRetries() > 1 && t.Command.Interval != "" {
 		interval, err := time.ParseDuration(t.Command.Interval)
 		if err != nil {
@@ -105,12 +107,4 @@ func executeRetryInterval(t TestCase) {
 		}
 		time.Sleep(interval)
 	}
-}
-
-// GetRetries returns the retries of the command
-func (c *CommandUnderTest) GetRetries() int {
-	if c.Retries == 0 {
-		return 1
-	}
-	return c.Retries
 }

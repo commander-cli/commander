@@ -2,9 +2,11 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/commander-cli/commander/pkg/matcher"
 	"log"
 	"strings"
+
+	"github.com/commander-cli/commander/pkg/matcher"
+	"github.com/commander-cli/commander/pkg/suite"
 )
 
 // ValidationResult will be returned after the validation was executed
@@ -22,7 +24,7 @@ func newValidationResult(m matcher.MatcherResult) ValidationResult {
 
 // Validate validates the test results with the expected values
 // The test should hold the result and expected to validate the result
-func Validate(test TestCase) TestResult {
+func Validate(test suite.TestCase) TestResult {
 	equalMatcher := matcher.NewMatcher(matcher.Equal)
 
 	log.Println("title: '"+test.Title+"'", " Stdout-Expected: ", test.Expected.Stdout)
@@ -64,7 +66,7 @@ func Validate(test TestCase) TestResult {
 	}
 }
 
-func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult {
+func validateExpectedOut(got string, expected suite.ExpectedOut) matcher.MatcherResult {
 	var m matcher.Matcher
 	var result matcher.MatcherResult
 	result.Success = true
@@ -128,7 +130,7 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 	return result
 }
 
-func validateExpectedLineCount(got string, expected ExpectedOut) matcher.MatcherResult {
+func validateExpectedLineCount(got string, expected suite.ExpectedOut) matcher.MatcherResult {
 	m := matcher.NewMatcher(matcher.Equal)
 	count := strings.Count(got, getLineBreak()) + 1
 
@@ -139,7 +141,7 @@ func validateExpectedLineCount(got string, expected ExpectedOut) matcher.Matcher
 	return m.Match(count, expected.LineCount)
 }
 
-func validateExpectedLines(got string, expected ExpectedOut) matcher.MatcherResult {
+func validateExpectedLines(got string, expected suite.ExpectedOut) matcher.MatcherResult {
 	m := matcher.NewMatcher(matcher.Equal)
 	actualLines := strings.Split(got, getLineBreak())
 	result := matcher.MatcherResult{Success: true}

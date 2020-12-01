@@ -6,13 +6,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
+	"github.com/commander-cli/commander/pkg/suite"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"log"
-	"strings"
-	"time"
 )
 
 // DockerExecutor executes the test inside a docker container
@@ -25,7 +27,7 @@ type DockerExecutor struct {
 }
 
 // Execute executes the script inside a docker container
-func (e DockerExecutor) Execute(test TestCase) TestResult {
+func (e DockerExecutor) Execute(test suite.TestCase) TestResult {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -113,7 +115,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Env: ", test.Command.Env)
 
 	// Write test result
-	test.Result = CommandResult{
+	test.Result = suite.CommandResult{
 		ExitCode: int(status),
 		Stdout:   strings.TrimSpace(strings.Replace(stdout.String(), "\r\n", "\n", -1)),
 		Stderr:   strings.TrimSpace(strings.Replace(stderr.String(), "\r\n", "\n", -1)),

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/commander-cli/cmd"
+	"github.com/commander-cli/commander/pkg/suite"
 )
 
 // LocalExecutor will be used to execute tests on the local host
@@ -19,10 +20,10 @@ func NewLocalExecutor() Executor {
 }
 
 // Execute will execute the given test on the current node
-func (e LocalExecutor) Execute(test TestCase) TestResult {
+func (e LocalExecutor) Execute(test suite.TestCase) TestResult {
 	timeoutOpt, err := createTimeoutOption(test.Command.Timeout)
 	if err != nil {
-		test.Result = CommandResult{Error: err}
+		test.Result = suite.CommandResult{Error: err}
 		return TestResult{
 			TestCase: test,
 		}
@@ -39,7 +40,7 @@ func (e LocalExecutor) Execute(test TestCase) TestResult {
 
 	if err := cut.Execute(); err != nil {
 		log.Println(test.Title, " failed ", err.Error())
-		test.Result = CommandResult{
+		test.Result = suite.CommandResult{
 			Error: err,
 		}
 
@@ -53,7 +54,7 @@ func (e LocalExecutor) Execute(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Env: ", cut.Env)
 
 	// Write test result
-	test.Result = CommandResult{
+	test.Result = suite.CommandResult{
 		ExitCode: cut.ExitCode(),
 		Stdout:   strings.TrimSpace(strings.Replace(cut.Stdout(), "\r\n", "\n", -1)),
 		Stderr:   strings.TrimSpace(strings.Replace(cut.Stderr(), "\r\n", "\n", -1)),
@@ -66,7 +67,7 @@ func (e LocalExecutor) Execute(test TestCase) TestResult {
 	return Validate(test)
 }
 
-func createEnvVarsOption(test TestCase) func(c *cmd.Command) {
+func createEnvVarsOption(test suite.TestCase) func(c *cmd.Command) {
 	return func(c *cmd.Command) {
 		// Add all env variables from parent process
 		if test.Command.InheritEnv {

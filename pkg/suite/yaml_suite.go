@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/commander-cli/commander/pkg/runtime"
 	"gopkg.in/yaml.v2"
 )
 
@@ -63,7 +62,7 @@ func ParseYAML(content []byte, fileName string) Suite {
 
 	return Suite{
 		TestCases: tests,
-		Config: runtime.GlobalTestConfig{
+		Config: GlobalTestConfig{
 			InheritEnv: yamlConfig.Config.InheritEnv,
 			Env:        yamlConfig.Config.Env,
 			Dir:        yamlConfig.Config.Dir,
@@ -76,10 +75,10 @@ func ParseYAML(content []byte, fileName string) Suite {
 	}
 }
 
-func convertNodes(nodeConfs map[string]YAMLNodeConf) []runtime.Node {
-	var nodes []runtime.Node
+func convertNodes(nodeConfs map[string]YAMLNodeConf) []Node {
+	var nodes []Node
 	for _, v := range nodeConfs {
-		node := runtime.Node{
+		node := Node{
 			Pass:           v.Pass,
 			Type:           v.Type,
 			User:           v.User,
@@ -98,12 +97,12 @@ func convertNodes(nodeConfs map[string]YAMLNodeConf) []runtime.Node {
 }
 
 //Convert YAMLSuiteConf to runtime TestCases
-func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf, fileName string) []runtime.TestCase {
-	var tests []runtime.TestCase
+func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf, fileName string) []TestCase {
+	var tests []TestCase
 	for _, t := range conf.Tests {
-		tests = append(tests, runtime.TestCase{
+		tests = append(tests, TestCase{
 			Title: t.Title,
-			Command: runtime.CommandUnderTest{
+			Command: CommandUnderTest{
 				Cmd:        t.Command,
 				InheritEnv: t.Config.InheritEnv,
 				Env:        t.Config.Env,
@@ -112,10 +111,10 @@ func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf, fileName string) []runt
 				Retries:    t.Config.Retries,
 				Interval:   t.Config.Interval,
 			},
-			Expected: runtime.Expected{
+			Expected: Expected{
 				ExitCode: t.ExitCode,
-				Stdout:   t.Stdout.(runtime.ExpectedOut),
-				Stderr:   t.Stderr.(runtime.ExpectedOut),
+				Stdout:   t.Stdout.(ExpectedOut),
+				Stderr:   t.Stderr.(ExpectedOut),
 			},
 			Nodes:    t.Config.Nodes,
 			FileName: fileName,
@@ -197,8 +196,8 @@ func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 //Converts given value to an ExpectedOut. Especially used for Stdout and Stderr.
-func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.ExpectedOut {
-	exp := runtime.ExpectedOut{
+func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) ExpectedOut {
+	exp := ExpectedOut{
 		JSON: make(map[string]string),
 	}
 
@@ -335,14 +334,14 @@ func (y YAMLSuiteConf) MarshalYAML() (interface{}, error) {
 	//If all values are empty except Contains it will convert it to a single string
 	//to match the easiest test suite definitions
 	for k, t := range y.Tests {
-		t.Stdout = convertExpectedOut(t.Stdout.(runtime.ExpectedOut))
+		t.Stdout = convertExpectedOut(t.Stdout.(ExpectedOut))
 		if reflect.ValueOf(t.Stdout).Kind() == reflect.Struct {
-			t.Stdout = t.Stdout.(runtime.ExpectedOut)
+			t.Stdout = t.Stdout.(ExpectedOut)
 		}
 
-		t.Stderr = convertExpectedOut(t.Stderr.(runtime.ExpectedOut))
+		t.Stderr = convertExpectedOut(t.Stderr.(ExpectedOut))
 		if reflect.ValueOf(t.Stderr).Kind() == reflect.Struct {
-			t.Stderr = t.Stderr.(runtime.ExpectedOut)
+			t.Stderr = t.Stderr.(ExpectedOut)
 		}
 
 		y.Tests[k] = t
@@ -355,7 +354,7 @@ func (y *YAMLSuiteConf) mergeNodes(nodes map[string]YAMLNodeConf, globalNodes ma
 	return nodes
 }
 
-func convertExpectedOut(out runtime.ExpectedOut) interface{} {
+func convertExpectedOut(out ExpectedOut) interface{} {
 	//If the property contains consists of only one element it will be set without the struct structure
 	if isContainsASingleNonEmptyString(out) && propertiesAreEmpty(out) {
 		return out.Contains[0]
@@ -373,14 +372,14 @@ func convertExpectedOut(out runtime.ExpectedOut) interface{} {
 	return out
 }
 
-func propertiesAreEmpty(out runtime.ExpectedOut) bool {
+func propertiesAreEmpty(out ExpectedOut) bool {
 	return out.Lines == nil &&
 		out.Exactly == "" &&
 		out.LineCount == 0 &&
 		out.NotContains == nil
 }
 
-func isContainsASingleNonEmptyString(out runtime.ExpectedOut) bool {
+func isContainsASingleNonEmptyString(out ExpectedOut) bool {
 	return len(out.Contains) == 1 &&
 		out.Contains[0] != ""
 }

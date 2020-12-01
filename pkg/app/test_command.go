@@ -146,7 +146,7 @@ func testStdin(filters runtime.Filters) (runtime.Result, error) {
 func execute(s suite.Suite, filters runtime.Filters) (runtime.Result, error) {
 	tests := s.GetTests()
 	if len(filters) != 0 {
-		tests = []runtime.TestCase{}
+		tests = []suite.TestCase{}
 	}
 
 	// Filter tests if test filters was given

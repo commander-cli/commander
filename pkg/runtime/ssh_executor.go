@@ -3,11 +3,13 @@ package runtime
 import (
 	"bytes"
 	"fmt"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"log"
 	"net"
 	"strings"
+
+	"github.com/commander-cli/commander/pkg/suite"
+	"golang.org/x/crypto/ssh"
 )
 
 // SSHExecutor
@@ -47,7 +49,7 @@ func NewSSHExecutor(host string, user string, opts ...func(e *SSHExecutor)) Exec
 }
 
 // Execute executes a command on a remote host viá SSH
-func (e SSHExecutor) Execute(test TestCase) TestResult {
+func (e SSHExecutor) Execute(test suite.TestCase) TestResult {
 	if test.Command.InheritEnv {
 		panic("Inherit env is not supported viá SSH")
 	}
@@ -93,7 +95,7 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 	for k, v := range test.Command.Env {
 		err := session.Setenv(k, v)
 		if err != nil {
-			test.Result = CommandResult{
+			test.Result = suite.CommandResult{
 				Error: fmt.Errorf("Failed setting env variables, maybe ssh server is configured to only accept LC_ prefixed env variables. Error: %s", err),
 			}
 			return TestResult{
@@ -117,7 +119,7 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 		break
 	default:
 		log.Println(test.Title, " failed ", err.Error())
-		test.Result = CommandResult{
+		test.Result = suite.CommandResult{
 			Error: err,
 		}
 
@@ -126,7 +128,7 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 		}
 	}
 
-	test.Result = CommandResult{
+	test.Result = suite.CommandResult{
 		ExitCode: exitCode,
 		Stdout:   strings.TrimSpace(strings.Replace(stdoutBuffer.String(), "\r\n", "\n", -1)),
 		Stderr:   strings.TrimSpace(strings.Replace(stderrBuffer.String(), "\r\n", "\n", -1)),

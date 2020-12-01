@@ -3,7 +3,6 @@ package suite
 import (
 	"testing"
 
-	"github.com/commander-cli/commander/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -130,7 +129,7 @@ tests:
 	tests := ParseYAML(yaml, "").GetTests()
 
 	assert.Equal(t, "exactly stderr", tests[0].Expected.Stderr.Exactly)
-	assert.IsType(t, runtime.ExpectedOut{}, tests[0].Expected.Stdout)
+	assert.IsType(t, ExpectedOut{}, tests[0].Expected.Stdout)
 }
 
 func Test_YAMLConfig_convertToExpectedOut(t *testing.T) {
@@ -139,7 +138,7 @@ func Test_YAMLConfig_convertToExpectedOut(t *testing.T) {
 	y := YAMLSuiteConf{}
 	got := y.convertToExpectedOut(in)
 
-	assert.IsType(t, runtime.ExpectedOut{}, got)
+	assert.IsType(t, ExpectedOut{}, got)
 	assert.Equal(t, "exactly stderr", got.Exactly)
 }
 
@@ -284,22 +283,22 @@ tests:
 func Test_YAMLConfig_MarshalYAML(t *testing.T) {
 	conf := YAMLSuiteConf{Tests: map[string]YAMLTest{
 		"return_string": {
-			Stdout: runtime.ExpectedOut{Contains: []string{"stdout string"}},
-			Stderr: runtime.ExpectedOut{Contains: []string{"stderr string"}},
+			Stdout: ExpectedOut{Contains: []string{"stdout string"}},
+			Stderr: ExpectedOut{Contains: []string{"stderr string"}},
 		},
 		"return_struct": {
-			Stdout: runtime.ExpectedOut{
+			Stdout: ExpectedOut{
 				Contains:  []string{"stdout"},
 				LineCount: 10,
 			},
-			Stderr: runtime.ExpectedOut{
+			Stderr: ExpectedOut{
 				Contains:  []string{"stderr"},
 				LineCount: 10,
 			},
 		},
 		"return_nil": {
-			Stdout: runtime.ExpectedOut{},
-			Stderr: runtime.ExpectedOut{},
+			Stdout: ExpectedOut{},
+			Stderr: ExpectedOut{},
 		},
 	}}
 
@@ -317,7 +316,7 @@ func Test_YAMLConfig_MarshalYAML(t *testing.T) {
 }
 
 func Test_convertExpectOut_ReturnNilIfEmpty(t *testing.T) {
-	out := runtime.ExpectedOut{
+	out := ExpectedOut{
 		Contains: []string{""},
 	}
 
@@ -327,7 +326,7 @@ func Test_convertExpectOut_ReturnNilIfEmpty(t *testing.T) {
 }
 
 func Test_convertExpectedOut_ReturnContainsAsString(t *testing.T) {
-	out := runtime.ExpectedOut{
+	out := ExpectedOut{
 		Contains: []string{"test"},
 	}
 
@@ -337,7 +336,7 @@ func Test_convertExpectedOut_ReturnContainsAsString(t *testing.T) {
 }
 
 func Test_convertExpectedOut_ReturnFullStruct(t *testing.T) {
-	out := runtime.ExpectedOut{
+	out := ExpectedOut{
 		Contains:  []string{"hello", "hi"},
 		LineCount: 10,
 		Exactly:   "test",

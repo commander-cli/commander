@@ -1,10 +1,12 @@
 package runtime
 
 import (
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/commander-cli/commander/pkg/suite"
+	"github.com/stretchr/testify/assert"
 )
 
 type SSHExecutorTestEnv struct {
@@ -40,13 +42,13 @@ func Test_SSHExecutor(t *testing.T) {
 
 	s := createExecutor()
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd: "echo test",
 		},
-		Expected: Expected{
+		Expected: suite.Expected{
 			ExitCode: 0,
-			Stdout:   ExpectedOut{Exactly: "test"},
+			Stdout:   suite.ExpectedOut{Exactly: "test"},
 		},
 	}
 	got := s.Execute(test)
@@ -62,8 +64,8 @@ func Test_SSHExecutor_WithDir(t *testing.T) {
 
 	s := createExecutor()
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd: "echo $LC_TEST_KEY1; echo $LC_TEST_KEY2",
 			Env: map[string]string{
 				"LC_TEST_KEY1": "ENV_VALUE1",
@@ -85,8 +87,8 @@ func Test_SSHExecutor_ExitCode(t *testing.T) {
 
 	s := createExecutor()
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd: "exit 2;",
 		},
 	}

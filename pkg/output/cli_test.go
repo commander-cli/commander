@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/commander-cli/commander/pkg/runtime"
+	"github.com/commander-cli/commander/pkg/suite"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -75,9 +76,9 @@ func Test_PrintSummary(t *testing.T) {
 
 func createFakeTestResults() []runtime.TestResult {
 	tr := runtime.TestResult{
-		TestCase: runtime.TestCase{
+		TestCase: suite.TestCase{
 			Title:   "Failed test",
-			Command: runtime.CommandUnderTest{},
+			Command: suite.CommandUnderTest{},
 		},
 		ValidationResult: runtime.ValidationResult{
 			Success: false,
@@ -87,9 +88,9 @@ func createFakeTestResults() []runtime.TestResult {
 	}
 
 	tr2 := runtime.TestResult{
-		TestCase: runtime.TestCase{
+		TestCase: suite.TestCase{
 			Title:   "Successful test",
-			Command: runtime.CommandUnderTest{},
+			Command: suite.CommandUnderTest{},
 		},
 		ValidationResult: runtime.ValidationResult{
 			Success: true,
@@ -99,12 +100,12 @@ func createFakeTestResults() []runtime.TestResult {
 	}
 
 	tr3 := runtime.TestResult{
-		TestCase: runtime.TestCase{
+		TestCase: suite.TestCase{
 			Title: "Invalid command",
-			Command: runtime.CommandUnderTest{
+			Command: suite.CommandUnderTest{
 				Cmd: "some stupid config",
 			},
-			Result: runtime.CommandResult{
+			Result: suite.CommandResult{
 				Error: fmt.Errorf("Some error message"),
 			},
 		},
@@ -113,9 +114,9 @@ func createFakeTestResults() []runtime.TestResult {
 	}
 
 	tr4 := runtime.TestResult{
-		TestCase: runtime.TestCase{
+		TestCase: suite.TestCase{
 			Title:   "Skipped test",
-			Command: runtime.CommandUnderTest{},
+			Command: suite.CommandUnderTest{},
 		},
 		FailedProperty: "Stdout",
 		Node:           "192.168.0.1",

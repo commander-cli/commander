@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/commander-cli/commander/pkg/suite"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,8 +49,8 @@ func TestRuntime_WithRetries(t *testing.T) {
 }
 
 func Test_AlphabeticalOrder(t *testing.T) {
-	tests := []TestCase{
-		{Title: "bbb", Command: CommandUnderTest{Cmd: "exit 0;"}},
+	tests := []suite.TestCase{
+		{Title: "bbb", Command: suite.CommandUnderTest{Cmd: "exit 0;"}},
 		{Title: "aaa"},
 		{Title: "111"},
 		{Title: "_"},
@@ -110,19 +111,19 @@ func getRuntime() Runtime {
 		},
 	}
 
-	runtime := NewRuntime(&eh, Node{Name: "test"}, Node{Name: "test2"})
+	runtime := NewRuntime(&eh, suite.Node{Name: "test"}, suite.Node{Name: "test2"})
 	return runtime
 }
 
-func getExampleTestCases() []TestCase {
-	tests := []TestCase{
+func getExampleTestCases() []suite.TestCase {
+	tests := []suite.TestCase{
 		{
-			Command: CommandUnderTest{
+			Command: suite.CommandUnderTest{
 				Cmd:     "echo hello",
 				Timeout: "5s",
 			},
-			Expected: Expected{
-				Stdout: ExpectedOut{
+			Expected: suite.Expected{
+				Stdout: suite.ExpectedOut{
 					Exactly: "hello",
 				},
 				ExitCode: 0,

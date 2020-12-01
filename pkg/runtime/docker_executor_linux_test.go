@@ -1,10 +1,12 @@
 package runtime
 
 import (
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/commander-cli/commander/pkg/suite"
+	"github.com/stretchr/testify/assert"
 )
 
 func isEnabled() bool {
@@ -27,12 +29,12 @@ func Test_DockerExecutor_Execute(t *testing.T) {
 
 	cmd := `echo hello`
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd: cmd,
 		},
-		Expected: Expected{
-			Stdout:   ExpectedOut{Exactly: "hello"},
+		Expected: suite.Expected{
+			Stdout:   suite.ExpectedOut{Exactly: "hello"},
 			ExitCode: 0,
 		},
 	}
@@ -56,12 +58,12 @@ func Test_DockerExecutor_ExecuteCatchStderr(t *testing.T) {
 
 	cmd := `cd /invalid`
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd: cmd,
 		},
-		Expected: Expected{
-			Stderr:   ExpectedOut{Exactly: "/bin/sh: 1: cd: can't cd to /invalid"},
+		Expected: suite.Expected{
+			Stderr:   suite.ExpectedOut{Exactly: "/bin/sh: 1: cd: can't cd to /invalid"},
 			ExitCode: 2,
 		},
 	}
@@ -83,13 +85,13 @@ func Test_DockerExecutor_Execute_Dir(t *testing.T) {
 		Image: "docker.io/library/ubuntu:18.04",
 	}
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd: "pwd",
 			Dir: "/tmp",
 		},
-		Expected: Expected{
-			Stdout:   ExpectedOut{Exactly: "/tmp"},
+		Expected: suite.Expected{
+			Stdout:   suite.ExpectedOut{Exactly: "/tmp"},
 			ExitCode: 0,
 		},
 	}
@@ -109,15 +111,15 @@ func Test_DockerExecutor_Execute_Env(t *testing.T) {
 		Image: "docker.io/library/ubuntu:18.04",
 	}
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd: "echo $ENV_KEY",
 			Env: map[string]string{
 				"ENV_KEY": "env-value",
 			},
 		},
-		Expected: Expected{
-			Stdout:   ExpectedOut{Exactly: "env-value"},
+		Expected: suite.Expected{
+			Stdout:   suite.ExpectedOut{Exactly: "env-value"},
 			ExitCode: 0,
 		},
 	}

@@ -1,10 +1,11 @@
-package runtime
+package suite
 
 import (
-	"github.com/commander-cli/cmd"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/commander-cli/cmd"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNodeExpandEnv(t *testing.T) {

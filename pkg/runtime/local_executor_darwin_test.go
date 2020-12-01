@@ -1,17 +1,19 @@
 package runtime
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/commander-cli/commander/pkg/suite"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRuntime_WithInheritFromShell(t *testing.T) {
 	os.Setenv("TEST_COMMANDER", "test")
 	defer os.Unsetenv("TEST_COMMANDER")
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd:        "echo $TEST_COMMANDER",
 			InheritEnv: true,
 		},
@@ -31,8 +33,8 @@ func TestRuntime_WithInheritFromShell_Overwrite(t *testing.T) {
 		os.Unsetenv("ANOTHER_ENV")
 	}()
 
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd:        "echo $TEST_COMMANDER $ANOTHER_ENV",
 			InheritEnv: true,
 			Env:        map[string]string{"TEST_COMMANDER": "overwrite"},

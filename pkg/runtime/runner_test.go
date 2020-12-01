@@ -3,6 +3,7 @@ package runtime
 import (
 	"testing"
 
+	"github.com/commander-cli/commander/pkg/suite"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,21 +39,21 @@ func Test_getExecutor(t *testing.T) {
 	assert.IsType(t, DockerExecutor{}, exec)
 }
 
-func getExampleNodes() []Node {
-	n1 := Node{
+func getExampleNodes() []suite.Node {
+	n1 := suite.Node{
 		Name: "ssh",
 		Type: "ssh",
 	}
-	n2 := Node{
+	n2 := suite.Node{
 		Name: "local",
 		Type: "local",
 	}
-	n3 := Node{
+	n3 := suite.Node{
 		Name: "docker",
 		Type: "docker",
 	}
 
-	nodes := []Node{
+	nodes := []suite.Node{
 		n1, n2, n3,
 	}
 	return nodes

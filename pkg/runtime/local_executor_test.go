@@ -2,9 +2,11 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"runtime"
 	"testing"
+
+	"github.com/commander-cli/commander/pkg/suite"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRuntime_WithEnvVariables(t *testing.T) {
@@ -13,14 +15,14 @@ func TestRuntime_WithEnvVariables(t *testing.T) {
 		envVar = "%KEY%"
 	}
 
-	s := TestCase{
-		Command: CommandUnderTest{
+	s := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd:     fmt.Sprintf("echo %s", envVar),
 			Timeout: "2s",
 			Env:     map[string]string{"KEY": "value"},
 		},
-		Expected: Expected{
-			Stdout: ExpectedOut{
+		Expected: suite.Expected{
+			Stdout: suite.ExpectedOut{
 				Contains: []string{"value"},
 			},
 			ExitCode: 0,
@@ -34,8 +36,8 @@ func TestRuntime_WithEnvVariables(t *testing.T) {
 }
 
 func Test_runTestShouldReturnError(t *testing.T) {
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd: "pwd",
 			Dir: "/home/invalid",
 		},
@@ -52,8 +54,8 @@ func Test_runTestShouldReturnError(t *testing.T) {
 }
 
 func TestRuntime_WithInvalidDuration(t *testing.T) {
-	test := TestCase{
-		Command: CommandUnderTest{
+	test := suite.TestCase{
+		Command: suite.CommandUnderTest{
 			Cmd:     "echo test",
 			Timeout: "600lightyears",
 		},
