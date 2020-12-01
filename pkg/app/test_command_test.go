@@ -9,7 +9,6 @@ import (
 	"runtime"
 	"sync"
 	"testing"
-	"time"
 
 	commanderRuntime "github.com/commander-cli/commander/pkg/runtime"
 	"github.com/stretchr/testify/assert"
@@ -154,28 +153,6 @@ func Test_TestCommand_StdIn_Err(t *testing.T) {
 	err := TestCommand("-", TestCommandContext{Verbose: false})
 
 	assert.NotNil(t, err)
-}
-
-func Test_ConvergeResults(t *testing.T) {
-	duration, _ := time.ParseDuration("5s")
-
-	result1 := commanderRuntime.Result{
-		TestResults: []commanderRuntime.TestResult{},
-		Duration:    duration,
-		Failed:      1,
-	}
-
-	result2 := commanderRuntime.Result{
-		TestResults: []commanderRuntime.TestResult{},
-		Duration:    duration,
-		Failed:      0,
-	}
-
-	actual := convergeResults(result1, result2)
-
-	expectDur, _ := time.ParseDuration("10s")
-	assert.Equal(t, expectDur, actual.Duration)
-	assert.Equal(t, 1, actual.Failed)
 }
 
 func captureOutput(f func()) string {

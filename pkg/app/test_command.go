@@ -70,7 +70,7 @@ func testFile(filePath string, fileName string, filters runtime.Filters) (runtim
 		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
 	}
 
-	return execute(s, filters)
+	return execute([]suite.Suite{s}, filters)
 }
 
 func testDir(directory string, filters runtime.Filters) (runtime.Result, error) {
@@ -80,21 +80,22 @@ func testDir(directory string, filters runtime.Filters) (runtime.Result, error) 
 		return result, fmt.Errorf("Error: Input is not a directory")
 	}
 
+	var suites []suite.Suite
 	for _, f := range files {
 		if f.IsDir() {
 			continue // skip dirs
 		}
 
 		p := path.Join(directory, f.Name())
-		newResult, err := testFile(p, f.Name(), filters)
+		s, err := readFile(p, f.Name())
 		if err != nil {
 			return result, err
 		}
 
-		result = convergeResults(result, newResult)
+		suites = append(suites, s)
 	}
 
-	return result, nil
+	return execute(suites, filters)
 }
 
 func testURL(url string, filters runtime.Filters) (runtime.Result, error) {
@@ -111,19 +112,11 @@ func testURL(url string, filters runtime.Filters) (runtime.Result, error) {
 
 	s := suite.ParseYAML(body, "")
 
-	return execute(s, filters)
+	return execute([]suite.Suite{s}, filters)
 }
 
 func isURL(s string) bool {
 	return strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://")
-}
-
-func convergeResults(result runtime.Result, new runtime.Result) runtime.Result {
-	result.TestResults = append(result.TestResults, new.TestResults...)
-	result.Failed += new.Failed
-	result.Duration += new.Duration
-
-	return result
 }
 
 func testStdin(filters runtime.Filters) (runtime.Result, error) {
@@ -140,27 +133,14 @@ func testStdin(filters runtime.Filters) (runtime.Result, error) {
 	content, err := ioutil.ReadAll(r)
 	s := suite.ParseYAML(content, "")
 
-	return execute(s, filters)
+	return execute([]suite.Suite{s}, filters)
 }
 
-func execute(s suite.Suite, filters runtime.Filters) (runtime.Result, error) {
-	tests := s.GetTests()
-	if len(filters) != 0 {
-		tests = []suite.TestCase{}
+func execute(s []suite.Suite, filters runtime.Filters) (runtime.Result, error) {
+	result, err := runtime.Execute(out.GetEventHandler(), s, filters)
+	if err != nil {
+		return runtime.Result{}, nil
 	}
-
-	// Filter tests if test filters was given
-	for _, f := range filters {
-		t, err := s.FindTests(f)
-		if err != nil {
-			return runtime.Result{}, err
-		}
-		tests = append(tests, t...)
-	}
-
-	r := runtime.NewRuntime(out.GetEventHandler(), s.Nodes...)
-	result := r.Start(tests)
-
 	return result, nil
 }
 

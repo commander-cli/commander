@@ -19,6 +19,41 @@ const (
 // Filters represent runtime filters
 type Filters []string
 
+func Execute(eh *EventHandler, suites []suite.Suite, filters Filters) (Result, error) {
+	var result Result
+
+	for _, s := range suites {
+		tests := s.GetTests()
+		if len(filters) != 0 {
+			tests = []suite.TestCase{}
+		}
+
+		// Filter tests if test filters was given
+		for _, f := range filters {
+			t, err := s.FindTests(f)
+			if err != nil {
+				return Result{}, err
+			}
+			tests = append(tests, t...)
+		}
+
+		r := NewRuntime(eh, s.Nodes...)
+		newResult := r.Start(tests)
+
+		result = convergeResults(result, newResult)
+
+	}
+	return result, nil
+}
+
+func convergeResults(result Result, new Result) Result {
+	result.TestResults = append(result.TestResults, new.TestResults...)
+	result.Failed += new.Failed
+	result.Duration += new.Duration
+
+	return result
+}
+
 // NewRuntime creates a new runtime and inits default nodes
 func NewRuntime(eh *EventHandler, nodes ...suite.Node) Runtime {
 	local := suite.Node{
