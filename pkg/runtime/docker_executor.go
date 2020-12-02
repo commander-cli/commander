@@ -15,6 +15,8 @@ import (
 	"time"
 )
 
+var _ Executor = (*DockerExecutor)(nil)
+
 // DockerExecutor executes the test inside a docker container
 type DockerExecutor struct {
 	Image        string // Image which is started to execute the test
