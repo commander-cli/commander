@@ -81,3 +81,26 @@ func (s Suite) FindTests(pattern string) ([]runtime.TestCase, error) {
 func (s Suite) GetGlobalConfig() runtime.GlobalTestConfig {
 	return s.Config
 }
+
+// MergeConfig overlays a global configuration over an entire suite
+// configuration in suite files take precedence
+func (s Suite) MergeConfig(config runtime.GlobalTestConfig) {
+	// Merge GlobalConfig - doesn't actually affect anything
+	s.Config.Env = mergeEnvironmentVariables(s.Config.Env, config.Env)
+
+	if s.Config.Dir == "" {
+		s.Config.Dir = config.Dir
+	}
+
+}
+
+func mergeEnvironmentVariables(ours map[string]string, theirs map[string]string) map[string]string {
+	env := make(map[string]string)
+	for k, v := range theirs {
+		env[k] = v
+	}
+	for k, v := range ours {
+		env[k] = v
+	}
+	return env
+}

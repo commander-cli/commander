@@ -289,7 +289,7 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 func (y *YAMLSuiteConf) mergeConfigs(local YAMLTestConfigConf, global YAMLTestConfigConf) YAMLTestConfigConf {
 	conf := global
 
-	conf.Env = y.mergeEnvironmentVariables(global, local)
+	conf.Env = mergeEnvironmentVariables(local.Env, global.Env)
 
 	if local.Dir != "" {
 		conf.Dir = local.Dir
@@ -316,17 +316,6 @@ func (y *YAMLSuiteConf) mergeConfigs(local YAMLTestConfigConf, global YAMLTestCo
 	}
 
 	return conf
-}
-
-func (y *YAMLSuiteConf) mergeEnvironmentVariables(global YAMLTestConfigConf, local YAMLTestConfigConf) map[string]string {
-	env := make(map[string]string)
-	for k, v := range global.Env {
-		env[k] = v
-	}
-	for k, v := range local.Env {
-		env[k] = v
-	}
-	return env
 }
 
 //MarshalYAML adds custom logic to the struct to yaml conversion

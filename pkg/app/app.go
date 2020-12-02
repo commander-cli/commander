@@ -18,6 +18,7 @@ type TestCommandContext struct {
 	Dir        bool
 	Workdir    string
 	Concurrent int
+	Config     string
 	Filters    []string
 }
 
@@ -29,6 +30,7 @@ func NewTestContextFromCli(c *cli.Context) TestCommandContext {
 		Dir:        c.Bool("dir"),
 		Workdir:    c.String("workdir"),
 		Concurrent: c.Int("concurrent"),
+		Config:     c.String("config"),
 		Filters:    c.StringSlice("filter"),
 	}
 }
