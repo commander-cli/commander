@@ -141,3 +141,10 @@ tests:
       contains:
         - ✓ [local] hello world
     exit-code: 0
+
+  test workdir flag:
+    command: ./commander test --workdir integration/unix/ workdir.yaml
+    stdout:
+      contains:
+        - ✓ [local] echo hello
+    exit-code: 0

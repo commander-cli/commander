@@ -22,6 +22,13 @@ var out output.OutputWriter
 // ctx holds the command flags. If directory scanning is enabled with --dir,
 // test filtering is not supported
 func TestCommand(testPath string, ctx TestCommandContext) error {
+	if ctx.Workdir != "" {
+		err := os.Chdir(ctx.Workdir)
+		if err != nil {
+			return fmt.Errorf(err.Error())
+		}
+	}
+
 	if ctx.Verbose {
 		log.SetOutput(os.Stdout)
 	}

@@ -178,6 +178,15 @@ func Test_ConvergeResults(t *testing.T) {
 	assert.Equal(t, 1, actual.Failed)
 }
 
+func Test_TestCommand_InvalidDir(t *testing.T) {
+	err := TestCommand("foo", TestCommandContext{Workdir: "invalid_dir"})
+	if runtime.GOOS == "windows" {
+		assert.Contains(t, err.Error(), "The system cannot find the file specified")
+	} else {
+		assert.Contains(t, err.Error(), "no such file or directory")
+	}
+}
+
 func captureOutput(f func()) string {
 	reader, writer, err := os.Pipe()
 	if err != nil {

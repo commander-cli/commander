@@ -1,0 +1,4 @@
+tests:
+  echo hello:
+    stdout: 
+      file: _fixtures/workdir.txt

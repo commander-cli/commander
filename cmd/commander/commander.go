@@ -87,6 +87,10 @@ commander test commander.yaml --filter="^filter1$"
 				Name:  "dir",
 				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
 			},
+			cli.StringFlag{
+				Name:  "workdir",
+				Usage: "Set the working directory of commander's execution",
+			},
 			cli.StringSliceFlag{
 				Name:  "filter",
 				Usage: `Filter tests by a given regex pattern. Tests are filtered by its title.`,

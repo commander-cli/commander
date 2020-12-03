@@ -16,6 +16,7 @@ type TestCommandContext struct {
 	Verbose    bool
 	NoColor    bool
 	Dir        bool
+	Workdir    string
 	Concurrent int
 	Filters    []string
 }
@@ -26,6 +27,7 @@ func NewTestContextFromCli(c *cli.Context) TestCommandContext {
 		Verbose:    c.Bool("verbose"),
 		NoColor:    c.Bool("no-color"),
 		Dir:        c.Bool("dir"),
+		Workdir:    c.String("workdir"),
 		Concurrent: c.Int("concurrent"),
 		Filters:    c.StringSlice("filter"),
 	}
