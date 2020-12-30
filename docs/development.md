@@ -53,7 +53,7 @@ $ make test
 $ make test-coverage
 
 # Coverage with more complex tests like ssh execution
-$ make test-coverage-all
+$ make test-coverage-all-dockerized
 
 # Integration tests for linux and macos
 $ make integration-unix
@@ -265,4 +265,3 @@ It is always necessary to execute the test suite with a stable version of comman
 
  - The working directory is by default the project root, even for tests located inside `integration/*`
  - Execute `commander` inside the `commander_*.yaml` files with a given suite and assert the result which is returned
- 

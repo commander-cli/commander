@@ -3,13 +3,13 @@ nodes:
     type: ssh
     user: root
     identity-file: integration/containers/ssh/id_rsa
-    addr: localhost:2222
+    addr: 172.28.0.2:22
 
   ssh-host-default:
     type: ssh
     user: root
     identity-file: integration/containers/ssh/id_rsa
-    addr: localhost:2222
+    addr: 172.28.0.2:22
 
 config:
   nodes:

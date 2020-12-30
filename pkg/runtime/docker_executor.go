@@ -11,6 +11,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -28,6 +29,10 @@ type DockerExecutor struct {
 
 // Execute executes the script inside a docker container
 func (e DockerExecutor) Execute(test TestCase) TestResult {
+	log.Printf("DOCKER_HOST: %s \n", os.Getenv("DOCKER_HOST"))
+	log.Printf("DOCKER_CERT_PATH: %s \n", os.Getenv("DOCKER_CERT_PATH"))
+	log.Printf("DOCKER_API_VERSION: %s \n", os.Getenv("DOCKER_API_VERSION"))
+
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
