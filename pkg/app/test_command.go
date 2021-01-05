@@ -15,7 +15,7 @@ import (
 	"github.com/commander-cli/commander/pkg/suite"
 )
 
-var out output.OutputWriter
+var out output.Output
 
 // TestCommand executes the test argument
 // testPath is the path to the test suite config, it can be a dir or file
@@ -33,14 +33,16 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 		log.SetOutput(os.Stdout)
 	}
 
-	out = output.NewCliOutput(!ctx.NoColor)
+	out, err := output.NewOutput(ctx.Format, !ctx.NoColor)
+	if err != nil {
+		return err
+	}
 
 	if testPath == "" {
 		testPath = CommanderFile
 	}
 
 	var result runtime.Result
-	var err error
 	switch {
 	case ctx.Dir:
 		fmt.Println("Starting test against directory: " + testPath + "...")
@@ -64,7 +66,9 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	if !out.PrintSummary(result) && !ctx.Verbose {
+
+	out.PrintSummary(result)
+	if result.Failed != 0 && !ctx.Verbose {
 		return fmt.Errorf("Test suite failed, use --verbose for more detailed output")
 	}
 

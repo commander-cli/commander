@@ -123,7 +123,7 @@ type TestResult struct {
 	Skipped          bool
 }
 
-// Result respresents the aggregation of all TestResults/summary of a runtime
+// Result represents the aggregation of all TestResults/summary of a runtime
 type Result struct {
 	TestResults []TestResult
 	Duration    time.Duration

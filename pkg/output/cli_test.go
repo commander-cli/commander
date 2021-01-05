@@ -11,7 +11,7 @@ import (
 
 func Test_NewCliOutput(t *testing.T) {
 	got := NewCliOutput(true)
-	assert.IsType(t, OutputWriter{}, got)
+	assert.IsType(t, CLIOutputWriter{}, got)
 }
 
 func Test_GetEventHandler(t *testing.T) {
@@ -22,8 +22,9 @@ func Test_GetEventHandler(t *testing.T) {
 
 func Test_EventHandlerTestFinished(t *testing.T) {
 	var buf bytes.Buffer
-	writer := NewCliOutput(true)
-	writer.out = &buf
+	writer := CLIOutputWriter{
+		out: &buf,
+	}
 	eh := writer.GetEventHandler()
 
 	testResults := createFakeTestResults()
@@ -39,8 +40,9 @@ func Test_EventHandlerTestFinished(t *testing.T) {
 
 func Test_EventHandlerTestSkipped(t *testing.T) {
 	var buf bytes.Buffer
-	writer := NewCliOutput(true)
-	writer.out = &buf
+	writer := CLIOutputWriter{
+		out: &buf,
+	}
 	eh := writer.GetEventHandler()
 
 	testResults := createFakeTestResults()
@@ -62,11 +64,11 @@ func Test_PrintSummary(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	writer := NewCliOutput(true)
-	writer.out = &buf
+	writer := CLIOutputWriter{
+		out: &buf,
+	}
 
-	outResult := writer.PrintSummary(r)
-	assert.False(t, outResult)
+	writer.PrintSummary(r)
 
 	output := buf.String()
 	assert.Contains(t, output, "✗ [192.168.0.1] 'Failed test', on property 'Stdout'")

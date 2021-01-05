@@ -11,15 +11,17 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
-// OutputWriter represents the output
-type OutputWriter struct {
+var _ Output = (*CLIOutputWriter)(nil)
+
+// CLIOutputWriter represents the output
+type CLIOutputWriter struct {
 	out      io.Writer
 	au       aurora.Aurora
 	template cliTemplate
 }
 
-// NewCliOutput creates a new OutputWriter with a stdout writer
-func NewCliOutput(color bool) OutputWriter {
+// NewCliOutput creates a new C̄LIOutputWriter with a stdout writer
+func NewCliOutput(color bool) Output {
 	au := aurora.NewAurora(color)
 	if run.GOOS == "windows" {
 		au = aurora.NewAurora(false)
@@ -27,7 +29,7 @@ func NewCliOutput(color bool) OutputWriter {
 
 	t := newCliTemplate()
 
-	return OutputWriter{
+	return CLIOutputWriter{
 		out:      os.Stdout,
 		au:       au,
 		template: t,
@@ -48,7 +50,7 @@ type TestResult struct {
 }
 
 // GetEventHandler create a new runtime.EventHandler
-func (w *OutputWriter) GetEventHandler() *runtime.EventHandler {
+func (w CLIOutputWriter) GetEventHandler() *runtime.EventHandler {
 	handler := runtime.EventHandler{}
 	handler.TestFinished = func(testResult runtime.TestResult) {
 		tr := convertTestResult(testResult)
@@ -64,7 +66,7 @@ func (w *OutputWriter) GetEventHandler() *runtime.EventHandler {
 }
 
 // PrintSummary prints summary
-func (w *OutputWriter) PrintSummary(result runtime.Result) bool {
+func (w CLIOutputWriter) PrintSummary(result runtime.Result) {
 	if result.Failed > 0 {
 		w.printFailures(result.TestResults)
 	}
@@ -77,12 +79,10 @@ func (w *OutputWriter) PrintSummary(result runtime.Result) bool {
 	} else {
 		w.fprintf(w.au.Green(summary))
 	}
-
-	return result.Failed == 0
 }
 
 // printResult prints the simple output form of a TestReault
-func (w *OutputWriter) printResult(r TestResult) {
+func (w CLIOutputWriter) printResult(r TestResult) {
 	if !r.Success {
 		w.fprintf(w.au.Red(w.template.testResult(r)))
 		return
@@ -90,11 +90,11 @@ func (w *OutputWriter) printResult(r TestResult) {
 	w.fprintf(w.template.testResult(r))
 }
 
-func (w *OutputWriter) printSkip(r TestResult) {
+func (w CLIOutputWriter) printSkip(r TestResult) {
 	w.fprintf(fmt.Sprintf("- [%s] %s, was skipped", r.Node, r.Title))
 }
 
-func (w *OutputWriter) printFailures(results []runtime.TestResult) {
+func (w CLIOutputWriter) printFailures(results []runtime.TestResult) {
 	w.fprintf("")
 	w.fprintf(w.au.Bold("Results"))
 	w.fprintf(w.au.Bold(""))
@@ -118,7 +118,7 @@ func (w *OutputWriter) printFailures(results []runtime.TestResult) {
 	}
 }
 
-func (w *OutputWriter) fprintf(a ...interface{}) {
+func (w CLIOutputWriter) fprintf(a ...interface{}) {
 	if _, err := fmt.Fprintln(w.out, a...); err != nil {
 		log.Fatal(err)
 	}
