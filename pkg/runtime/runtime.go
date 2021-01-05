@@ -166,3 +166,11 @@ func (r *Runtime) Start(tests []TestCase) Result {
 
 	return result
 }
+
+// NewEmptyEventHandler returns an event handler with empty implementations
+func NewEmptyEventHandler() *EventHandler {
+	return &EventHandler{
+		TestFinished: func(result TestResult) {},
+		TestSkipped: func(result TestResult) {},
+	}
+}

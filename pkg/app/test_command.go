@@ -33,7 +33,8 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 		log.SetOutput(os.Stdout)
 	}
 
-	out, err := output.NewOutput(ctx.Format, !ctx.NoColor)
+	var err error
+	out, err = output.NewOutput(ctx.Format, !ctx.NoColor)
 	if err != nil {
 		return err
 	}
@@ -65,7 +66,6 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}
-
 
 	out.PrintSummary(result)
 	if result.Failed != 0 && !ctx.Verbose {

@@ -23,7 +23,7 @@ func NewTAPOutputWriter() Output {
 }
 
 func (w TAPOutputWriter) GetEventHandler() *runtime.EventHandler {
-	return nil
+	return runtime.NewEmptyEventHandler()
 }
 
 func (w TAPOutputWriter) PrintSummary(result runtime.Result) {
@@ -37,8 +37,7 @@ func (w TAPOutputWriter) PrintSummary(result runtime.Result) {
 		counter++
 		if r.FailedProperty != "" {
 			w.fprintf("%d ok - %s", counter+1, r.TestCase.Title)
-		}
-		if r.FailedProperty != "" {
+		} else {
 			w.fprintf("%d not ok - %s", counter+1, r.TestCase.Title)
 		}
 	}
