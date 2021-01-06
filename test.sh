@@ -19,14 +19,15 @@ docker build -t commander-int-ssh-server -f integration/containers/ssh/Dockerfil
 docker network create  --driver=bridge --subnet=172.28.0.0/16 commander_test
 
 docker run -d \
+  --rm \
   --ip=172.28.0.2 \
   --network commander_test \
-  --name int-ssh-server \
   --name commander-int-ssh-server \
   commander-int-ssh-server
 
 docker build -t commander-int-test -f integration/containers/test/Dockerfile .
 docker run \
+  --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --network commander_test \
   --name commander-integration-go-test \
