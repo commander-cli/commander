@@ -186,24 +186,6 @@ func Test_TestCommand_InvalidDir(t *testing.T) {
 		assert.Contains(t, err.Error(), "no such file or directory")
 	}
 }
-func Test_TestCommand_Config(t *testing.T) {
-	defer gock.Off()
-
-	gock.New("http://foo.com").
-		Get("/bar").
-		Reply(200).
-		BodyString(`
-tests:
-  echo hello:
-    exit-code: 0
-`)
-
-	out := captureOutput(func() {
-		TestCommand("http://foo.com/bar", TestCommandContext{Verbose: true, Config: "config.yaml"})
-	})
-
-	assert.Contains(t, out, "✓ [local] echo hello")
-}
 
 func captureOutput(f func()) string {
 	reader, writer, err := os.Pipe()
