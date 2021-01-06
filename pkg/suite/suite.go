@@ -16,6 +16,19 @@ type Suite struct {
 	Nodes     []runtime.Node
 }
 
+// NewSuite creates a suite structure from two byte slice,
+// suiteContent is the file/suite that is undertest
+// configContent is a optional slice that will overlay default configurations
+// fileName is the file that is undertest
+func NewSuite(suiteContent, configContent []byte, fileName string) Suite {
+	defaultConfig := ParseYAML(configContent, "default config")
+	s := ParseYAML(suiteContent, fileName)
+
+	s.mergeConfigs(defaultConfig.Config, defaultConfig.Nodes)
+
+	return s
+}
+
 // GetNodes returns all nodes defined in the suite
 func (s Suite) GetNodes() []runtime.Node {
 	return s.Nodes
@@ -56,7 +69,7 @@ func (s Suite) GetTestByTitle(title string) (runtime.TestCase, error) {
 	return runtime.TestCase{}, fmt.Errorf("could not find test %s", title)
 }
 
-// GetTestByTitle returns a test by title, if the test was not found an error is returned
+// FindTests returns a test by the given pattern, if the test was not found an error is returned
 func (s Suite) FindTests(pattern string) ([]runtime.TestCase, error) {
 	var r []runtime.TestCase
 	for _, t := range s.GetTests() {
@@ -82,24 +95,80 @@ func (s Suite) GetGlobalConfig() runtime.GlobalTestConfig {
 	return s.Config
 }
 
-// MergeConfig overlays a global configuration over an entire suite
-// configuration in suite files take precedence
-func (s Suite) MergeConfig(config runtime.GlobalTestConfig) {
-	// Merge GlobalConfig - doesn't actually affect anything
+// MergeConfigs overlays a global configuration over an entire suite
+// config at the lowest level takes precedence
+func (s Suite) mergeConfigs(config runtime.GlobalTestConfig, nodes []runtime.Node) {
 	s.Config.Env = mergeEnvironmentVariables(s.Config.Env, config.Env)
 
 	if s.Config.Dir == "" {
 		s.Config.Dir = config.Dir
 	}
 
+	if s.Config.Timeout == "" {
+		s.Config.Timeout = config.Timeout
+	}
+
+	if s.Config.Retries == 0 {
+		s.Config.Retries = config.Retries
+	}
+
+	if s.Config.Interval == "" {
+		s.Config.Interval = config.Interval
+	}
+
+	if !s.Config.InheritEnv {
+		s.Config.InheritEnv = config.InheritEnv
+	}
+
+	if len(s.Config.Nodes) == 0 {
+		s.Config.Nodes = config.Nodes
+	}
+
+	// append additional nodes
+	s.Nodes = append(s.Nodes, nodes...)
+
+	s.mergeTestConfigs()
 }
 
-func mergeEnvironmentVariables(ours map[string]string, theirs map[string]string) map[string]string {
+// mergeConfigs will merge the suites runtime.GlobalTestConfig,
+// with each runtime.TestCase in the suite
+func (s Suite) mergeTestConfigs() {
+	for i := range s.TestCases {
+
+		s.TestCases[i].Command.Env = mergeEnvironmentVariables(s.Config.Env, s.TestCases[i].Command.Env)
+
+		if s.TestCases[i].Command.Dir == "" {
+			s.TestCases[i].Command.Dir = s.Config.Dir
+		}
+
+		if s.TestCases[i].Command.Timeout == "" {
+			s.TestCases[i].Command.Timeout = s.Config.Timeout
+		}
+
+		if s.TestCases[i].Command.Retries == 0 {
+			s.TestCases[i].Command.Retries = s.Config.Retries
+		}
+
+		if s.TestCases[i].Command.Interval == "" {
+			s.TestCases[i].Command.Interval = s.Config.Interval
+		}
+
+		if !s.TestCases[i].Command.InheritEnv {
+			s.TestCases[i].Command.InheritEnv = s.Config.InheritEnv
+		}
+
+		if len(s.TestCases[i].Nodes) == 0 {
+			s.TestCases[i].Nodes = s.Config.Nodes
+		}
+	}
+}
+
+func mergeEnvironmentVariables(global map[string]string, local map[string]string) map[string]string {
 	env := make(map[string]string)
-	for k, v := range theirs {
+	for k, v := range global {
 		env[k] = v
 	}
-	for k, v := range ours {
+	for k, v := range local {
 		env[k] = v
 	}
 	return env
