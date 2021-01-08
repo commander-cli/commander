@@ -9,6 +9,13 @@ runOnAllTagsAndBranches: &runOnAllTagsAndBranches
     branches:
       only: /.*/
 
+runOnDefaultBranchAndTags: &runOnDefaultBranchAndTags
+  filters:
+    tags:
+      only: /.*/
+    branches:
+      only: master
+
 jobs:
   style:
     docker:
@@ -97,11 +104,11 @@ workflows:
       - test:
           <<: *runOnAllTagsAndBranches
       - test-windows:
-          <<: *runOnAllTagsAndBranches
+          <<: *runOnDefaultBranchAndTags
       - integration:
           <<: *runOnAllTagsAndBranches
       - integration-windows:
-          <<: *runOnAllTagsAndBranches
+          <<: *runOnDefaultBranchAndTags
       - deploy:
           requires:
             - style

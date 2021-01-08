@@ -37,6 +37,4 @@ docker run \
 
 docker stop commander-int-ssh-server || true
 docker rm commander-int-ssh-server || true
-docker stop commander-integration-go-test || true
-docker rm commander-integration-go-test || true
 docker network rm commander_test || true
