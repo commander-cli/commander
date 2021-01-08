@@ -62,5 +62,5 @@ func TestRuntime_WithInvalidDuration(t *testing.T) {
 	e := LocalExecutor{}
 	got := e.Execute(test)
 
-	assert.Equal(t, "time: unknown unit lightyears in duration 600lightyears", got.TestCase.Result.Error.Error())
+	assert.Equal(t, `time: unknown unit "lightyears" in duration "600lightyears"`, got.TestCase.Result.Error.Error())
 }

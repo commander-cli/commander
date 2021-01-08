@@ -10,9 +10,9 @@ RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/s
 
 WORKDIR /root
 RUN mkdir .ssh
-COPY id_rsa .ssh/id_rsa
-COPY id_rsa.pub .ssh/id_rsa.pub
-COPY id_rsa.pub .ssh/authorized_keys
+COPY integration/containers/ssh/id_rsa .ssh/id_rsa
+COPY integration/containers/ssh/id_rsa.pub .ssh/id_rsa.pub
+COPY integration/containers/ssh/id_rsa.pub .ssh/authorized_keys
 
 RUN chmod 700 ~/.ssh
 RUN chmod 644 ~/.ssh/authorized_keys

@@ -1,0 +1,123 @@
+version: 2.1
+orbs:
+  win: circleci/windows@2.2.0
+
+runOnAllTagsAndBranches: &runOnAllTagsAndBranches
+  filters:
+    tags:
+      only: /.*/
+    branches:
+      only: /.*/
+
+runOnDefaultBranchAndTags: &runOnDefaultBranchAndTags
+  filters:
+    tags:
+      only: /.*/
+    branches:
+      only: master
+
+jobs:
+  style:
+    docker:
+      - image: circleci/golang:1.15
+    steps:
+      - checkout
+      - run: go vet ./...
+      - run: if [ $(go fmt ./... | wc -l) -eq 0  ]; then exit 0; else exit 0; fi
+
+  test:
+    docker:
+      - image: circleci/golang:1.15
+
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Run tests
+          command: |
+            make test-coverage-all-dockerized-with-codeclimate
+
+  # higher support plan is necessary
+  # test-macos:
+  #   macos:
+  #     xcode: 11.7.0
+  #   steps:
+  #   - checkout
+  #   - run: go test ./...
+
+  test-windows:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - checkout
+      - run: choco install make
+      - run: choco install golang --version 1.15
+      - run: make test
+
+  integration:
+    docker:
+      - image: circleci/golang:1.15
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Install commander
+          command: |
+            mkdir -p ~/.local/bin/
+            curl -L https://github.com/commander-cli/commander/releases/download/v2.1.0/commander-linux-amd64 -o ~/.local/bin/commander
+            chmod +x ~/.local/bin/commander
+      - run: make integration-linux-dockerized
+
+  integration-windows:
+    executor:
+      name: win/default
+      shell: cmd.exe
+    steps:
+      - checkout
+      - run: choco install make
+      - run: choco install curl
+      - run: curl -L https://github.com/commander-cli/commander/releases/download/v2.1.0/commander-windows-amd64 -o C:\Windows\system32\commander.exe
+      - run: make integration-windows
+
+  deploy:
+    environment:
+      GIT_RELEASE_TAG: << pipeline.git.tag >>
+    docker:
+      - image: circleci/golang:1.15
+    steps:
+      - checkout
+      - run: go get -u github.com/tcnksm/ghr
+      - run: make release
+      - run:
+          name: Publish release
+          command: ghr $GIT_RELEASE_TAG release/
+
+workflows:
+  version: 2.1
+  workflow:
+    jobs:
+      - style:
+          <<: *runOnAllTagsAndBranches
+      - test:
+          <<: *runOnAllTagsAndBranches
+      - test-windows:
+          <<: *runOnDefaultBranchAndTags
+      - integration:
+          <<: *runOnAllTagsAndBranches
+      - integration-windows:
+          <<: *runOnDefaultBranchAndTags
+      - deploy:
+          requires:
+            - style
+            - test
+            - test-windows
+            - integration
+            - integration-windows
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
