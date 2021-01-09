@@ -188,7 +188,7 @@ func readFile(filePath string, fileName string) (suite.Suite, error) {
 		return s, err
 	}
 
-	s = suite.ParseYAML(content, fileName)
+	s = suite.NewSuite(content, []byte(""), fileName)
 
 	return s, nil
 }
