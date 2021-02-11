@@ -93,7 +93,7 @@ commander test commander.yaml --filter="^filter1$"
 			},
 			cli.StringFlag{
 				Name:  "config",
-				Usage: "...",
+				Usage: "Default config file for all test for all test be executed. Config provided in suites will not be overwritten",
 			},
 			cli.StringSliceFlag{
 				Name:  "filter",

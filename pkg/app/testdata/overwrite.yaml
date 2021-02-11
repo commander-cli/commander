@@ -1,0 +1,10 @@
+tests:
+  key from overwrite:
+    command: echo $KEY
+    stdout: foo
+  key does not overwrite:
+    config:
+      env:
+        KEY: bar
+    command: echo $KEY
+    stdout: bar
