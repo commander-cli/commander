@@ -21,10 +21,10 @@ type Suite struct {
 // overwriteConfigContent is an optional slice which overwrites the default configurations
 // fileName is the file that is under test
 func NewSuite(suiteContent, overwriteConfigContent []byte, fileName string) Suite {
-	defaultConfig := ParseYAML(overwriteConfigContent, "default config")
+	overwriteConfig := ParseYAML(overwriteConfigContent, "default config")
 	s := ParseYAML(suiteContent, fileName)
 
-	s.mergeConfigs(defaultConfig.Config, defaultConfig.Nodes)
+	s.mergeConfigs(overwriteConfig.Config, overwriteConfig.Nodes)
 
 	return s
 }

@@ -35,7 +35,6 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 	}
 
 	overwriteConfigPath = ctx.Config
-
 	out = output.NewCliOutput(!ctx.NoColor)
 
 	if testPath == "" {
