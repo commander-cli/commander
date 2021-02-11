@@ -148,3 +148,13 @@ tests:
       contains:
         - ✓ [local] echo hello
     exit-code: 0
+
+  test config flag:
+    command: ./commander test --config integration/unix/_fixtures/overwrite_config.yaml integration/unix/overwrite.yaml
+    stdout:
+      contains:
+        - ✗ [local] echo hello, retries 2
+        - ✗ [local] should retry 3 times, retries 3
+        - ✓ [local] should use key from config
+        - ✓ [local] should use dir from config
+    exit-code: 1

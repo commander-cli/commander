@@ -1,0 +1,17 @@
+tests:
+  echo hello:
+    config:
+      retries: 2
+    stdout: fail
+
+  should retry 3 times:
+    command: echo hello
+    stdout: fail
+
+  should use key from config:
+    command: echo $KEY
+    stdout: Output from overwrite
+
+  should use dir from config:
+    command: pwd
+    stdout: /tmp
