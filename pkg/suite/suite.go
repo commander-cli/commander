@@ -16,12 +16,12 @@ type Suite struct {
 	Nodes     []runtime.Node
 }
 
-// NewSuite creates a suite structure from two byte slice,
-// suiteContent is the file/suite that is undertest
-// configContent is a optional slice that will overlay default configurations
-// fileName is the file that is undertest
-func NewSuite(suiteContent, configContent []byte, fileName string) Suite {
-	defaultConfig := ParseYAML(configContent, "default config")
+// NewSuite creates a suite structure from two byte slices,
+// suiteContent is the file/suite that is under test
+// overwriteConfigContent is an optional slice which overwrites the default configurations
+// fileName is the file that is under test
+func NewSuite(suiteContent, overwriteConfigContent []byte, fileName string) Suite {
+	defaultConfig := ParseYAML(overwriteConfigContent, "default config")
 	s := ParseYAML(suiteContent, fileName)
 
 	s.mergeConfigs(defaultConfig.Config, defaultConfig.Nodes)
@@ -95,8 +95,8 @@ func (s Suite) GetGlobalConfig() runtime.GlobalTestConfig {
 	return s.Config
 }
 
-// MergeConfigs overlays a global configuration over an entire suite
-// config at the lowest level takes precedence
+// MergeConfigs overwrites a global configuration over an entire suite.
+// Config at the lowest level takes precedence
 func (s Suite) mergeConfigs(config runtime.GlobalTestConfig, nodes []runtime.Node) {
 	s.Config.Env = mergeEnvironmentVariables(s.Config.Env, config.Env)
 
