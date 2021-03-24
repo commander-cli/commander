@@ -1,8 +1,8 @@
 Aurora
 ======
 
-[![GoDoc](https://godoc.org/github.com/logrusorgru/aurora?status.svg)](https://godoc.org/github.com/logrusorgru/aurora)
-[![WTFPL License](https://img.shields.io/badge/license-wtfpl-blue.svg)](http://www.wtfpl.net/about/)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/logrusorgru/aurora?tab=doc)
+[![Unlicense](https://img.shields.io/badge/license-unlicense-blue.svg)](http://unlicense.org/)
 [![Build Status](https://travis-ci.org/logrusorgru/aurora.svg)](https://travis-ci.org/logrusorgru/aurora)
 [![Coverage Status](https://coveralls.io/repos/logrusorgru/aurora/badge.svg?branch=master)](https://coveralls.io/r/logrusorgru/aurora?branch=master)
 [![GoReportCard](https://goreportcard.com/badge/logrusorgru/aurora)](https://goreportcard.com/report/logrusorgru/aurora)
@@ -13,6 +13,28 @@ Ultimate ANSI colors for Golang. The package supports Printf/Sprintf etc.
 
 ![aurora logo](https://github.com/logrusorgru/aurora/blob/master/gopher_aurora.png)
 
+# TOC
+
+- [Installation](#installation)
+- [Usage](#usage)
+  + [Simple](#simple)
+  + [Printf](#printf)
+  + [aurora.Sprintf](#aurorasprintf)
+  + [Enable/Disable colors](#enabledisable-colors)
+- [Chains](#chains)
+- [Colorize](#colorize)
+- [Grayscale](#grayscale)
+- [8-bit colors](#8-bit-colors)
+- [Supported Colors & Formats](#supported-colors--formats)
+  + [All colors](#all-colors)
+  + [Standard and bright colors](#standard-and-bright-colors)
+  + [Formats are likely supported](#formats-are-likely-supported)
+  + [Formats are likely unsupported](#formats-are-likely-unsupported)
+- [Limitations](#limitations)
+  + [Windows](#windows)
+  + [TTY](#tty)
+- [Licensing](#licensing)
+
 # Installation
 
 Get
@@ -21,7 +43,7 @@ go get -u github.com/logrusorgru/aurora
 ```
 Test
 ```
-go test github.com/logrusorgru/aurora
+go test -cover github.com/logrusorgru/aurora
 ```
 
 # Usage
@@ -164,24 +186,80 @@ a `Colorize` clears previous colors
 x := Red("x").Colorize(BgGreen) // will be with green background only
 ```
 
+# Grayscale
+
+```go
+fmt.Println("  ",
+	Gray(1-1, " 00-23 ").BgGray(24-1),
+	Gray(4-1, " 03-19 ").BgGray(20-1),
+	Gray(8-1, " 07-15 ").BgGray(16-1),
+	Gray(12-1, " 11-11 ").BgGray(12-1),
+	Gray(16-1, " 15-07 ").BgGray(8-1),
+	Gray(20-1, " 19-03 ").BgGray(4-1),
+	Gray(24-1, " 23-00 ").BgGray(1-1),
+)
+```
+
+![grayscale png](https://github.com/logrusorgru/aurora/blob/master/aurora_grayscale.png)  
+
+# 8-bit colors
+
+Methods `Index` and `BgIndex` implements 8-bit colors.
+
+| Index/BgIndex  |    Meaning      | Foreground | Background |
+| -------------- | --------------- | ---------- | ---------- |
+|      0-  7     | standard colors |   30- 37   |   40- 47   |
+|      8- 15     | bright colors   |   90- 97   |  100-107   |
+|     16-231     | 216 colors      |   38;5;n   |   48;5;n   |
+|    232-255     | 24 grayscale    |   38;5;n   |   48;5;n   |
+
 
 # Supported colors & formats
 
-- background and foreground colors
+- formats
+  + bold (1)
+  + faint (2)
+  + doubly-underline (21)
+  + fraktur (20)
+  + italic (3)
+  + underline (4)
+  + slow blink (5)
+  + rapid blink (6)
+  + reverse video (7)
+  + conceal (8)
+  + crossed out (9)
+  + framed (51)
+  + encircled (52)
+  + overlined (53)
+- background and foreground colors, including bright
   + black
   + red
   + green
-  + brown
+  + yellow (brown)
   + blue
   + magenta
   + cyan
-  + gray
-- formats
-  + bold
-  + inversed
+  + white
+  + 24 grayscale colors
+  + 216 8-bit colors
 
-![linux png](https://github.com/logrusorgru/aurora/blob/master/linux_colors.png)  
-![white png](https://github.com/logrusorgru/aurora/blob/master/white.png)
+### All colors
+
+![linux png](https://github.com/logrusorgru/aurora/blob/master/aurora_colors_black.png)  
+![white png](https://github.com/logrusorgru/aurora/blob/master/aurora_colors_white.png)  
+
+### Standard and bright colors
+
+![linux black standard png](https://github.com/logrusorgru/aurora/blob/master/aurora_black_standard.png)
+![linux white standard png](https://github.com/logrusorgru/aurora/blob/master/aurora_white_standard.png)
+
+### Formats are likely supported
+
+![formats supported gif](https://github.com/logrusorgru/aurora/blob/master/aurora_formats.gif)
+
+### Formats are likely unsupported
+
+![formats rarely supported png](https://github.com/logrusorgru/aurora/blob/master/aurora_rarely_supported.png)
 
 # Limitations
 
@@ -212,12 +290,25 @@ aurora.value %!p(aurora.value={0xc42000a310 768 0})
 
 The obvious workaround is `Red(fmt.Sprintf("%T", some))`
 
+### Windows
+
+The Aurora provides ANSI colors only, so there is no support for Windows. That said, there are workarounds available. 
+Check out these comments to learn more:
+
+- [Using go-colorable](https://github.com/logrusorgru/aurora/issues/2#issuecomment-299014211).
+- [Using registry for Windows 10](https://github.com/logrusorgru/aurora/issues/10#issue-476361247).
+
+### TTY
+
+The Aurora has no internal TTY detectors by design. Take a look
+ [this comment](https://github.com/logrusorgru/aurora/issues/2#issuecomment-299030108) if you want turn
+on colors for a terminal only, and turn them off for a file.
+
 ### Licensing
 
-Copyright &copy; 2016-2107 Konstantin Ivanov <kostyarin.ivanov@gmail.com>  
-This work is free. It comes without any warranty, to the extent permitted
-by applicable law.  You can redistribute it and/or modify it under the
-terms of the Do What The Fuck You Want To Public License, Version 2,
-as published by Sam Hocevar. See the LICENSE file for more details.
+Copyright &copy; 2016-2020 The Aurora Authors. This work is free.
+It comes without any warranty, to the extent permitted by applicable
+law. You can redistribute it and/or modify it under the terms of the
+the Unlicense. See the LICENSE file for more details.
 
 
