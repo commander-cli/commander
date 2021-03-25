@@ -1,4 +1,8 @@
 
+## v1.0.16 / 2020-11-23
+  
+  * Fix regexp matching issues in headers (#59)
+
 ## v1.0.15 / 2019-07-03
   
   * NewMatcher() will now return objects that completely separate one another. (#55)

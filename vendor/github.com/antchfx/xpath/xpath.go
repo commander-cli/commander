@@ -2,6 +2,7 @@ package xpath
 
 import (
 	"errors"
+	"fmt"
 )
 
 // NodeType represents a type of XPath node.
@@ -144,6 +145,9 @@ func Compile(expr string) (*Expr, error) {
 	if err != nil {
 		return nil, err
 	}
+	if qy == nil {
+		return nil, fmt.Errorf(fmt.Sprintf("undeclared variable in XPath expression: %s", expr))
+	}
 	return &Expr{s: expr, q: qy}, nil
 }
 
@@ -151,7 +155,7 @@ func Compile(expr string) (*Expr, error) {
 func MustCompile(expr string) *Expr {
 	exp, err := Compile(expr)
 	if err != nil {
-		return nil
+		return &Expr{s: expr, q: nopQuery{}}
 	}
 	return exp
 }
