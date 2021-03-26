@@ -19,6 +19,7 @@ type TestCommandContext struct {
 	Workdir    string
 	Concurrent int
 	Filters    []string
+	Format     string
 }
 
 //NewTestContextFromCli is a constructor which creates the context
@@ -30,5 +31,6 @@ func NewTestContextFromCli(c *cli.Context) TestCommandContext {
 		Workdir:    c.String("workdir"),
 		Concurrent: c.Int("concurrent"),
 		Filters:    c.StringSlice("filter"),
+		Format:     c.String("format"),
 	}
 }

@@ -123,7 +123,7 @@ type TestResult struct {
 	Skipped          bool
 }
 
-// Result respresents the aggregation of all TestResults/summary of a runtime
+// Result represents the aggregation of all TestResults/summary of a runtime
 type Result struct {
 	TestResults []TestResult
 	Duration    time.Duration
@@ -165,4 +165,12 @@ func (r *Runtime) Start(tests []TestCase) Result {
 	result.Duration = time.Since(start)
 
 	return result
+}
+
+// NewEmptyEventHandler returns an event handler with empty implementations
+func NewEmptyEventHandler() *EventHandler {
+	return &EventHandler{
+		TestFinished: func(result TestResult) {},
+		TestSkipped: func(result TestResult) {},
+	}
 }

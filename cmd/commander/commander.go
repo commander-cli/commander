@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/commander-cli/commander/pkg/output"
 	"io/ioutil"
 	"log"
 	"os"
@@ -75,8 +76,8 @@ commander test commander.yaml --filter="^filter1$"
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:   "no-color",
-				EnvVar: "COMMANDER_NO_COLOR",
 				Usage:  "Activate or deactivate colored output",
+				EnvVar: "COMMANDER_NO_COLOR",
 			},
 			cli.BoolFlag{
 				Name:   "verbose",
@@ -94,6 +95,11 @@ commander test commander.yaml --filter="^filter1$"
 			cli.StringSliceFlag{
 				Name:  "filter",
 				Usage: `Filter tests by a given regex pattern. Tests are filtered by its title.`,
+			},
+			cli.StringFlag{
+				Name: "format",
+				Usage: `Use a different test output format. Available are: cli, tap`,
+				Value: output.CLI,
 			},
 		},
 		Action: func(c *cli.Context) error {
