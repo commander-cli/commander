@@ -79,6 +79,7 @@ jobs:
       - checkout
       - run: choco install make
       - run: choco install curl
+      - run: choco install golang --version 1.16
       - run: curl -L https://github.com/commander-cli/commander/releases/download/v2.1.0/commander-windows-amd64 -o C:\Windows\system32\commander.exe
       - run: make integration-windows
 
