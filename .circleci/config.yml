@@ -19,7 +19,7 @@ runOnDefaultBranchAndTags: &runOnDefaultBranchAndTags
 jobs:
   style:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - run: go vet ./...
@@ -58,7 +58,7 @@ jobs:
 
   integration:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - setup_remote_docker:
@@ -86,7 +86,7 @@ jobs:
     environment:
       GIT_RELEASE_TAG: << pipeline.git.tag >>
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - run: go get -u github.com/tcnksm/ghr
@@ -108,7 +108,7 @@ workflows:
       - integration:
           <<: *runOnAllTagsAndBranches
       - integration-windows:
-          <<: *runOnDefaultBranchAndTags
+          <<: *runOnAllTagsAndBranches #TODO(do-not-merge): revert change before merge into master
       - deploy:
           requires:
             - style
