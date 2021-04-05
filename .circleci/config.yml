@@ -109,7 +109,7 @@ workflows:
       - integration:
           <<: *runOnAllTagsAndBranches
       - integration-windows:
-          <<: *runOnAllTagsAndBranches #TODO(do-not-merge): revert change before merge into master
+          <<: *runOnDefaultBranchAndTags
       - deploy:
           requires:
             - style
