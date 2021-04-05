@@ -74,7 +74,7 @@ jobs:
   integration-windows:
     executor:
       name: win/default
-      shell: cmd.exe
+      shell: powershell.exe
     steps:
       - checkout
       - run: choco install make
