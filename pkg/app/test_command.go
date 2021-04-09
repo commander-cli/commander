@@ -15,8 +15,10 @@ import (
 	"github.com/commander-cli/commander/pkg/suite"
 )
 
-var out output.OutputWriter
-var overwriteConfigPath string
+var (
+	out                 output.OutputWriter
+	overwriteConfigPath string
+)
 
 // TestCommand executes the test argument
 // testPath is the path to the test suite config, it can be a dir or file
