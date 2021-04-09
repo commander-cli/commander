@@ -1,6 +1,7 @@
 # v2.5.0
   
  - Add `--workdir` flag to change the wokring directory of commander `test` execution 
+ - Add `--config` flag to allow configuration to be set in a separate file
 
 # v2.4.0
 
