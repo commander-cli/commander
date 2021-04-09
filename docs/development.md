@@ -250,11 +250,11 @@ The idea behind this it to add support for other formats like `json`, `toml` or 
   INFO: Starting build test
   go test ./...
   ok      github.com/commander-cli/commander/cmd/commander 0.011s
-  ok      github.com/commander-cli/commander/pkg/app       0.014s
-  ok      github.com/commander-cli/commander/pkg/matcher   (cached)
-  ok      github.com/commander-cli/commander/pkg/output    (cached)
-  ok      github.com/commander-cli/commander/pkg/runtime   0.229s
-  ok      github.com/commander-cli/commander/pkg/suite     0.008s
+  ok      github.com/commander-cli/commander/v2/pkg/app       0.014s
+  ok      github.com/commander-cli/commander/v2/pkg/matcher   (cached)
+  ok      github.com/commander-cli/commander/v2/pkg/output    (cached)
+  ok      github.com/commander-cli/commander/v2/pkg/runtime   0.229s
+  ok      github.com/commander-cli/commander/v2/pkg/suite     0.008s
   ```
      
 **7. Learning by doing**

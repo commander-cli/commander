@@ -66,7 +66,7 @@ test-coverage-all-codeclimate:
 	$(info INFO: Starting build $@)
 	./test-reporter before-build
 	go test -coverprofile c.out ./...; \
-	./test-reporter after-build -t gocov --prefix=github.com/commander-cli/commander --exit-code $$?
+	./test-reporter after-build -t gocov --prefix=github.com/commander-cli/commander/v2 --exit-code $$?
 
 .PHONY: integration-unix
 integration-unix: build

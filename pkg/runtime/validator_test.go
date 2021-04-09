@@ -1,10 +1,11 @@
 package runtime
 
 import (
-	"github.com/commander-cli/commander/pkg/matcher"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"testing"
+
+	"github.com/commander-cli/commander/v2/pkg/matcher"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewValidationResult(t *testing.T) {

@@ -10,9 +10,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/commander-cli/commander/pkg/output"
-	"github.com/commander-cli/commander/pkg/runtime"
-	"github.com/commander-cli/commander/pkg/suite"
+	"github.com/commander-cli/commander/v2/pkg/output"
+	"github.com/commander-cli/commander/v2/pkg/runtime"
+	"github.com/commander-cli/commander/v2/pkg/suite"
 )
 
 var (

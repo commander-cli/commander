@@ -2,9 +2,10 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/commander-cli/commander/pkg/matcher"
 	"log"
 	"strings"
+
+	"github.com/commander-cli/commander/v2/pkg/matcher"
 )
 
 // ValidationResult will be returned after the validation was executed
