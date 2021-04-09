@@ -218,9 +218,9 @@ The idea behind this it to add support for other formats like `json`, `toml` or 
   
   ```go
   type GlobalTestConfig struct {
-    Env        map[string]string
-    [...]
-    Message    string
+      Env        map[string]string
+      [...]
+      Message    string
   }
   ```
   
@@ -229,17 +229,17 @@ The idea behind this it to add support for other formats like `json`, `toml` or 
 
    ```go       
     return Suite{
-      TestCases: tests,
-      Config: runtime.TestConfig{
-        InheritEnv: yamlConfig.Config.InheritEnv,
-        Env:        yamlConfig.Config.Env,
-        Dir:        yamlConfig.Config.Dir,
-        Timeout:    yamlConfig.Config.Timeout,
-        Retries:    yamlConfig.Config.Retries,
-        Interval:   yamlConfig.Config.Interval,
-        Nodes:      yamlConfig.Config.Nodes,
-      },
-      Nodes: convertNodes(yamlConfig.Nodes),
+        TestCases: tests,
+        Config: runtime.TestConfig{
+            InheritEnv: yamlConfig.Config.InheritEnv,
+            Env:        yamlConfig.Config.Env,
+            Dir:        yamlConfig.Config.Dir,
+            Timeout:    yamlConfig.Config.Timeout,
+            Retries:    yamlConfig.Config.Retries,
+            Interval:   yamlConfig.Config.Interval,
+            Nodes:      yamlConfig.Config.Nodes,
+        },
+        Nodes: convertNodes(yamlConfig.Nodes),
     }
    ```
   
