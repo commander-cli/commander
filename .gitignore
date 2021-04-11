@@ -9,3 +9,5 @@ coverage
 *.exe
 commander.yaml
 tmp
+
+.devcontainer/

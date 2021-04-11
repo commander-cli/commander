@@ -153,7 +153,7 @@ func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			ExitCode: v.ExitCode,
 			Stdout:   y.convertToExpectedOut(v.Stdout),
 			Stderr:   y.convertToExpectedOut(v.Stderr),
-			Config:   y.mergeConfigs(v.Config, params.Config),
+			Config:   v.Config,
 			Skip:     v.Skip,
 		}
 
@@ -283,50 +283,6 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 	}
 
 	return exp
-}
-
-// It is needed to create a new map to avoid overwriting the global configuration
-func (y *YAMLSuiteConf) mergeConfigs(local YAMLTestConfigConf, global YAMLTestConfigConf) YAMLTestConfigConf {
-	conf := global
-
-	conf.Env = y.mergeEnvironmentVariables(global, local)
-
-	if local.Dir != "" {
-		conf.Dir = local.Dir
-	}
-
-	if local.Timeout != "" {
-		conf.Timeout = local.Timeout
-	}
-
-	if local.Retries != 0 {
-		conf.Retries = local.Retries
-	}
-
-	if local.Interval != "" {
-		conf.Interval = local.Interval
-	}
-
-	if local.InheritEnv {
-		conf.InheritEnv = local.InheritEnv
-	}
-
-	if len(local.Nodes) != 0 {
-		conf.Nodes = local.Nodes
-	}
-
-	return conf
-}
-
-func (y *YAMLSuiteConf) mergeEnvironmentVariables(global YAMLTestConfigConf, local YAMLTestConfigConf) map[string]string {
-	env := make(map[string]string)
-	for k, v := range global.Env {
-		env[k] = v
-	}
-	for k, v := range local.Env {
-		env[k] = v
-	}
-	return env
 }
 
 //MarshalYAML adds custom logic to the struct to yaml conversion

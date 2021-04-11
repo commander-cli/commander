@@ -56,6 +56,16 @@ func Test_TestCommand_WithTitle(t *testing.T) {
 	assert.Contains(t, out, "✓ [local] another")
 }
 
+func Test_TestCommand_WithConfig(t *testing.T) {
+	out := captureOutput(func() {
+		context := TestCommandContext{Config: "testdata/default.yaml"}
+		TestCommand("testdata/overwrite.yaml", context)
+	})
+
+	assert.Contains(t, out, "✓ [local] key from overwrite")
+	assert.Contains(t, out, "✓ [local] key does not overwrite")
+}
+
 func Test_TestCommand_FailingSuite(t *testing.T) {
 	err := TestCommand("testdata/test_fail.yaml", TestCommandContext{})
 	assert.Equal(t, "Test suite failed, use --verbose for more detailed output", err.Error())

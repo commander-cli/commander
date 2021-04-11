@@ -15,7 +15,10 @@ import (
 	"github.com/commander-cli/commander/pkg/suite"
 )
 
-var out output.OutputWriter
+var (
+	out                 output.OutputWriter
+	overwriteConfigPath string
+)
 
 // TestCommand executes the test argument
 // testPath is the path to the test suite config, it can be a dir or file
@@ -33,6 +36,7 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 		log.SetOutput(os.Stdout)
 	}
 
+	overwriteConfigPath = ctx.Config
 	out = output.NewCliOutput(!ctx.NoColor)
 
 	if testPath == "" {
@@ -72,7 +76,7 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 }
 
 func testFile(filePath string, fileName string, filters runtime.Filters) (runtime.Result, error) {
-	s, err := readFile(filePath, fileName)
+	s, err := getSuite(filePath, fileName)
 	if err != nil {
 		return runtime.Result{}, fmt.Errorf("Error " + err.Error())
 	}
@@ -171,24 +175,40 @@ func execute(s suite.Suite, filters runtime.Filters) (runtime.Result, error) {
 	return result, nil
 }
 
-func readFile(filePath string, fileName string) (suite.Suite, error) {
+func getSuite(filePath string, fileName string) (suite.Suite, error) {
 	s := suite.Suite{}
 
+	content, err := readFile(filePath)
+	if err != nil {
+		return suite.Suite{}, err
+	}
+
+	overwriteContent := []byte("")
+	if overwriteConfigPath != "" {
+		overwriteContent, err = readFile(overwriteConfigPath)
+		if err != nil {
+			return suite.Suite{}, err
+		}
+	}
+
+	s = suite.NewSuite(content, overwriteContent, fileName)
+	return s, nil
+}
+
+func readFile(filePath string) ([]byte, error) {
 	f, err := os.Stat(filePath)
 	if err != nil {
-		return s, fmt.Errorf("open %s: no such file or directory", filePath)
+		return nil, fmt.Errorf("open %s: no such file or directory", filePath)
 	}
 
 	if f.IsDir() {
-		return s, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
+		return nil, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
 	}
 
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return s, err
+		return nil, err
 	}
 
-	s = suite.ParseYAML(content, fileName)
-
-	return s, nil
+	return content, nil
 }

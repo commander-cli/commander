@@ -91,6 +91,10 @@ commander test commander.yaml --filter="^filter1$"
 				Name:  "workdir",
 				Usage: "Set the working directory of commander's execution",
 			},
+			cli.StringFlag{
+				Name:  "config",
+				Usage: "Default config file to be applied to all test files. Lowest level config values take precednce",
+			},
 			cli.StringSliceFlag{
 				Name:  "filter",
 				Usage: `Filter tests by a given regex pattern. Tests are filtered by its title.`,

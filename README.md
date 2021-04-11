@@ -585,11 +585,39 @@ echo test:
 
 ### <a name="config-config"></a>Config
 
-You can add configs which will be applied globally to all tests or just for a specific test case, i.e.:
+You can add configs which will be applied to all tests within a file or just for a specific test case, i.e.:
 
 ```yaml
 config:
   dir: /home/root # Set working directory for all tests
+
+tests:
+  echo hello:
+    config: # Define test specific configs which overwrite global configs
+      timeout: 5s
+  exit-code: 0
+```
+
+You also have the option to define a separate config file that will
+be applied globally to all test cases being ran using the `--config` flag.
+
+The following will set the working directory for all tests that do not 
+explicitly set `config.dir` in the file config or the
+test case config. In short, the lowest level config values takes precednce.
+
+```bash
+./commander test --config foo/bar/my-conifg.yaml foo/bar/test-suite.yaml
+```
+
+```yaml
+# foo/bar/my-conifg.yaml`
+
+config:
+  dir: /home/root # Set working directory for all tests
+```
+
+```yaml
+# foo/bar/test-suite.yaml
 
 tests:
   echo hello:

@@ -194,7 +194,7 @@ tests:
        exit-code: 0
 `)
 
-	got := ParseYAML(yaml, "")
+	got := NewSuite(yaml, nil, "")
 	assert.Equal(t, map[string]string{"KEY": "value"}, got.GetGlobalConfig().Env)
 	assert.Equal(t, map[string]string{"KEY": "value"}, got.GetTests()[0].Command.Env)
 	assert.Equal(t, "/home/commander/", got.GetTests()[0].Command.Dir)
@@ -225,7 +225,7 @@ tests:
            interval: 5s
 `)
 
-	got := ParseYAML(yaml, "")
+	got := NewSuite(yaml, nil, "")
 
 	// Assert global variables
 	assert.Equal(t, map[string]string{"KEY": "global", "ANOTHER_KEY": "another_global"}, got.GetGlobalConfig().Env)
@@ -242,6 +242,32 @@ tests:
 	assert.Equal(t, 10, got.GetTests()[0].Command.Retries)
 	assert.Equal(t, "5s", got.GetTests()[0].Command.Interval)
 	assert.True(t, got.GetTests()[0].Command.InheritEnv)
+}
+
+func TestYAMLSuite_OverwriteConfigContext(t *testing.T) {
+	yaml := []byte(`
+config:
+    env:
+        KEY: value
+    dir: /home/commander/
+tests:
+    echo hello:
+       exit-code: 0
+`)
+
+	global := []byte(`
+config:
+    env:
+        OVERWRITE_KEY: overwrite_key
+    retries: 2
+    dir: /do/not/override/
+`)
+
+	got := NewSuite(yaml, global, "")
+	assert.Equal(t, map[string]string{"KEY": "value", "OVERWRITE_KEY": "overwrite_key"}, got.GetTests()[0].Command.Env)
+	assert.Equal(t, "/home/commander/", got.GetTests()[0].Command.Dir)
+	assert.Equal(t, 2, got.GetTests()[0].Command.Retries)
+	assert.Equal(t, "overwrite_key", got.GetTests()[0].Command.Env["OVERWRITE_KEY"])
 }
 
 func TestYAMLSuite_ShouldThrowAnErrorIfFieldIsNotRegistered(t *testing.T) {

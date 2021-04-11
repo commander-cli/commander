@@ -176,17 +176,27 @@ The idea behind this it to add support for other formats like `json`, `toml` or 
   1. Parse yaml - `err := yaml.UnmarshalStrict(content, &yamlConfig)`
       This line parses the yaml file and will return a `suite.YAMLSuiteConf`, later it will be converted to our structs
       from the `runtime` package.
-      Now we can implement our custom unmarshal logic in the `YAMLSuiteConf::UnmarshalYAML` method.
-      Follow the code where `Config:   y.mergeConfigs(v.Config, params.Config)` is called. 
-      This merges the local with global configs and overwrites the global if it is necessary.
+
+      `Suite::ParseYAML` will then convert the Unmarshalled `suite.YAMLSuiteConf` 
+      into a `suite.Suite`. Navigate to `Suite::NewSuite` and follow the code to
+      `s.mergeConfigs`.
       
-      Jump into the `YAMLSuiteConf::mergeConfigs` and add the `message` property like this:
+      Jump into the `Suite::mergeConfigs` in [pkg/suite/suite.go]
+      (../pkg/suite/suite.go) and add the `message` property like this:
       
       ```go
-      if local.Message != "" {
-          conf.Message = local.Message
+      if s.Config.Message == "" {
+          s.Config.Message = config.Message
       }
+      ```
 
+      as well adding similar logic to `Suite::mergeTestConfigs` 
+      [pkg/suite/suite.go](../pkg/suite/suite.go)
+
+      ```go
+      if s.TestCases[i].Command.Message == "" {
+          s.TestCases[i].Command.Message = s.Config.Message
+      }
       ```
 
   1. Convert test cases - `tests := convertYAMLSuiteConfToTestCases(yamlConfig)`
@@ -208,9 +218,9 @@ The idea behind this it to add support for other formats like `json`, `toml` or 
   
   ```go
   type GlobalTestConfig struct {
-  	Env        map[string]string
-  	[...]
-  	Message    string
+      Env        map[string]string
+      [...]
+      Message    string
   }
   ```
   
@@ -218,19 +228,19 @@ The idea behind this it to add support for other formats like `json`, `toml` or 
   This can be done easily inside the `return` of the `ParseYAML` function statement.
 
    ```go       
-  	return Suite{
-  		TestCases: tests,
-  		Config: runtime.TestConfig{
-  			InheritEnv: yamlConfig.Config.InheritEnv,
-  			Env:        yamlConfig.Config.Env,
-  			Dir:        yamlConfig.Config.Dir,
-  			Timeout:    yamlConfig.Config.Timeout,
-  			Retries:    yamlConfig.Config.Retries,
-  			Interval:   yamlConfig.Config.Interval,
-  			Nodes:      yamlConfig.Config.Nodes,
-  		},
-  		Nodes: convertNodes(yamlConfig.Nodes),
-  	}
+    return Suite{
+        TestCases: tests,
+        Config: runtime.TestConfig{
+            InheritEnv: yamlConfig.Config.InheritEnv,
+            Env:        yamlConfig.Config.Env,
+            Dir:        yamlConfig.Config.Dir,
+            Timeout:    yamlConfig.Config.Timeout,
+            Retries:    yamlConfig.Config.Retries,
+            Interval:   yamlConfig.Config.Interval,
+            Nodes:      yamlConfig.Config.Nodes,
+        },
+        Nodes: convertNodes(yamlConfig.Nodes),
+    }
    ```
   
 **6. Run the tests**
