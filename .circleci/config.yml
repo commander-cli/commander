@@ -19,7 +19,7 @@ runOnDefaultBranchAndTags: &runOnDefaultBranchAndTags
 jobs:
   style:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - run: go vet ./...
@@ -58,7 +58,7 @@ jobs:
 
   integration:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - setup_remote_docker:
@@ -74,19 +74,20 @@ jobs:
   integration-windows:
     executor:
       name: win/default
-      shell: cmd.exe
+      shell: powershell.exe
     steps:
       - checkout
       - run: choco install make
       - run: choco install curl
-      - run: curl -L https://github.com/commander-cli/commander/releases/download/v2.1.0/commander-windows-amd64 -o C:\Windows\system32\commander.exe
+      - run: choco install golang --version 1.16
+      - run: Invoke-WebRequest -Uri "https://github.com/commander-cli/commander/releases/download/v2.4.0/commander-darwin-amd64" -OutFile "C:\Windows\system32\commander.exe"
       - run: make integration-windows
 
   deploy:
     environment:
       GIT_RELEASE_TAG: << pipeline.git.tag >>
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - run: go get -u github.com/tcnksm/ghr
