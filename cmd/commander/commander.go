@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/commander-cli/commander/pkg/app"
+	"github.com/commander-cli/commander/v2/pkg/app"
 	"github.com/urfave/cli"
 )
 

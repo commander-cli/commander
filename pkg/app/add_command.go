@@ -1,11 +1,12 @@
 package app
 
 import (
-	"github.com/commander-cli/cmd"
-	"github.com/commander-cli/commander/pkg/runtime"
-	"github.com/commander-cli/commander/pkg/suite"
-	"gopkg.in/yaml.v2"
 	"strings"
+
+	"github.com/commander-cli/cmd"
+	"github.com/commander-cli/commander/v2/pkg/runtime"
+	"github.com/commander-cli/commander/v2/pkg/suite"
+	"gopkg.in/yaml.v2"
 )
 
 // AddCommand executes the add command

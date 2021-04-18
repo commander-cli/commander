@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	commanderRuntime "github.com/commander-cli/commander/pkg/runtime"
+	commanderRuntime "github.com/commander-cli/commander/v2/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 )

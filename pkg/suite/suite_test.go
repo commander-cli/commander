@@ -1,9 +1,10 @@
 package suite
 
 import (
-	"github.com/commander-cli/commander/pkg/runtime"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/commander-cli/commander/v2/pkg/runtime"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_GetNodes(t *testing.T) {
