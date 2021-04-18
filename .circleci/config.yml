@@ -27,7 +27,7 @@ jobs:
 
   test:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
 
     steps:
       - checkout
@@ -53,7 +53,7 @@ jobs:
     steps:
       - checkout
       - run: choco install make
-      - run: choco install golang --version 1.15
+      - run: choco install golang --version 1.16
       - run: make test
 
   integration:
