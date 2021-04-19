@@ -57,9 +57,14 @@ func Test_TestCommand_WithTitle(t *testing.T) {
 }
 
 func Test_TestCommand_WithConfig(t *testing.T) {
+	testSuite := "testdata/overwrite.yaml"
+	if runtime.GOOS == "windows" {
+		testSuite = "testdata/overwrite_windows.yaml"
+	}
+
 	out := captureOutput(func() {
 		context := TestCommandContext{Config: "testdata/default.yaml"}
-		TestCommand("testdata/overwrite.yaml", context)
+		TestCommand(testSuite, context)
 	})
 
 	assert.Contains(t, out, "✓ [local] key from overwrite")
