@@ -65,7 +65,7 @@ For more information take a look at the [quick start](#quick-start), the [exampl
 Probably the easiest way to install `commander` is by using `go get` to download and install it in one simple command:
 
 ```bash
-go get github.com/commander-cli/commander/cmd/commander
+go get github.com/commander-cli/commander/v2/cmd/commander
 ```
 
 This works on any OS, as long as go is installed. If go is not installed on your system, follow one of the methods below.
@@ -75,7 +75,7 @@ This works on any OS, as long as go is installed. If go is not installed on your
 Visit the [release](https://github.com/commander-cli/commander/releases) page to get the binary for you system. 
 
 ```bash
-curl -L https://github.com/commander-cli/commander/releases/download/v2.3.0/commander-linux-amd64 -o commander
+curl -L https://github.com/commander-cli/commander/releases/download/v2.5.0/commander-linux-amd64 -o commander
 chmod +x commander
 ```
 
