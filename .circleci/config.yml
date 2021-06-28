@@ -67,7 +67,7 @@ jobs:
           name: Install commander
           command: |
             mkdir -p ~/.local/bin/
-            curl -L https://github.com/commander-cli/commander/releases/download/v2.1.0/commander-linux-amd64 -o ~/.local/bin/commander
+            curl -L https://github.com/commander-cli/commander/releases/download/v2.4.0/commander-linux-amd64 -o ~/.local/bin/commander
             chmod +x ~/.local/bin/commander
       - run: make integration-linux-dockerized
 
