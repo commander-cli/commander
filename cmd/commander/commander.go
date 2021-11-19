@@ -45,7 +45,7 @@ func createCliApp() *cli.App {
 
 func createTestCommand() cli.Command {
 	return cli.Command{
-		Name: "test",
+		Name:  "test",
 		Usage: "Execute cli app tests",
 		UsageText: `Execute cli app tests
 
