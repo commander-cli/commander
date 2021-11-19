@@ -27,7 +27,6 @@ func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-
 	go func(tests chan TestCase) {
 		defer wg.Done()
 
@@ -54,7 +53,6 @@ func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 
 					result.Node = node
 					result.Tries = i
-					fmt.Println(result)
 
 					if result.ValidationResult.Success {
 						break
