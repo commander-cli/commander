@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"time"
 )
 
 var _ Executor = (*SSHExecutor)(nil)
@@ -49,7 +50,7 @@ func NewSSHExecutor(host string, user string, opts ...func(e *SSHExecutor)) Exec
 }
 
 // Execute executes a command on a remote host viá SSH
-func (e SSHExecutor) Execute(test TestCase) TestResult {
+func (e SSHExecutor) Execute(test TestCase) (TestResult, error) {
 	if test.Command.InheritEnv {
 		panic("Inherit env is not supported viá SSH")
 	}
@@ -72,19 +73,20 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			return nil
 		},
+		Timeout: 10*time.Second,
 	}
 
 	// create ssh connection
 	conn, err := ssh.Dial("tcp", e.Host, sshConf)
 	if err != nil {
-		log.Fatal(err)
+		return TestResult{}, fmt.Errorf("Failed to connect to ssh %w", err)
 	}
 
 	// start session
 	session, err := conn.NewSession()
 	defer session.Close()
 	if err != nil {
-		log.Fatal(err)
+		return TestResult{}, fmt.Errorf("Failed to create a new ssh session %w", err)
 	}
 
 	var stdoutBuffer bytes.Buffer
@@ -96,11 +98,11 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 		err := session.Setenv(k, v)
 		if err != nil {
 			test.Result = CommandResult{
-				Error: fmt.Errorf("Failed setting env variables, maybe ssh server is configured to only accept LC_ prefixed env variables. Error: %s", err),
+				Error: fmt.Errorf("Failed setting env variables, maybe ssh server is configured to only accept LC_ prefixed env variables. %w", err),
 			}
 			return TestResult{
 				TestCase: test,
-			}
+			}, nil
 		}
 	}
 
@@ -125,7 +127,7 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 
 		return TestResult{
 			TestCase: test,
-		}
+		}, nil
 	}
 
 	test.Result = CommandResult{
@@ -138,7 +140,7 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Stdout: ", test.Result.Stdout)
 	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
-	return Validate(test)
+	return Validate(test), nil
 }
 
 func (e SSHExecutor) createSigner() ssh.Signer {

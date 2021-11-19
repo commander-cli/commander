@@ -27,6 +27,7 @@ func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
+
 	go func(tests chan TestCase) {
 		defer wg.Done()
 
@@ -36,19 +37,24 @@ func (r *Runner) Run(tests []TestCase) <-chan TestResult {
 				t.Nodes = []string{"local"}
 			}
 
-			for _, n := range t.Nodes {
+			for _, node := range t.Nodes {
 				result := TestResult{}
 				for i := 1; i <= t.Command.GetRetries(); i++ {
 
 					if t.Skip {
-						result = TestResult{TestCase: t, Skipped: true, Node: n}
+						result = TestResult{TestCase: t, Skipped: true, Node: node}
 						break
 					}
 
-					e := r.getExecutor(n)
-					result = e.Execute(t)
-					result.Node = n
+					e := r.getExecutor(node)
+					result, err := e.Execute(t)
+					if err != nil {
+						panic(fmt.Sprintf("[FATAL] %s [%s]: %s", t.Title, node, err.Error()))
+					}
+
+					result.Node = node
 					result.Tries = i
+					fmt.Println(result)
 
 					if result.ValidationResult.Success {
 						break

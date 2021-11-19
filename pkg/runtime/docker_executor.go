@@ -29,7 +29,7 @@ type DockerExecutor struct {
 }
 
 // Execute executes the script inside a docker container
-func (e DockerExecutor) Execute(test TestCase) TestResult {
+func (e DockerExecutor) Execute(test TestCase) (TestResult, error) {
 	log.Printf("DOCKER_HOST: %s \n", os.Getenv("DOCKER_HOST"))
 	log.Printf("DOCKER_CERT_PATH: %s \n", os.Getenv("DOCKER_CERT_PATH"))
 	log.Printf("DOCKER_API_VERSION: %s \n", os.Getenv("DOCKER_API_VERSION"))
@@ -40,7 +40,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		test.Result.Error = err
 		return TestResult{
 			TestCase: test,
-		}
+		}, nil
 	}
 
 	authConfig := types.AuthConfig{
@@ -61,10 +61,14 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
 			TestCase: test,
-		}
+		}, nil
 	}
 	buf := bytes.Buffer{}
-	buf.ReadFrom(reader)
+	_, err = buf.ReadFrom(reader)
+	if err != nil {
+		return TestResult{}, fmt.Errorf("Error reading buffer in docker executor %w", err)
+	}
+
 	log.Printf("Pull log image'%s':\n %s\n", e.Image, buf.String())
 
 	var env []string
@@ -86,7 +90,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
 			TestCase: test,
-		}
+		}, nil
 	}
 
 	log.Printf("Started container %s %s\n", e.Image, resp.ID)
@@ -94,7 +98,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
 			TestCase: test,
-		}
+		}, nil
 	}
 
 	duration := time.Duration(1 * time.Second)
@@ -140,5 +144,5 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Stdout: ", test.Result.Stdout)
 	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
-	return Validate(test)
+	return Validate(test), nil
 }
