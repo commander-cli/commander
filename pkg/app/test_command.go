@@ -65,7 +65,7 @@ func TestCommand(testPath string, ctx TestCommandContext) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return fmt.Errorf("Failed to read config: %w", err)
 	}
 
 	if !out.PrintSummary(result) && !ctx.Verbose {

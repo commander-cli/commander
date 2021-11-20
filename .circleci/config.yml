@@ -32,7 +32,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.11
+          version: 19.03.13
       - run:
           name: Run tests
           command: |
