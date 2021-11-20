@@ -15,6 +15,7 @@ docker stop commander-integration-go-test || true
 docker rm commander-integration-go-test || true
 docker network rm commander_test || true
 
+docker build -t commander-int-test -f integration/containers/test/Dockerfile .
 docker build -t commander-int-ssh-server -f integration/containers/ssh/Dockerfile .
 docker network create  --driver=bridge --subnet=172.28.0.0/16 commander_test
 
@@ -25,7 +26,6 @@ docker run -d \
   --name commander-int-ssh-server \
   commander-int-ssh-server
 
-docker build -t commander-int-test -f integration/containers/test/Dockerfile .
 docker run \
   --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
