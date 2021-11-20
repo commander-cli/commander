@@ -32,6 +32,7 @@ docker run \
   --network commander_test \
   --name commander-integration-go-test \
   --env CC_TEST_REPORTER_ID="${CC_TEST_REPORTER_ID}" \
+  --dns=8.8.8.8 \
   commander-int-test \
   make "$MAKE_TARGET"
 

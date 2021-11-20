@@ -36,7 +36,15 @@ jobs:
       - run:
           name: Run tests
           command: |
+            ping google.com -c 3 -t 5s
+            ping github.com -c 3 -t 5s
+            nslookup google.com
+            nslookup github.com
             make test-coverage-all-dockerized-with-codeclimate
+            ping google.com -c 3 -t 5s
+            ping github.com -c 3 -t 5s
+            nslookup google.com
+            nslookup github.com
 
   # higher support plan is necessary
   # test-macos:
