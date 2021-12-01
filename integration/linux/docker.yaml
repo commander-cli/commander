@@ -1,7 +1,7 @@
 nodes:
   docker-host:
     type: docker
-    image: docker.io/library/alpine:3.11.3
+    image: golang:1.17
     docker-exec-user: 1001
 
 config:

@@ -75,8 +75,7 @@ integration-unix: build
 
 .PHONY: integration-linux
 integration-linux: build
-	$(info INFO: Starting build $@)
-	commander test integration/linux/docker.yaml
+	$(info INFO: Starting buildhi $@)
 	DOCKER_HOST=${DOCKER_HOST} DOCKER_CERT_PATH=${DOCKER_CERT_PATH} commander test commander_unix.yaml
 	DOCKER_HOST=${DOCKER_HOST} DOCKER_CERT_PATH=${DOCKER_CERT_PATH}  commander test commander_linux.yaml --verbose
 
