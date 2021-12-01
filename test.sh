@@ -1,3 +1,5 @@
+
+
 #!/usr/bin/env bash
 set -exo pipefail
 
@@ -66,4 +68,3 @@ if [[ "$NO_CLEANUP" -eq "0" ]]; then
 fi
 
 exit $status_code
-
