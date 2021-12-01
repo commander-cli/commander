@@ -6,14 +6,17 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/stdcopy"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 var _ Executor = (*DockerExecutor)(nil)
@@ -79,7 +82,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		User:       e.ExecUser,
 		Cmd:        []string{"/bin/sh", "-c", test.Command.Cmd},
 		Tty:        false,
-	}, nil, nil, "")
+	}, &container.HostConfig{}, &network.NetworkingConfig{}, &v1.Platform{}, "")
 	if err != nil {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
@@ -97,8 +100,8 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	duration := time.Duration(1 * time.Second)
 	defer cli.ContainerStop(ctx, resp.ID, &duration)
 
-	status, err := cli.ContainerWait(ctx, resp.ID)
-	if err != nil {
+	waitBody, errC := cli.ContainerWait(ctx, resp.ID, "")
+	if err := <-errC; err != nil {
 		panic(err)
 	}
 
@@ -119,9 +122,10 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Directory: ", test.Command.Dir)
 	log.Println("title: '"+test.Title+"'", " Env: ", test.Command.Env)
 
+	// status := <-waitBody
 	// Write test result
 	test.Result = CommandResult{
-		ExitCode: int(status),
+		ExitCode: int((<-waitBody).StatusCode),
 		Stdout:   strings.TrimSpace(strings.Replace(stdout.String(), "\r\n", "\n", -1)),
 		Stderr:   strings.TrimSpace(strings.Replace(stderr.String(), "\r\n", "\n", -1)),
 	}

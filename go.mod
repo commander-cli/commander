@@ -5,13 +5,21 @@ go 1.17
 require (
 	github.com/antchfx/xmlquery v1.3.5
 	github.com/commander-cli/cmd v1.3.0
-	github.com/docker/docker v1.13.1
+	github.com/containerd/containerd v1.5.8 // indirect
+	github.com/docker/docker v20.10.11+incompatible
+	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible
+	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
+	github.com/morikuni/aec v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.0.2
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.9.3
 	github.com/urfave/cli v1.22.5
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
+	google.golang.org/grpc v1.42.0 // indirect
 	gopkg.in/h2non/gock.v1 v1.0.16
 	gopkg.in/yaml.v2 v2.4.0
 )
