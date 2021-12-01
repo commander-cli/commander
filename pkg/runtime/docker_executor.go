@@ -82,7 +82,9 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 		User:       e.ExecUser,
 		Cmd:        []string{"/bin/sh", "-c", test.Command.Cmd},
 		Tty:        false,
-	}, &container.HostConfig{}, &network.NetworkingConfig{}, &v1.Platform{}, "")
+	}, &container.HostConfig{
+		DNS: []string{"8.8.8.8"},
+	}, &network.NetworkingConfig{}, &v1.Platform{}, "")
 	if err != nil {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
