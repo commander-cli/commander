@@ -37,7 +37,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	log.Printf("DOCKER_API_VERSION: %s \n", os.Getenv("DOCKER_API_VERSION"))
 
 	ctx := context.Background()
-	cli, err := client.NewEnvClient()
+	cli, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation(), client.FromEnv)
 	if err != nil {
 		test.Result.Error = err
 		return TestResult{
