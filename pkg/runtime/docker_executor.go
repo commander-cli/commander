@@ -13,10 +13,8 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 var _ Executor = (*DockerExecutor)(nil)
@@ -75,16 +73,15 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	}
 
 	log.Printf("Create container %s\n", e.Image)
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image:      e.Image,
-		WorkingDir: test.Command.Dir,
-		Env:        env,
-		User:       e.ExecUser,
-		Cmd:        []string{"/bin/sh", "-c", test.Command.Cmd},
-		Tty:        false,
-	}, &container.HostConfig{
-		DNS: []string{"8.8.8.8"},
-	}, &network.NetworkingConfig{}, &v1.Platform{}, "")
+	resp, err := cli.ContainerCreate(ctx,
+		&container.Config{
+			Image:      e.Image,
+			WorkingDir: test.Command.Dir,
+			Env:        env,
+			User:       e.ExecUser,
+			Cmd:        []string{"/bin/sh", "-c", test.Command.Cmd},
+			Tty:        false,
+		}, nil, nil, nil, "")
 	if err != nil {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
@@ -99,12 +96,19 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 			TestCase: test,
 		}
 	}
+
 	duration := time.Duration(1 * time.Second)
 	defer cli.ContainerStop(ctx, resp.ID, &duration)
 
-	waitBody, errC := cli.ContainerWait(ctx, resp.ID, "")
-	if err := <-errC; err != nil {
-		panic(err)
+	status := container.ContainerWaitOKBody{}
+	statusCh, errC := cli.ContainerWait(ctx, resp.ID, "")
+	select {
+	case err := <-errC:
+		if err != nil {
+			panic(err)
+		}
+	case s := <-statusCh:
+		status = s
 	}
 
 	out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true})
@@ -127,7 +131,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 	// status := <-waitBody
 	// Write test result
 	test.Result = CommandResult{
-		ExitCode: int((<-waitBody).StatusCode),
+		ExitCode: int(status.StatusCode),
 		Stdout:   strings.TrimSpace(strings.Replace(stdout.String(), "\r\n", "\n", -1)),
 		Stderr:   strings.TrimSpace(strings.Replace(stderr.String(), "\r\n", "\n", -1)),
 	}

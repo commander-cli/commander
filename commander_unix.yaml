@@ -126,6 +126,7 @@ tests:
     exit-code: 0
 
   it should execute test from url:
+    skip: true
     config:
       env:
         USER: from_parent
