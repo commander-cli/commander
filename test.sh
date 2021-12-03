@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -exo pipefail
 
 # Usage: ./test.sh <make target>
 # Execute a makefile target inside a Docker environment
@@ -9,26 +9,55 @@ if [[ -n "$1" ]]; then
   MAKE_TARGET="$1"
 fi
 
-docker stop commander-int-ssh-server || true
-docker rm commander-int-ssh-server || true
-docker stop commander-integration-go-test || true
-docker rm commander-integration-go-test || true
-docker network rm commander_test || true
+NO_CLEANUP=0
+if [[ "$2" == "--no-cleanup" ]]; then
+  NO_CLEANUP=1
+fi
 
-docker build -t commander-int-test -f integration/containers/test/Dockerfile .
-docker build -t commander-int-ssh-server -f integration/containers/ssh/Dockerfile .
-docker network create  --driver=bridge --subnet=172.28.0.0/16 commander_test
+cleanup() {
+  container_name="$1"
+  docker stop commander-int-ssh-server || true
+  docker rm commander-int-ssh-server || true
+  docker network rm commander_test
+}
 
-docker run -d \
-  --rm \
-  --ip=172.28.0.2 \
-  --network commander_test \
-  --name commander-int-ssh-server \
-  commander-int-ssh-server
+start_ssh_conatiner() {
+  echo "Starting cleanup"
+  local ssh_container_name="commander-int-ssh-server"
+  found=$(docker ps | grep -v "$ssh_container_name"; echo $?)
+  if [[ "$found" -eq "1" ]]; then
+      echo "Starting SSH server"
+      docker run -d \
+        --rm \
+        --ip=172.28.0.2 \
+        --network commander_test \
+        --name "$ssh_container_name" \
+        "$ssh_container_name"
+  fi
+}
 
+found=$(docker ps -a | grep "commander-int-test"; echo $?)
+if [[ "$found" -ne "0" ]]; then
+    docker build -t commander-int-test -f integration/containers/test/Dockerfile .
+fi
+
+found=$(docker ps -a | grep "commander-int-ssh-server"; echo $?)
+if [[ "$found" -ne "0" ]]; then
+    docker build -t commander-int-ssh-server -f integration/containers/ssh/Dockerfile .
+fi
+
+found=$(docker network ls | grep "commander_test"; echo $?)
+if [[ "$found" -ne "0" ]]; then
+    docker network create --driver=bridge --subnet=172.28.0.0/16 commander_test
+fi
+
+start_ssh_conatiner
+
+echo "Starting tests"
 docker run \
   --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd):/go/github.com/commander/commander-cli \
   --network commander_test \
   --name commander-integration-go-test \
   --env CC_TEST_REPORTER_ID="${CC_TEST_REPORTER_ID}" \
@@ -36,6 +65,11 @@ docker run \
   commander-int-test \
   make "$MAKE_TARGET"
 
-docker stop commander-int-ssh-server || true
-docker rm commander-int-ssh-server || true
-docker network rm commander_test || true
+status_code="$?"
+
+if [[ "$NO_CLEANUP" -eq "0" ]]; then
+  cleanup
+fi
+
+exit $status_code
+
