@@ -269,7 +269,7 @@ func (m FileMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 	if err != nil {
 		panic(err.Error())
 	}
-	expectedString := string(expectedText)
+	expectedString := strings.TrimSpace(strings.Replace(string(expectedText), "\r\n", "\n", -1))
 
 	result := got == expectedString
 
