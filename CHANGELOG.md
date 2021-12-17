@@ -2,6 +2,7 @@
   
  - Add `--workdir` flag to change the wokring directory of commander `test` execution 
  - Add `--config` flag to allow configuration to be set in a separate file
+ - Fix bug in `file` matcher
 
 # v2.4.0
 
