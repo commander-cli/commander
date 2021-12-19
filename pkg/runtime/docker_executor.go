@@ -13,7 +13,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 )
@@ -82,12 +81,7 @@ func (e DockerExecutor) Execute(test TestCase) TestResult {
 			User:       e.ExecUser,
 			Cmd:        []string{"/bin/sh", "-c", test.Command.Cmd},
 			Tty:        false,
-		}, nil,
-		&network.NetworkingConfig{
-			EndpointsConfig: map[string]*network.EndpointSettings{
-				"commander_test": {},
-			},
-		}, nil, "")
+		}, nil, nil, nil, "")
 	if err != nil {
 		test.Result.Error = fmt.Errorf("could not pull image '%s' with error: '%s'", e.Image, err)
 		return TestResult{
