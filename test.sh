@@ -57,11 +57,9 @@ echo "Starting tests"
 docker run \
   --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd):/go/github.com/commander/commander-cli \
   --network commander_test \
   --name commander-integration-go-test \
   --env CC_TEST_REPORTER_ID="${CC_TEST_REPORTER_ID}" \
-  --dns=8.8.8.8 \
   commander-int-test \
   make "$MAKE_TARGET"
 
