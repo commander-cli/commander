@@ -69,6 +69,11 @@ tests:
     stderr:
       file: ./integration/unix/_fixtures/big_out.txt
 
+  it should handle a trailing newline in the file:
+    command: cat ./integration/unix/_fixtures/trailing_newline.txt
+    stdout:
+      file: ./integration/unix/_fixtures/trailing_newline.txt
+
   it should inherit from parent env:
     config:
       inherit-env: true
