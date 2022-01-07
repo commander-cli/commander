@@ -15,6 +15,7 @@ if [[ "$2" == "--no-cleanup" ]]; then
 fi
 
 cleanup() {
+  echo "Starting cleanup"
   container_name="$1"
   docker stop commander-int-ssh-server || true
   docker rm commander-int-ssh-server || true
@@ -22,10 +23,8 @@ cleanup() {
 }
 
 start_ssh_conatiner() {
-  echo "Starting cleanup"
   local ssh_container_name="commander-int-ssh-server"
-  found=$(docker ps | grep -v "$ssh_container_name"; echo $?)
-  if [[ "$found" -eq "1" ]]; then
+  if [[ ! $(docker ps | grep $ssh_container_name) ]]; then
       echo "Starting SSH server"
       docker run -d \
         --rm \
@@ -36,18 +35,15 @@ start_ssh_conatiner() {
   fi
 }
 
-found=$(docker ps -a | grep "commander-int-test"; echo $?)
-if [[ "$found" -ne "0" ]]; then
+if [[ ! "$(docker ps -a | grep -w commander-int-test)" ]]; then
     docker build -t commander-int-test -f integration/containers/test/Dockerfile .
 fi
 
-found=$(docker ps -a | grep "commander-int-ssh-server"; echo $?)
-if [[ "$found" -ne "0" ]]; then
+if [[ ! "$(docker ps -a | grep commander-int-ssh-server)" ]]; then
     docker build -t commander-int-ssh-server -f integration/containers/ssh/Dockerfile .
 fi
 
-found=$(docker network ls | grep "commander_test"; echo $?)
-if [[ "$found" -ne "0" ]]; then
+if [[ ! "$(docker network ls | grep commander_test)" ]]; then
     docker network create --driver=bridge --subnet=172.28.0.0/16 commander_test
 fi
 
