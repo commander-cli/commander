@@ -88,8 +88,8 @@ jobs:
       - image: circleci/golang:1.16
     steps:
       - checkout
+      - run: go install github.com/tcnksm/ghr@v0.14.0
       - run: make release
-      - run: go get -u github.com/tcnksm/ghr
       - run:
           name: Publish release
           command: ghr $GIT_RELEASE_TAG release/
