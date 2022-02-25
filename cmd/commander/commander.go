@@ -45,8 +45,9 @@ func createCliApp() *cli.App {
 
 func createTestCommand() cli.Command {
 	return cli.Command{
-		Name: "test",
-		Usage: `Execute cli app tests
+		Name:  "test",
+		Usage: "Execute cli app tests",
+		UsageText: `Execute cli app tests
 
 By default it will use the commander.yaml from your current directory.
 Tests are always executed in alphabetical order.
