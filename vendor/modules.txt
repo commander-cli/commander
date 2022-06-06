@@ -10,8 +10,6 @@ github.com/antchfx/xpath
 # github.com/commander-cli/cmd v1.3.0
 ## explicit
 github.com/commander-cli/cmd
-# github.com/containerd/containerd v1.4.4
-## explicit
 # github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d
 github.com/cpuguy83/go-md2man/v2/md2man
 # github.com/davecgh/go-spew v1.1.1
@@ -47,26 +45,16 @@ github.com/docker/go-connections/tlsconfig
 # github.com/docker/go-units v0.4.0
 ## explicit
 github.com/docker/go-units
-# github.com/gogo/protobuf v1.3.2
-## explicit
 # github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
 github.com/golang/groupcache/lru
-# github.com/gorilla/mux v1.8.0
-## explicit
 # github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542
 github.com/h2non/parth
 # github.com/logrusorgru/aurora v2.0.3+incompatible
 ## explicit
 github.com/logrusorgru/aurora
-# github.com/moby/term v0.0.0-20201216013528-df9cb8a40635
-## explicit
-# github.com/morikuni/aec v1.0.0
-## explicit
 # github.com/opencontainers/go-digest v1.0.0
 ## explicit
 github.com/opencontainers/go-digest
-# github.com/opencontainers/image-spec v1.0.1
-## explicit
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
@@ -76,17 +64,15 @@ github.com/pmezard/go-difflib/difflib
 github.com/russross/blackfriday/v2
 # github.com/shurcooL/sanitized_anchor_name v1.0.0
 github.com/shurcooL/sanitized_anchor_name
-# github.com/sirupsen/logrus v1.8.1
-## explicit
 # github.com/stretchr/testify v1.7.0
 ## explicit
 github.com/stretchr/testify/assert
-# github.com/tidwall/gjson v1.7.1
+# github.com/tidwall/gjson v1.9.3
 ## explicit
 github.com/tidwall/gjson
-# github.com/tidwall/match v1.0.3
+# github.com/tidwall/match v1.1.1
 github.com/tidwall/match
-# github.com/tidwall/pretty v1.1.0
+# github.com/tidwall/pretty v1.2.0
 github.com/tidwall/pretty
 # github.com/urfave/cli v1.22.5
 ## explicit
@@ -132,10 +118,6 @@ golang.org/x/text/internal/utf8internal
 golang.org/x/text/language
 golang.org/x/text/runes
 golang.org/x/text/transform
-# golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
-## explicit
-# google.golang.org/grpc v1.36.0
-## explicit
 # gopkg.in/h2non/gock.v1 v1.0.16
 ## explicit
 gopkg.in/h2non/gock.v1
@@ -144,5 +126,3 @@ gopkg.in/h2non/gock.v1
 gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 gopkg.in/yaml.v3
-# gotest.tools/v3 v3.0.3
-## explicit
