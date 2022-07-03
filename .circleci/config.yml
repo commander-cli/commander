@@ -53,10 +53,7 @@ jobs:
     steps:
       - checkout
       - run: choco install make
-<<<<<<< HEAD
-=======
       - run: choco install golang --version 1.17
->>>>>>> 5fd066b (Bump go version to 1.17)
       - run: make test
 
   integration:
@@ -82,10 +79,7 @@ jobs:
       - checkout
       - run: choco install make
       - run: choco install curl
-<<<<<<< HEAD
-=======
       - run: choco install golang --version 1.17
->>>>>>> 5fd066b (Bump go version to 1.17)
       - run: Invoke-WebRequest -Uri "https://github.com/commander-cli/commander/releases/download/v2.4.0/commander-darwin-amd64" -OutFile "C:\Windows\system32\commander.exe"
       - run: make integration-windows
 
