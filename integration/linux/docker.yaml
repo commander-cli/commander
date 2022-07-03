@@ -18,6 +18,5 @@ tests:
         PRETTY_NAME="Alpine Linux v3.11"
         HOME_URL="https://alpinelinux.org/"
         BUG_REPORT_URL="https://bugs.alpinelinux.org/"
-
   "id -u":
     stdout: "1001"

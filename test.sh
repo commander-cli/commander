@@ -66,4 +66,3 @@ if [[ "$NO_CLEANUP" -eq "0" ]]; then
 fi
 
 exit $status_code
-
