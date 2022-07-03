@@ -1,9 +1,10 @@
 package runtime
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRuntime_WithInheritFromShell(t *testing.T) {
@@ -18,7 +19,8 @@ func TestRuntime_WithInheritFromShell(t *testing.T) {
 	}
 
 	e := LocalExecutor{}
-	got := e.Execute(test)
+	got, err := e.Execute(test)
+	assert.NoError(t, err)
 
 	assert.Equal(t, "test", got.TestCase.Result.Stdout)
 }
@@ -40,7 +42,8 @@ func TestRuntime_WithInheritFromShell_Overwrite(t *testing.T) {
 	}
 
 	e := LocalExecutor{}
-	got := e.Execute(test)
+	got, err := e.Execute(test)
+	assert.NoError(t, err)
 
 	assert.Equal(t, "overwrite from-parent", got.TestCase.Result.Stdout)
 }
