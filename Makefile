@@ -117,4 +117,4 @@ release-windows-386:
 	$(info INFO: Starting build $@)
 	CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags "-X main.version=$(GIT_RELEASE_TAG) -s -w" -o release/$(cmd)-windows-386.exe $(exe)
 
-release: release-amd64 release-arm release-386 release-darwin-amd64 release-windows-amd64 release-windows-386
+release: release-amd64 release-arm release-386 release-darwin-amd64 release-darwin-arm64 release-windows-amd64 release-windows-386
