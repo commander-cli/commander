@@ -101,6 +101,10 @@ release-386:
 	$(info INFO: Starting build $@)
 	CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags "-X main.version=$(GIT_RELEASE_TAG) -s -w" -o release/$(cmd)-linux-386 $(exe)
 
+release-darwin-arm64:
+	$(info INFO: Starting build $@)
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=$(GIT_RELEASE_TAG) -s -w" -o release/$(cmd)-darwin-arm64 $(exe)
+
 release-darwin-amd64:
 	$(info INFO: Starting build $@)
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=$(GIT_RELEASE_TAG) -s -w" -o release/$(cmd)-darwin-amd64 $(exe)
