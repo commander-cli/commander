@@ -2,17 +2,13 @@ version: 2.1
 orbs:
   win: circleci/windows@2.2.0
 
-runOnAllTagsAndBranches: &runOnAllTagsAndBranches
+runOnAllBranches: &runOnAllBranches
   filters:
-    tags:
-      only: /.*/
     branches:
       only: /.*/
 
-runOnDefaultBranchAndTags: &runOnDefaultBranchAndTags
+runOnDefaultBranch: &runOnDefaultBranch
   filters:
-    tags:
-      only: /.*/
     branches:
       only: master
 
@@ -99,22 +95,16 @@ workflows:
   workflow:
     jobs:
       - style:
-          <<: *runOnAllTagsAndBranches
+          <<: *runOnAllBranches
       - test:
-          <<: *runOnAllTagsAndBranches
+          <<: *runOnAllBranches
       - test-windows:
-          <<: *runOnDefaultBranchAndTags
+          <<: *runOnDefaultBranch
       - integration:
-          <<: *runOnAllTagsAndBranches
+          <<: *runOnAllBranches
       - integration-windows:
-          <<: *runOnDefaultBranchAndTags
+          <<: *runOnDefaultBranch
       - deploy:
-          requires:
-            - style
-            - test
-            - test-windows
-            - integration
-            - integration-windows
           filters:
             tags:
               only: /.*/
