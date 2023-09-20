@@ -139,7 +139,7 @@ func TestXMLMatcher_WithXPATHError(t *testing.T) {
 	r := m.Match("<book>test</book>", map[string]string{"<!/book": "test"})
 
 	assert.False(t, r.Success)
-	assert.Equal(t, `Error occured: expression must evaluate to a node-set`, r.Diff)
+	assert.Equal(t, `Error occurred: expression must evaluate to a node-set`, r.Diff)
 }
 
 func TestJSONMatcher_Match(t *testing.T) {

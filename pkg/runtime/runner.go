@@ -88,12 +88,12 @@ func (r *Runner) getExecutor(node string) Executor {
 					RegistryUser: n.User,
 				}
 			default:
-				log.Fatal(fmt.Sprintf("Node type %s not found for node %s", n.Type, n.Name))
+				log.Fatalf("Node type %s not found for node %s", n.Type, n.Name)
 			}
 		}
 	}
 
-	log.Fatal(fmt.Sprintf("Node %s not found", node))
+	log.Fatalf("Node %s not found", node)
 	return NewLocalExecutor()
 }
 

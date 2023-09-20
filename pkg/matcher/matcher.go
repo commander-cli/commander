@@ -2,12 +2,13 @@ package matcher
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strings"
+
 	"github.com/antchfx/xmlquery"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/tidwall/gjson"
-	"io/ioutil"
-	"log"
-	"strings"
 )
 
 const (
@@ -36,7 +37,7 @@ var (
 
 // The function used to open files when necessary for matching
 // Allows the file IO to be overridden during tests
-var ReadFile = ioutil.ReadFile
+var ReadFile = os.ReadFile
 
 // NewMatcher creates a new matcher by type
 func NewMatcher(matcher string) Matcher {
@@ -72,16 +73,11 @@ type MatcherResult struct {
 }
 
 // TextMatcher matches if two texts are equals
-type TextMatcher struct {
-}
+type TextMatcher struct{}
 
 // Match matches both texts
 func (m TextMatcher) Match(got interface{}, expected interface{}) MatcherResult {
-	result := true
-
-	if got != expected {
-		result = false
-	}
+	result := got == expected
 
 	diff := difflib.UnifiedDiff{
 		A:        difflib.SplitLines(got.(string)),
@@ -99,15 +95,11 @@ func (m TextMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 }
 
 // ContainsMatcher tests if the expected value is in the got variable
-type ContainsMatcher struct {
-}
+type ContainsMatcher struct{}
 
 // Match matches on the given values
 func (m ContainsMatcher) Match(got interface{}, expected interface{}) MatcherResult {
-	result := true
-	if !strings.Contains(got.(string), expected.(string)) {
-		result = false
-	}
+	result := strings.Contains(got.(string), expected.(string))
 
 	diff := `
 Expected
@@ -126,11 +118,10 @@ to contain
 	}
 }
 
-//EqualMatcher matches if given values are equal
-type EqualMatcher struct {
-}
+// EqualMatcher matches if given values are equal
+type EqualMatcher struct{}
 
-//Match matches the values if they are equal
+// Match matches the values if they are equal
 func (m EqualMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	if got == expected {
 		return MatcherResult{
@@ -153,14 +144,10 @@ func (m EqualMatcher) Match(got interface{}, expected interface{}) MatcherResult
 	}
 }
 
-type NotContainsMatcher struct {
-}
+type NotContainsMatcher struct{}
 
 func (m NotContainsMatcher) Match(got interface{}, expected interface{}) MatcherResult {
-	result := true
-	if strings.Contains(got.(string), expected.(string)) {
-		result = false
-	}
+	result := !strings.Contains(got.(string), expected.(string))
 
 	diff := `
 Expected
@@ -179,8 +166,7 @@ to not contain
 	}
 }
 
-type JSONMatcher struct {
-}
+type JSONMatcher struct{}
 
 func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	result := MatcherResult{
@@ -213,8 +199,7 @@ to be equal to
 	return result
 }
 
-type XMLMatcher struct {
-}
+type XMLMatcher struct{}
 
 func (m XMLMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	result := MatcherResult{
@@ -233,7 +218,7 @@ func (m XMLMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 		if err != nil {
 			return MatcherResult{
 				Success: false,
-				Diff:    fmt.Sprintf("Error occured: %s", err),
+				Diff:    fmt.Sprintf("Error occurred: %s", err),
 			}
 		}
 
@@ -261,15 +246,14 @@ to be equal to
 
 // FileMatcher matches output captured from stdout or stderr
 // against the contents of a file
-type FileMatcher struct {
-}
+type FileMatcher struct{}
 
 func (m FileMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	expectedText, err := ReadFile(expected.(string))
 	if err != nil {
 		panic(err.Error())
 	}
-	expectedString := strings.TrimSpace(strings.Replace(string(expectedText), "\r\n", "\n", -1))
+	expectedString := strings.TrimSpace(strings.ReplaceAll(string(expectedText), "\r\n", "\n"))
 
 	result := got == expectedString
 

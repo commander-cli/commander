@@ -5,8 +5,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/commander-cli/commander/v2/pkg/runtime"
 	"gopkg.in/yaml.v2"
+
+	"github.com/commander-cli/commander/v2/pkg/runtime"
 )
 
 // YAMLSuiteConf will be used for unmarshalling the yaml test suite
@@ -97,7 +98,7 @@ func convertNodes(nodeConfs map[string]YAMLNodeConf) []runtime.Node {
 	return nodes
 }
 
-//Convert YAMLSuiteConf to runtime TestCases
+// Convert YAMLSuiteConf to runtime TestCases
 func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf, fileName string) []runtime.TestCase {
 	var tests []runtime.TestCase
 	for _, t := range conf.Tests {
@@ -182,7 +183,7 @@ func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		y.Nodes[k] = node
 	}
 
-	//Parse global configuration
+	// Parse global configuration
 	y.Config = YAMLTestConfigConf{
 		InheritEnv: params.Config.InheritEnv,
 		Env:        params.Config.Env,
@@ -196,19 +197,18 @@ func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-//Converts given value to an ExpectedOut. Especially used for Stdout and Stderr.
+// Converts given value to an ExpectedOut. Especially used for Stdout and Stderr.
 func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.ExpectedOut {
 	exp := runtime.ExpectedOut{
 		JSON: make(map[string]string),
 	}
 
 	switch value.(type) {
-	//If only a string was passed it is assigned to exactly automatically
+	// If only a string was passed it is assigned to exactly automatically
 	case string:
 		exp.Contains = []string{toString(value)}
-		break
 
-	//If there is nested map set the properties will be assigned to the contains
+	// If there is nested map set the properties will be assigned to the contains
 	case map[interface{}]interface{}:
 		v := value.(map[interface{}]interface{})
 		// Check if keys are parsable
@@ -224,13 +224,12 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 				"xml",
 				"file",
 				"not-contains":
-				break
 			default:
 				panic(fmt.Sprintf("Key %s is not allowed.", k))
 			}
 		}
 
-		//Parse contains key
+		// Parse contains key
 		if contains := v["contains"]; contains != nil {
 			values := contains.([]interface{})
 			for _, v := range values {
@@ -238,7 +237,7 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 			}
 		}
 
-		//Parse exactly key
+		// Parse exactly key
 		if exactly := v["exactly"]; exactly != nil {
 			exp.Exactly = toString(exactly)
 		}
@@ -248,7 +247,7 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 			exp.File = toString(file)
 		}
 
-		//Parse line-count key
+		// Parse line-count key
 		if lc := v["line-count"]; lc != nil {
 			exp.LineCount = lc.(int)
 		}
@@ -274,8 +273,6 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 				exp.JSON[k.(string)] = v.(string)
 			}
 		}
-		break
-
 	case nil:
 		break
 	default:
@@ -285,11 +282,11 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 	return exp
 }
 
-//MarshalYAML adds custom logic to the struct to yaml conversion
+// MarshalYAML adds custom logic to the struct to yaml conversion
 func (y YAMLSuiteConf) MarshalYAML() (interface{}, error) {
-	//Detect which values of the stdout/stderr assertions should be filled.
-	//If all values are empty except Contains it will convert it to a single string
-	//to match the easiest test suite definitions
+	// Detect which values of the stdout/stderr assertions should be filled.
+	// If all values are empty except Contains it will convert it to a single string
+	// to match the easiest test suite definitions
 	for k, t := range y.Tests {
 		t.Stdout = convertExpectedOut(t.Stdout.(runtime.ExpectedOut))
 		if reflect.ValueOf(t.Stdout).Kind() == reflect.Struct {
@@ -312,13 +309,13 @@ func (y *YAMLSuiteConf) mergeNodes(nodes map[string]YAMLNodeConf, globalNodes ma
 }
 
 func convertExpectedOut(out runtime.ExpectedOut) interface{} {
-	//If the property contains consists of only one element it will be set without the struct structure
+	// If the property contains consists of only one element it will be set without the struct structure
 	if isContainsASingleNonEmptyString(out) && propertiesAreEmpty(out) {
 		return out.Contains[0]
 	}
 
-	//If the contains property only has one empty string element it should not be displayed
-	//in the marshaled yaml file
+	// If the contains property only has one empty string element it should not be displayed
+	// in the marshaled yaml file
 	if len(out.Contains) == 1 && out.Contains[0] == "" {
 		out.Contains = nil
 	}

@@ -1,11 +1,12 @@
 package runtime
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
-	"github.com/commander-cli/commander/v2/pkg/matcher"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/commander-cli/commander/v2/pkg/matcher"
 )
 
 func TestNewValidationResult(t *testing.T) {
@@ -214,7 +215,7 @@ func Test_ValidateExpectedOut_ValidateFile(t *testing.T) {
 	assert.False(t, r.Success)
 	assert.Equal(t, diff, r.Diff)
 
-	matcher.ReadFile = ioutil.ReadFile
+	matcher.ReadFile = os.ReadFile
 }
 
 func Test_ValidateExpectedOut_ValidateXML(t *testing.T) {

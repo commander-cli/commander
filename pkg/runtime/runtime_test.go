@@ -37,7 +37,7 @@ func TestRuntime_WithRetries(t *testing.T) {
 	r := getRuntime()
 	got := r.Start(s)
 
-	var counter = 0
+	counter := 0
 	for _, r := range got.TestResults {
 		counter++
 		assert.False(t, r.ValidationResult.Success)
@@ -78,7 +78,7 @@ func Test_RuntimeWithRetriesAndInterval(t *testing.T) {
 	r := getRuntime()
 	got := r.Start(s)
 
-	var counter = 0
+	counter := 0
 	for _, r := range got.TestResults {
 		counter++
 		assert.False(t, r.ValidationResult.Success)
@@ -102,7 +102,7 @@ func Test_RuntimeWithSkip(t *testing.T) {
 
 func getRuntime() Runtime {
 	eh := EventHandler{
-		TestFinished: func(tr TestResult) {
+		TestFinished: func(_ TestResult) {
 			fmt.Println("I do nothing")
 		},
 		TestSkipped: func(tr TestResult) {

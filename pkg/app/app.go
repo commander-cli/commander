@@ -5,13 +5,13 @@ import (
 )
 
 const (
-	//AppName defines the app name
+	// AppName defines the app name
 	AppName = "Commander"
-	//CommanderFile holds the default config file which is loaded
+	// CommanderFile holds the default config file which is loaded
 	CommanderFile = "commander.yaml"
 )
 
-//TestCommandContext holds all flags for the add command
+// TestCommandContext holds all flags for the add command
 type TestCommandContext struct {
 	Verbose    bool
 	NoColor    bool
@@ -22,7 +22,7 @@ type TestCommandContext struct {
 	Filters    []string
 }
 
-//NewTestContextFromCli is a constructor which creates the context
+// NewTestContextFromCli is a constructor which creates the context
 func NewTestContextFromCli(c *cli.Context) TestCommandContext {
 	return TestCommandContext{
 		Verbose:    c.Bool("verbose"),

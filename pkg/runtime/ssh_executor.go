@@ -3,11 +3,12 @@ package runtime
 import (
 	"bytes"
 	"fmt"
-	"golang.org/x/crypto/ssh"
-	"io/ioutil"
 	"log"
 	"net"
+	"os"
 	"strings"
+
+	"golang.org/x/crypto/ssh"
 )
 
 var _ Executor = (*SSHExecutor)(nil)
@@ -82,10 +83,10 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 
 	// start session
 	session, err := conn.NewSession()
-	defer session.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer session.Close()
 
 	var stdoutBuffer bytes.Buffer
 	var stderrBuffer bytes.Buffer
@@ -111,10 +112,9 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 
 	exitCode := 0
 	err = session.Run(fmt.Sprintf("%s %s", dirCmd, test.Command.Cmd))
-	switch err.(type) {
+	switch err := err.(type) {
 	case *ssh.ExitError:
-		ee, _ := err.(*ssh.ExitError)
-		exitCode = ee.Waitmsg.ExitStatus()
+		exitCode = err.ExitStatus()
 	case nil:
 		break
 	default:
@@ -130,8 +130,8 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 
 	test.Result = CommandResult{
 		ExitCode: exitCode,
-		Stdout:   strings.TrimSpace(strings.Replace(stdoutBuffer.String(), "\r\n", "\n", -1)),
-		Stderr:   strings.TrimSpace(strings.Replace(stderrBuffer.String(), "\r\n", "\n", -1)),
+		Stdout:   strings.TrimSpace(strings.ReplaceAll(stdoutBuffer.String(), "\r\n", "\n")),
+		Stderr:   strings.TrimSpace(strings.ReplaceAll(stderrBuffer.String(), "\r\n", "\n")),
 	}
 
 	log.Println("title: '"+test.Title+"'", " ExitCode: ", test.Result.ExitCode)
@@ -142,7 +142,7 @@ func (e SSHExecutor) Execute(test TestCase) TestResult {
 }
 
 func (e SSHExecutor) createSigner() ssh.Signer {
-	buffer, err := ioutil.ReadFile(e.IdentityFile)
+	buffer, err := os.ReadFile(e.IdentityFile)
 	if err != nil {
 		log.Fatal(err)
 	}

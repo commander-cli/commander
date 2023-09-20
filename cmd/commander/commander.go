@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path"
 	"strings"
 
-	"github.com/commander-cli/commander/v2/pkg/app"
 	"github.com/urfave/cli"
+
+	"github.com/commander-cli/commander/v2/pkg/app"
 )
 
 var version string
@@ -19,7 +20,7 @@ func main() {
 }
 
 func run(args []string) bool {
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 
 	cliapp := createCliApp()
 
@@ -136,11 +137,10 @@ func createAddCommand() cli.Command {
 				if c.String("file") != "" {
 					file = c.String("file")
 				}
-				existedContent, _ = ioutil.ReadFile(file)
+				existedContent, _ = os.ReadFile(file)
 			}
 
 			content, err := app.AddCommand(strings.Join(c.Args(), " "), existedContent)
-
 			if err != nil {
 				return err
 			}
@@ -150,7 +150,7 @@ func createAddCommand() cli.Command {
 			}
 			if !c.Bool("no-file") {
 				fmt.Println("written to", file)
-				err := ioutil.WriteFile(file, content, 0755)
+				err := os.WriteFile(file, content, 0o755)
 				if err != nil {
 					return err
 				}
