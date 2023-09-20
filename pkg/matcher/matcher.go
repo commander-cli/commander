@@ -233,7 +233,7 @@ func (m XMLMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 		if err != nil {
 			return MatcherResult{
 				Success: false,
-				Diff:    fmt.Sprintf("Error occured: %s", err),
+				Diff:    fmt.Sprintf("Error occurred: %s", err),
 			}
 		}
 
