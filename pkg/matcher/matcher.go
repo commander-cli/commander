@@ -126,11 +126,11 @@ to contain
 	}
 }
 
-//EqualMatcher matches if given values are equal
+// EqualMatcher matches if given values are equal
 type EqualMatcher struct {
 }
 
-//Match matches the values if they are equal
+// Match matches the values if they are equal
 func (m EqualMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	if got == expected {
 		return MatcherResult{
