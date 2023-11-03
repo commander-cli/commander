@@ -2,9 +2,10 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"runtime"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRuntime_WithEnvVariables(t *testing.T) {
@@ -29,7 +30,8 @@ func TestRuntime_WithEnvVariables(t *testing.T) {
 	}
 
 	e := LocalExecutor{}
-	got := e.Execute(s)
+	got, err := e.Execute(s)
+	assert.NoError(t, err)
 	assert.True(t, got.ValidationResult.Success)
 }
 
@@ -42,7 +44,8 @@ func Test_runTestShouldReturnError(t *testing.T) {
 	}
 
 	e := LocalExecutor{}
-	got := e.Execute(test)
+	got, err := e.Execute(test)
+	assert.NoError(t, err)
 
 	if runtime.GOOS == "windows" {
 		assert.Contains(t, got.TestCase.Result.Error.Error(), "chdir /home/invalid")
@@ -60,7 +63,8 @@ func TestRuntime_WithInvalidDuration(t *testing.T) {
 	}
 
 	e := LocalExecutor{}
-	got := e.Execute(test)
+	got, err := e.Execute(test)
+	assert.NoError(t, err)
 
 	assert.Equal(t, `time: unknown unit "lightyears" in duration "600lightyears"`, got.TestCase.Result.Error.Error())
 }

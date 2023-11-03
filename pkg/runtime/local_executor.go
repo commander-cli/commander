@@ -21,13 +21,13 @@ func NewLocalExecutor() Executor {
 }
 
 // Execute will execute the given test on the current node
-func (e LocalExecutor) Execute(test TestCase) TestResult {
+func (e LocalExecutor) Execute(test TestCase) (TestResult, error) {
 	timeoutOpt, err := createTimeoutOption(test.Command.Timeout)
 	if err != nil {
 		test.Result = CommandResult{Error: err}
 		return TestResult{
 			TestCase: test,
-		}
+		}, nil
 	}
 
 	envOpt := createEnvVarsOption(test)
@@ -47,7 +47,7 @@ func (e LocalExecutor) Execute(test TestCase) TestResult {
 
 		return TestResult{
 			TestCase: test,
-		}
+		}, nil
 	}
 
 	log.Println("title: '"+test.Title+"'", " Command: ", test.Command.Cmd)
@@ -65,7 +65,7 @@ func (e LocalExecutor) Execute(test TestCase) TestResult {
 	log.Println("title: '"+test.Title+"'", " Stdout: ", test.Result.Stdout)
 	log.Println("title: '"+test.Title+"'", " Stderr: ", test.Result.Stderr)
 
-	return Validate(test)
+	return Validate(test), nil
 }
 
 func createEnvVarsOption(test TestCase) func(c *cmd.Command) {
