@@ -97,7 +97,7 @@ func convertNodes(nodeConfs map[string]YAMLNodeConf) []runtime.Node {
 	return nodes
 }
 
-//Convert YAMLSuiteConf to runtime TestCases
+// Convert YAMLSuiteConf to runtime TestCases
 func convertYAMLSuiteConfToTestCases(conf YAMLSuiteConf, fileName string) []runtime.TestCase {
 	var tests []runtime.TestCase
 	for _, t := range conf.Tests {
@@ -196,7 +196,7 @@ func (y *YAMLSuiteConf) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-//Converts given value to an ExpectedOut. Especially used for Stdout and Stderr.
+// Converts given value to an ExpectedOut. Especially used for Stdout and Stderr.
 func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.ExpectedOut {
 	exp := runtime.ExpectedOut{
 		JSON: make(map[string]string),
@@ -285,7 +285,7 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 	return exp
 }
 
-//MarshalYAML adds custom logic to the struct to yaml conversion
+// MarshalYAML adds custom logic to the struct to yaml conversion
 func (y YAMLSuiteConf) MarshalYAML() (interface{}, error) {
 	//Detect which values of the stdout/stderr assertions should be filled.
 	//If all values are empty except Contains it will convert it to a single string

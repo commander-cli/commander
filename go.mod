@@ -1,6 +1,6 @@
 module github.com/commander-cli/commander/v2
 
-go 1.17
+go 1.21
 
 require (
 	github.com/antchfx/xmlquery v1.3.5

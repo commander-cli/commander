@@ -58,7 +58,7 @@ type TestCase struct {
 	Skip     bool
 }
 
-//GlobalTestConfig represents the configuration for a test
+// GlobalTestConfig represents the configuration for a test
 type GlobalTestConfig struct {
 	Env        map[string]string
 	Dir        string
@@ -82,7 +82,7 @@ type CommandResult struct {
 	Error             error
 }
 
-//Expected is the expected output of the command under test
+// Expected is the expected output of the command under test
 type Expected struct {
 	Stdout    ExpectedOut
 	Stderr    ExpectedOut
@@ -90,7 +90,7 @@ type Expected struct {
 	ExitCode  int
 }
 
-//ExpectedOut represents the assertions on stdout and stderr
+// ExpectedOut represents the assertions on stdout and stderr
 type ExpectedOut struct {
 	Contains    []string          `yaml:"contains,omitempty"`
 	Lines       map[int]string    `yaml:"lines,omitempty"`

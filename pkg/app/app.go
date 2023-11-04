@@ -11,7 +11,7 @@ const (
 	CommanderFile = "commander.yaml"
 )
 
-//TestCommandContext holds all flags for the add command
+// TestCommandContext holds all flags for the add command
 type TestCommandContext struct {
 	Verbose    bool
 	NoColor    bool
@@ -22,7 +22,7 @@ type TestCommandContext struct {
 	Filters    []string
 }
 
-//NewTestContextFromCli is a constructor which creates the context
+// NewTestContextFromCli is a constructor which creates the context
 func NewTestContextFromCli(c *cli.Context) TestCommandContext {
 	return TestCommandContext{
 		Verbose:    c.Bool("verbose"),
