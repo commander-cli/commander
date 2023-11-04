@@ -15,7 +15,7 @@ runOnDefaultBranch: &runOnDefaultBranch
 jobs:
   style:
     docker:
-      - image: circleci/golang:1.17
+      - image: cimg/go:1.21.3
     steps:
       - checkout
       - run: go vet ./...
@@ -23,12 +23,12 @@ jobs:
 
   test:
     docker:
-      - image: circleci/golang:1.17
+      - image: cimg/go:1.21.3
 
     steps:
       - checkout
       - setup_remote_docker:
-          version: 19.03.13
+          version: 20.10.7
       - run:
           name: Run tests
           command: |
@@ -53,11 +53,11 @@ jobs:
 
   integration:
     docker:
-      - image: circleci/golang:1.17
+      - image: cimg/go:1.21.3
     steps:
       - checkout
       - setup_remote_docker:
-          version: 19.03.13
+          version: 20.10.7
       - run:
           name: Install commander
           command: |
@@ -81,7 +81,7 @@ jobs:
     environment:
       GIT_RELEASE_TAG: << pipeline.git.tag >>
     docker:
-      - image: circleci/golang:1.17
+      - image: cimg/go:1.21.3
     steps:
       - checkout
       - run: go install github.com/tcnksm/ghr@v0.14.0
