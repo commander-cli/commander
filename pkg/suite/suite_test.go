@@ -3,13 +3,14 @@ package suite
 import (
 	"testing"
 
-	"github.com/commander-cli/commander/v2/pkg/runtime"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/commander-cli/commander/v2/pkg/runtime"
 )
 
 func Test_GetNodes(t *testing.T) {
 	s := Suite{
-		Nodes: []runtime.Node{runtime.Node{}, runtime.Node{}},
+		Nodes: []runtime.Node{{}, {}},
 	}
 
 	assert.Len(t, s.GetNodes(), 2)
@@ -17,7 +18,7 @@ func Test_GetNodes(t *testing.T) {
 
 func Test_GetNodesByName(t *testing.T) {
 	s := Suite{
-		Nodes: []runtime.Node{runtime.Node{}, runtime.Node{Name: "node1"}},
+		Nodes: []runtime.Node{{}, {Name: "node1"}},
 	}
 
 	node, e := s.GetNodeByName("node1")

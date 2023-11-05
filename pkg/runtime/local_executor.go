@@ -12,8 +12,7 @@ import (
 var _ Executor = (*LocalExecutor)(nil)
 
 // LocalExecutor will be used to execute tests on the local host
-type LocalExecutor struct {
-}
+type LocalExecutor struct{}
 
 // NewLocalExecutor creates a new local executor
 func NewLocalExecutor() Executor {
@@ -57,8 +56,8 @@ func (e LocalExecutor) Execute(test TestCase) TestResult {
 	// Write test result
 	test.Result = CommandResult{
 		ExitCode: cut.ExitCode(),
-		Stdout:   strings.TrimSpace(strings.Replace(cut.Stdout(), "\r\n", "\n", -1)),
-		Stderr:   strings.TrimSpace(strings.Replace(cut.Stderr(), "\r\n", "\n", -1)),
+		Stdout:   strings.TrimSpace(strings.ReplaceAll(cut.Stdout(), "\r\n", "\n")),
+		Stderr:   strings.TrimSpace(strings.ReplaceAll(cut.Stderr(), "\r\n", "\n")),
 	}
 
 	log.Println("title: '"+test.Title+"'", " ExitCode: ", test.Result.ExitCode)

@@ -3,8 +3,9 @@ package suite
 import (
 	"testing"
 
-	"github.com/commander-cli/commander/v2/pkg/runtime"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/commander-cli/commander/v2/pkg/runtime"
 )
 
 const ExpectedLineCount = 10
@@ -409,7 +410,7 @@ tests:
 	assert.Equal(t, "ssh", node.Type)
 	assert.Equal(t, ".ssh/id_rsa", node.IdentityFile)
 
-	dockerNode, err := got.GetNodeByName("docker-host")
+	dockerNode, _ := got.GetNodeByName("docker-host")
 	assert.Equal(t, "ubuntu:18.04", dockerNode.Image)
 	assert.Equal(t, "docker", dockerNode.Type)
 	assert.True(t, dockerNode.Privileged)

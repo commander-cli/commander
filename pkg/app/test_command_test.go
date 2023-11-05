@@ -3,7 +3,6 @@ package app
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
@@ -11,9 +10,10 @@ import (
 	"testing"
 	"time"
 
-	commanderRuntime "github.com/commander-cli/commander/v2/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
+
+	commanderRuntime "github.com/commander-cli/commander/v2/pkg/runtime"
 )
 
 func Test_TestCommand_Verbose(t *testing.T) {
@@ -124,11 +124,11 @@ func Test_TestCommand_Http_Err(t *testing.T) {
 }
 
 func Test_TestCommand_StdIn(t *testing.T) {
-	tmpfile, err := ioutil.TempFile("", "test")
+	tmpfile, err := os.CreateTemp("", "test")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.Remove(tmpfile.Name()) //clean up
+	defer os.Remove(tmpfile.Name()) // clean up
 
 	content := []byte(`
 tests:

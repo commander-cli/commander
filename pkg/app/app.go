@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	//AppName defines the app name
+	// AppName defines the app name
 	AppName = "Commander"
-	//CommanderFile holds the default config file which is loaded
+	// CommanderFile holds the default config file which is loaded
 	CommanderFile = "commander.yaml"
 )
 

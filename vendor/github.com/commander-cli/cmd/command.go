@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -9,6 +10,19 @@ import (
 	"syscall"
 	"time"
 )
+
+type CommandInterface interface {
+	AddEnv(string, string)
+	Stdout() string
+	Stderr() string
+	Combined() string
+	ExitCode() int
+	Executed() bool
+	ExecuteContext(context.Context) error
+	Execute() error
+}
+
+var _ CommandInterface = (*Command)(nil)
 
 // Command represents a single command which can be executed
 type Command struct {
@@ -19,6 +33,7 @@ type Command struct {
 	StderrWriter io.Writer
 	StdoutWriter io.Writer
 	WorkingDir   string
+	baseCommand  *exec.Cmd
 	executed     bool
 	exitCode     int
 	// stderr and stdout retrieve the output after the command was executed
@@ -32,8 +47,7 @@ type Command struct {
 //
 // Example:
 //
-//  env := map[string]string{"ENV": "VALUE"}
-//
+//	env := map[string]string{"ENV": "VALUE"}
 type EnvVars map[string]string
 
 // NewCommand creates a new command
@@ -41,16 +55,16 @@ type EnvVars map[string]string
 // Default timeout is set to 30 minutes
 //
 // Example:
-//      c := cmd.NewCommand("echo hello", function (c *Command) {
-//		    c.WorkingDir = "/tmp"
-//      })
-//      c.Execute()
+//
+//	     c := cmd.NewCommand("echo hello", function (c *Command) {
+//			    c.WorkingDir = "/tmp"
+//	     })
+//	     c.Execute()
 //
 // or you can use existing options functions
 //
-//      c := cmd.NewCommand("echo hello", cmd.WithStandardStreams)
-//      c.Execute()
-//
+//	c := cmd.NewCommand("echo hello", cmd.WithStandardStreams)
+//	c.Execute()
 func NewCommand(cmd string, options ...func(*Command)) *Command {
 	c := &Command{
 		Command:  cmd,
@@ -59,6 +73,7 @@ func NewCommand(cmd string, options ...func(*Command)) *Command {
 		Env:      []string{},
 	}
 
+	c.baseCommand = createBaseCommand(c)
 	c.StdoutWriter = io.MultiWriter(&c.stdout, &c.combined)
 	c.StderrWriter = io.MultiWriter(&c.stderr, &c.combined)
 
@@ -69,17 +84,33 @@ func NewCommand(cmd string, options ...func(*Command)) *Command {
 	return c
 }
 
+// WithCustomBaseCommand allows the OS specific generated baseCommand
+// to be overridden by an *os/exec.Cmd.
+//
+// Example:
+//
+//	c := cmd.NewCommand(
+//	  "echo hello",
+//	  cmd.WithCustomBaseCommand(exec.Command("/bin/bash", "-c")),
+//	)
+//	c.Execute()
+func WithCustomBaseCommand(baseCommand *exec.Cmd) func(c *Command) {
+	return func(c *Command) {
+		baseCommand.Args = append(baseCommand.Args, c.Command)
+		c.baseCommand = baseCommand
+	}
+}
+
 // WithStandardStreams is used as an option by the NewCommand constructor function and writes the output streams
 // to stderr and stdout of the operating system
 //
 // Example:
 //
-//     c := cmd.NewCommand("echo hello", cmd.WithStandardStreams)
-//     c.Execute()
-//
+//	c := cmd.NewCommand("echo hello", cmd.WithStandardStreams)
+//	c.Execute()
 func WithStandardStreams(c *Command) {
 	c.StdoutWriter = io.MultiWriter(os.Stdout, &c.stdout, &c.combined)
-	c.StderrWriter = io.MultiWriter(os.Stderr, &c.stdout, &c.combined)
+	c.StderrWriter = io.MultiWriter(os.Stderr, &c.stderr, &c.combined)
 }
 
 // WithCustomStdout allows to add custom writers to stdout
@@ -101,8 +132,8 @@ func WithCustomStderr(writers ...io.Writer) func(c *Command) {
 // WithTimeout sets the timeout of the command
 //
 // Example:
-//     cmd.NewCommand("sleep 10;", cmd.WithTimeout(500))
 //
+//	cmd.NewCommand("sleep 10;", cmd.WithTimeout(500))
 func WithTimeout(t time.Duration) func(c *Command) {
 	return func(c *Command) {
 		c.Timeout = t
@@ -144,7 +175,7 @@ func WithEnvironmentVariables(env EnvVars) func(c *Command) {
 
 // AddEnv adds an environment variable to the command
 // If a variable gets passed like ${VAR_NAME} the env variable will be read out by the current shell
-func (c *Command) AddEnv(key string, value string) {
+func (c *Command) AddEnv(key, value string) {
 	value = os.ExpandEnv(value)
 	c.Env = append(c.Env, fmt.Sprintf("%s=%s", key, value))
 }
@@ -167,13 +198,13 @@ func (c *Command) Combined() string {
 	return c.combined.String()
 }
 
-//ExitCode returns the exit code of the command
+// ExitCode returns the exit code of the command
 func (c *Command) ExitCode() int {
 	c.isExecuted("ExitCode")
 	return c.exitCode
 }
 
-//Executed returns if the command was already executed
+// Executed returns if the command was already executed
 func (c *Command) Executed() bool {
 	return c.executed
 }
@@ -184,20 +215,22 @@ func (c *Command) isExecuted(property string) {
 	}
 }
 
-// Execute executes the command and writes the results into it's own instance
-// The results can be received with the Stdout(), Stderr() and ExitCode() methods
-func (c *Command) Execute() error {
-	cmd := createBaseCommand(c)
+// ExecuteContext runs Execute but with Context
+func (c *Command) ExecuteContext(ctx context.Context) error {
+	cmd := c.baseCommand
 	cmd.Env = c.Env
 	cmd.Dir = c.Dir
 	cmd.Stdout = c.StdoutWriter
 	cmd.Stderr = c.StderrWriter
 	cmd.Dir = c.WorkingDir
 
-	// Create timer only if timeout was set > 0
-	var timeoutChan = make(<-chan time.Time, 1)
-	if c.Timeout != 0 {
-		timeoutChan = time.After(c.Timeout)
+	// Respect legacy timer setting only if timeout was set > 0
+	// and context does not have a deadline
+	_, hasDeadline := ctx.Deadline()
+	if c.Timeout > 0 && !hasDeadline {
+		subCtx, cancel := context.WithTimeout(ctx, c.Timeout)
+		defer cancel()
+		ctx = subCtx
 	}
 
 	err := cmd.Start()
@@ -206,36 +239,31 @@ func (c *Command) Execute() error {
 	}
 
 	done := make(chan error, 1)
-	quit := make(chan bool, 1)
-	defer close(quit)
-
-	go func() {
-		select {
-		case <-quit:
-			return
-		case done <- cmd.Wait():
-			return
-		}
-	}()
+	go func() { done <- cmd.Wait() }()
 
 	select {
-	case err := <-done:
-		if err != nil {
-			c.getExitCode(err)
-			break
-		}
-		c.exitCode = 0
-	case <-timeoutChan:
-		quit <- true
+	case <-ctx.Done():
 		if err := cmd.Process.Kill(); err != nil {
 			return fmt.Errorf("Timeout occurred and can not kill process with pid %v", cmd.Process.Pid)
 		}
-		return fmt.Errorf("Command timed out after %v", c.Timeout)
+
+		err := ctx.Err()
+		if c.Timeout > 0 && !hasDeadline {
+			err = fmt.Errorf("Command timed out after %v", c.Timeout)
+		}
+		return err
+	case err := <-done:
+		c.getExitCode(err)
 	}
 
 	c.executed = true
-
 	return nil
+}
+
+// Execute executes the command and writes the results into it's own instance
+// The results can be received with the Stdout(), Stderr() and ExitCode() methods
+func (c *Command) Execute() error {
+	return c.ExecuteContext(context.Background())
 }
 
 func (c *Command) getExitCode(err error) {
