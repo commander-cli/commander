@@ -95,7 +95,9 @@ func testDir(directory string, filters runtime.Filters) (runtime.Result, error) 
 		if f.IsDir() {
 			continue // skip dirs
 		}
-
+		if strings.HasPrefix(f.Name(), ".") {
+			continue // skip hidden files
+		}
 		p := path.Join(directory, f.Name())
 		newResult, err := testFile(p, f.Name(), filters)
 		if err != nil {
