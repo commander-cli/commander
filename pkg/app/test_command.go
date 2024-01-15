@@ -175,9 +175,7 @@ func execute(s suite.Suite, filters runtime.Filters) (runtime.Result, error) {
 	return result, nil
 }
 
-func getSuite(filePath string, fileName string) (suite.Suite, error) {
-	s := suite.Suite{}
-
+func getSuite(filePath string, fileName string) (s suite.Suite, err error) {
 	content, err := readFile(filePath)
 	if err != nil {
 		return suite.Suite{}, err
@@ -190,9 +188,14 @@ func getSuite(filePath string, fileName string) (suite.Suite, error) {
 			return suite.Suite{}, err
 		}
 	}
-
+	defer func() {
+		if r := recover(); r != nil {
+			s = suite.Suite{}
+			err = fmt.Errorf("Error: %v", r)
+		}
+	}()
 	s = suite.NewSuite(content, overwriteContent, fileName)
-	return s, nil
+	return
 }
 
 func readFile(filePath string) ([]byte, error) {
