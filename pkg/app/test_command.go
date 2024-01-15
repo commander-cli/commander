@@ -3,7 +3,7 @@ package app
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -86,7 +86,7 @@ func testFile(filePath string, fileName string, filters runtime.Filters) (runtim
 
 func testDir(directory string, filters runtime.Filters) (runtime.Result, error) {
 	result := runtime.Result{}
-	files, err := ioutil.ReadDir(directory)
+	files, err := os.ReadDir(directory)
 	if err != nil {
 		return result, fmt.Errorf("Error: Input is not a directory")
 	}
@@ -115,7 +115,7 @@ func testURL(url string, filters runtime.Filters) (runtime.Result, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return runtime.Result{}, err
 	}
@@ -148,7 +148,7 @@ func testStdin(filters runtime.Filters) (runtime.Result, error) {
 	}
 
 	r := bufio.NewReader(os.Stdin)
-	content, err := ioutil.ReadAll(r)
+	content, err := io.ReadAll(r)
 	s := suite.ParseYAML(content, "")
 
 	return execute(s, filters)
@@ -208,7 +208,7 @@ func readFile(filePath string) ([]byte, error) {
 		return nil, fmt.Errorf("%s: is a directory\nUse --dir to test directories with multiple test files", filePath)
 	}
 
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
