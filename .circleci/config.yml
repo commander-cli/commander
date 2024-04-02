@@ -48,7 +48,7 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
-      - run: choco install make
+      - run: choco install -y make
       - run: make test
 
   integration:
@@ -72,8 +72,8 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
-      - run: choco install make
-      - run: choco install curl
+      - run: choco install -y make
+      - run: choco install -y curl
       - run: Invoke-WebRequest -Uri "https://github.com/commander-cli/commander/releases/download/v2.4.0/commander-darwin-amd64" -OutFile "C:\Windows\system32\commander.exe"
       - run: make integration-windows
 
